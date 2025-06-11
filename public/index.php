@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 // DÉBOGAGE : Afficher toutes les erreurs
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -7,14 +6,11 @@ ini_set('display_startup_errors', 1);
 
 echo "<!-- Début du script -->";
 
-=======
->>>>>>> 9e93d6e9e8a35db0cc28f6c8284073a0ac016d87
 // Démarrer la session au tout début
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-<<<<<<< HEAD
 echo "<!-- Session démarrée -->";
 
 // Définir le chemin racine
@@ -106,63 +102,10 @@ try {
                 die("Erreur: DashboardController.php non trouvé");
             }
             break;
-=======
-// Définir le chemin racine
-define('ROOT_PATH', dirname(__DIR__));
-
-// Récupérer l'URI de la requête (sans les paramètres GET)
-$request_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
-
-// Système de routage
-try {
-    switch ($request_uri) {
-        case '/':
-            require_once ROOT_PATH . '/app/controllers/HomeController.php';
-            $controller = new HomeController();
-            $controller->index();
-            break;
-            
-        case '/login':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->showLoginForm();
-            break;
-            
-        case '/login/process':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->login();
-            break;
-            
-        case '/logout':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->logout();
-            break;
-            
-        case '/signup':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->showRegistrationForm();
-            break;
-            
-        case '/signup/process':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->register();
-            break;
-            
-        // case '/dashboard':
-        //     require_once ROOT_PATH . '/app/controllers/DashboardController.php';
-        //     $controller = new DashboardController();
-        //     $controller->index();
-        //     break;
->>>>>>> 9e93d6e9e8a35db0cc28f6c8284073a0ac016d87
             
         default:
             http_response_code(404);
             echo "<h1>Page non trouvée (404)</h1>";
-<<<<<<< HEAD
             echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
             echo "<a href='/'>Retour à l'accueil</a>";
             break;
@@ -184,17 +127,3 @@ try {
 }
 
 echo "<!-- Fin du script -->";
-=======
-            echo "<p>La page demandée n'existe pas.</p>";
-            echo "<a href='/'>Retour à l'accueil</a>";
-            break;
-    }
-} catch (Exception $e) {
-    // Gestion des erreurs générales
-    error_log("Erreur dans index.php : " . $e->getMessage());
-    http_response_code(500);
-    echo "<h1>Erreur interne du serveur</h1>";
-    echo "<p>Une erreur est survenue. Veuillez réessayer plus tard.</p>";
-    echo "<a href='/'>Retour à l'accueil</a>";
-}
->>>>>>> 9e93d6e9e8a35db0cc28f6c8284073a0ac016d87
