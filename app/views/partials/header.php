@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+<<<<<<< HEAD
     <!-- Titre de la page dynamique -->
     <title><?= isset($page_title) ? htmlspecialchars($page_title) : 'Parking Intelligent - ISEP' ?></title>
+=======
+    <!-- Titre de la page, on pourra le rendre dynamique plus tard -->
+    <title>Parking Intelligent - ISEP</title>
+>>>>>>> 9e93d6e9e8a35db0cc28f6c8284073a0ac016d87
     
     <!-- Meta description pour l'éco-conception et le SEO -->
     <meta name="description" content="Gestion en temps réel des places de parking du projet commun ISEP.">
     
     <!-- Lien vers notre feuille de style CSS -->
+<<<<<<< HEAD
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -26,3 +32,14 @@
     </header>
     
     <main>
+=======
+    <!-- Note pour l'éco-conception : un seul fichier CSS pour limiter les requêtes HTTP -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <?php require_once 'navbar.php'; ?>
+    </header>
+    
+    <main></main>
+>>>>>>> 9e93d6e9e8a35db0cc28f6c8284073a0ac016d87
