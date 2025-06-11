@@ -2,140 +2,256 @@
 require_once ROOT_PATH . '/app/models/User.php';
 
 class AuthController {
-
+    
     /**
-     * Affiche la page de connexion
+     * Afficher le formulaire de connexion
      */
     public function showLoginForm() {
-        // Si l'utilisateur est déjà connecté, on le redirige
+        // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
             header('Location: /dashboard');
             exit;
         }
         
         $page_title = "Connexion - Parking Intelligent";
+        $error = $_SESSION['login_error'] ?? '';
+        unset($_SESSION['login_error']);
+        
         require_once ROOT_PATH . '/app/views/login.php';
     }
 
     /**
-     * Traite la soumission du formulaire de connexion
+     * Traiter la connexion
      */
     public function login() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /login');
+            exit;
+        }
 
-            // Validation simple
-            if (empty($email) || empty($password)) {
-                $error = "Veuillez remplir tous les champs.";
-                $page_title = "Connexion - Parking Intelligent";
-                require_once ROOT_PATH . '/app/views/login.php';
-                return;
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $remember = isset($_POST['remember']);
+
+        // Validation des données
+        $errors = [];
+        
+        if (empty($email)) {
+            $errors[] = "L'email est requis.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Format d'email invalide.";
+        }
+        
+        if (empty($password)) {
+            $errors[] = "Le mot de passe est requis.";
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['login_error'] = implode('<br>', $errors);
+            header('Location: /login');
+            exit;
+        }
+
+        // Tentative d'authentification
+        $userModel = new User();
+        $user = $userModel->authenticate($email, $password);
+
+        if ($user) {
+            // Connexion réussie
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_nom'] = $user['nom'];
+            $_SESSION['user_prenom'] = $user['prenom'];
+            $_SESSION['login_time'] = time();
+
+            // Gestion du "Se souvenir de moi"
+            if ($remember) {
+                $token = bin2hex(random_bytes(32));
+                setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true); // 30 jours
+                // Ici vous pourriez stocker le token en base pour plus de sécurité
             }
 
-            $userModel = new User();
-            $user = $userModel->findByEmail($email);
-
-            if ($user && password_verify($password, $user['password_hash'])) {
-                // Connexion réussie !
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_email'] = $user['email'];
-
-                // Rediriger vers le tableau de bord
-                header('Location: /dashboard');
-                exit;
-            } else {
-                $error = "Email ou mot de passe incorrect.";
-                $page_title = "Connexion - Parking Intelligent";
-                require_once ROOT_PATH . '/app/views/login.php';
-            }
+            // Redirection vers le dashboard
+            header('Location: /dashboard');
+            exit;
         } else {
+            // Échec de la connexion
+            $_SESSION['login_error'] = "Email ou mot de passe incorrect.";
             header('Location: /login');
             exit;
         }
     }
 
     /**
-     * Déconnecte l'utilisateur
-     */
-    public function logout() {
-        session_unset();
-        session_destroy();
-        header('Location: /login?message=disconnected');
-        exit;
-    }
-
-    /**
-     * Affiche la page d'inscription
+     * Afficher le formulaire d'inscription
      */
     public function showRegistrationForm() {
-        // Si l'utilisateur est déjà connecté, on le redirige
+        // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
             header('Location: /dashboard');
             exit;
         }
         
         $page_title = "Inscription - Parking Intelligent";
+        $error = $_SESSION['register_error'] ?? '';
+        $success = $_SESSION['register_success'] ?? '';
+        unset($_SESSION['register_error'], $_SESSION['register_success']);
+        
         require_once ROOT_PATH . '/app/views/signup.php';
     }
 
     /**
-     * Traite la soumission du formulaire d'inscription
+     * Traiter l'inscription
      */
     public function register() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $confirm_password = $_POST['confirm_password'] ?? '';
-
-            $page_title = "Inscription - Parking Intelligent";
-
-            // Validation des entrées
-            if (empty($email) || empty($password) || empty($confirm_password)) {
-                $error = "Veuillez remplir tous les champs.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-                return;
-            }
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $error = "L'adresse email n'est pas valide.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-                return;
-            }
-
-            if (strlen($password) < 8) {
-                $error = "Le mot de passe doit contenir au moins 8 caractères.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-                return;
-            }
-
-            if ($password !== $confirm_password) {
-                $error = "Les mots de passe ne correspondent pas.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-                return;
-            }
-
-            $userModel = new User();
-
-            // Vérifier si l'email existe déjà
-            if ($userModel->findByEmail($email)) {
-                $error = "Cette adresse email est déjà utilisée.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-                return;
-            }
-
-            // Créer l'utilisateur
-            if ($userModel->create($email, $password)) {
-                // Rediriger vers la page de connexion avec un message de succès
-                header('Location: /login?message=registered');
-                exit;
-            } else {
-                $error = "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
-                require_once ROOT_PATH . '/app/views/signup.php';
-            }
-        } else {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: /signup');
             exit;
         }
+
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+        $nom = trim($_POST['nom'] ?? '');
+        $prenom = trim($_POST['prenom'] ?? '');
+
+        // Validation des données
+        $errors = [];
+        
+        if (empty($email)) {
+            $errors[] = "L'email est requis.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Format d'email invalide.";
+        }
+        
+        if (empty($password)) {
+            $errors[] = "Le mot de passe est requis.";
+        } elseif (strlen($password) < 6) {
+            $errors[] = "Le mot de passe doit contenir au moins 6 caractères.";
+        }
+        
+        if ($password !== $confirm_password) {
+            $errors[] = "Les mots de passe ne correspondent pas.";
+        }
+        
+        if (empty($nom)) {
+            $errors[] = "Le nom est requis.";
+        }
+        
+        if (empty($prenom)) {
+            $errors[] = "Le prénom est requis.";
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['register_error'] = implode('<br>', $errors);
+            header('Location: /signup');
+            exit;
+        }
+
+        // Tentative de création du compte
+        $userModel = new User();
+        
+        if ($userModel->create($email, $password, $nom, $prenom)) {
+            $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
+            header('Location: /login');
+            exit;
+        } else {
+            $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
+            header('Location: /signup');
+            exit;
+        }
+    }
+
+    /**
+     * Déconnexion
+     */
+    public function logout() {
+        // Supprimer le cookie "Se souvenir de moi"
+        if (isset($_COOKIE['remember_token'])) {
+            setcookie('remember_token', '', time() - 3600, '/', '', false, true);
+        }
+
+        // Détruire la session
+        session_destroy();
+        
+        // Rediriger vers la page d'accueil
+        header('Location: /');
+        exit;
+    }
+
+    /**
+     * Vérifier si l'utilisateur est connecté (middleware)
+     */
+    public static function requireAuth() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+    }
+
+    /**
+     * Afficher le profil utilisateur
+     */
+    public function profile() {
+        self::requireAuth();
+        
+        $page_title = "Mon Profil - Parking Intelligent";
+        $userModel = new User();
+        $user = $userModel->findById($_SESSION['user_id']);
+        
+        if (!$user) {
+            header('Location: /logout');
+            exit;
+        }
+        
+        $success = $_SESSION['profile_success'] ?? '';
+        $error = $_SESSION['profile_error'] ?? '';
+        unset($_SESSION['profile_success'], $_SESSION['profile_error']);
+        
+        require_once ROOT_PATH . '/app/views/profile.php';
+    }
+
+    /**
+     * Mettre à jour le profil
+     */
+    public function updateProfile() {
+        self::requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /profile');
+            exit;
+        }
+
+        $nom = trim($_POST['nom'] ?? '');
+        $prenom = trim($_POST['prenom'] ?? '');
+
+        $errors = [];
+        
+        if (empty($nom)) {
+            $errors[] = "Le nom est requis.";
+        }
+        
+        if (empty($prenom)) {
+            $errors[] = "Le prénom est requis.";
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['profile_error'] = implode('<br>', $errors);
+            header('Location: /profile');
+            exit;
+        }
+
+        $userModel = new User();
+        
+        if ($userModel->updateProfile($_SESSION['user_id'], $nom, $prenom)) {
+            $_SESSION['user_nom'] = $nom;
+            $_SESSION['user_prenom'] = $prenom;
+            $_SESSION['profile_success'] = "Profil mis à jour avec succès !";
+        } else {
+            $_SESSION['profile_error'] = "Erreur lors de la mise à jour du profil.";
+        }
+        
+        header('Location: /profile');
+        exit;
     }
 }

@@ -9,45 +9,152 @@ class User {
     }
 
     /**
-     * Trouve un utilisateur par son adresse email.
-     * @param string $email L'email de l'utilisateur.
-     * @return array|false Les données de l'utilisateur ou false si non trouvé.
+     * Créer un nouvel utilisateur
      */
-    public function findByEmail($email) {
+    public function create($email, $password, $nom = '', $prenom = '') {
         try {
-            $stmt = $this->db->prepare("SELECT id, email, password_hash FROM Utilisateurs WHERE email = :email LIMIT 1");
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->execute();
-            return $stmt->fetch();
+            // Vérifier si l'email existe déjà
+            if ($this->findByEmail($email)) {
+                return false; // Email déjà utilisé
+            }
+
+            // Hacher le mot de passe
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // Insérer le nouvel utilisateur
+            $stmt = $this->db->prepare("
+                INSERT INTO users (email, password_hash, nom, prenom, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ");
+            
+            return $stmt->execute([$email, $password_hash, $nom, $prenom]);
         } catch (PDOException $e) {
-            error_log("Erreur dans findByEmail : " . $e->getMessage());
+            error_log("Erreur dans User::create : " . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Crée un nouvel utilisateur.
-     * @param string $email L'email de l'utilisateur.
-     * @param string $password Le mot de passe en clair (sera hashé).
-     * @return bool True si la création réussit, false sinon.
+     * Trouver un utilisateur par email
      */
-    public function create($email, $password) {
-        // Sécurité : Toujours hasher les mots de passe avant de les stocker !
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
+    public function findByEmail($email) {
         try {
-            $stmt = $this->db->prepare("INSERT INTO Utilisateurs (email, password_hash) VALUES (:email, :password_hash)");
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->bindParam(':password_hash', $password_hash, PDO::PARAM_STR);
-            return $stmt->execute();
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            return $stmt->fetch();
         } catch (PDOException $e) {
-            // Gérer l'erreur (ex: logguer, vérifier si l'email existe déjà)
-            // Code d'erreur 23000 est souvent pour les violations de contrainte unique (email déjà existant)
-            if ($e->getCode() == '23000') {
-                error_log("Tentative d'inscription avec un email existant : " . $email);
-            } else {
-                error_log("Erreur dans create User : " . $e->getMessage());
+            error_log("Erreur dans User::findByEmail : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Trouver un utilisateur par ID
+     */
+    public function findById($id) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::findById : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Vérifier les identifiants de connexion
+     */
+    public function authenticate($email, $password) {
+        try {
+            $user = $this->findByEmail($email);
+            
+            if ($user && password_verify($password, $user['password_hash'])) {
+                // Mettre à jour la date de dernière connexion
+                $this->updateLastLogin($user['id']);
+                return $user;
             }
+            
+            return false;
+        } catch (Exception $e) {
+            error_log("Erreur dans User::authenticate : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Mettre à jour la date de dernière connexion
+     */
+    private function updateLastLogin($userId) {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::updateLastLogin : " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mettre à jour le profil utilisateur
+     */
+    public function updateProfile($userId, $nom, $prenom) {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE users 
+                SET nom = ?, prenom = ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            ");
+            return $stmt->execute([$nom, $prenom, $userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::updateProfile : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Changer le mot de passe
+     */
+    public function changePassword($userId, $newPassword) {
+        try {
+            $password_hash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("
+                UPDATE users 
+                SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            ");
+            return $stmt->execute([$password_hash, $userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::changePassword : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtenir tous les utilisateurs (pour l'admin)
+     */
+    public function getAllUsers() {
+        try {
+            $stmt = $this->db->query("
+                SELECT id, email, nom, prenom, created_at, updated_at 
+                FROM users 
+                ORDER BY created_at DESC
+            ");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::getAllUsers : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Supprimer un utilisateur
+     */
+    public function delete($userId) {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
+            return $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::delete : " . $e->getMessage());
             return false;
         }
     }
