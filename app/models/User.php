@@ -16,12 +16,10 @@ class User {
     public function findByEmail($email) {
         try {
             $stmt = $this->db->prepare("SELECT id, email, password_hash FROM Utilisateurs WHERE email = :email LIMIT 1");
-            // Note: Assurez-vous que votre table s'appelle bien 'Utilisateurs' et la colonne de mot de passe 'password_hash'
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             $stmt->execute();
             return $stmt->fetch();
         } catch (PDOException $e) {
-            // Gérer l'erreur (ex: logguer)
             error_log("Erreur dans findByEmail : " . $e->getMessage());
             return false;
         }
@@ -30,7 +28,7 @@ class User {
     /**
      * Crée un nouvel utilisateur.
      * @param string $email L'email de l'utilisateur.
-     * @param string $passwordLe mot de passe en clair (sera hashé).
+     * @param string $password Le mot de passe en clair (sera hashé).
      * @return bool True si la création réussit, false sinon.
      */
     public function create($email, $password) {
@@ -39,15 +37,18 @@ class User {
 
         try {
             $stmt = $this->db->prepare("INSERT INTO Utilisateurs (email, password_hash) VALUES (:email, :password_hash)");
-            // Assurez-vous que votre table 'Utilisateurs' a bien les colonnes 'email' et 'password_hash'
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             $stmt->bindParam(':password_hash', $password_hash, PDO::PARAM_STR);
             return $stmt->execute();
         } catch (PDOException $e) {
             // Gérer l'erreur (ex: logguer, vérifier si l'email existe déjà)
-            error_log("Erreur dans create User : " . $e->getMessage());
+            // Code d'erreur 23000 est souvent pour les violations de contrainte unique (email déjà existant)
+            if ($e->getCode() == '23000') {
+                error_log("Tentative d'inscription avec un email existant : " . $email);
+            } else {
+                error_log("Erreur dans create User : " . $e->getMessage());
+            }
             return false;
         }
     }
-    // D'autres méthodes pour la gestion des utilisateurs (update, delete, etc.) pourront être ajoutées ici.
 }

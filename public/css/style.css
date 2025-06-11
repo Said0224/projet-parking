@@ -1,9 +1,20 @@
-/* Réinitialisation simple et polices système pour la performance (éco-conception) */
+/* Variables CSS pour la cohérence et l'éco-conception */
 :root {
-    --primary-color: #005a9e; /* Bleu accessible */
+    --primary-color: #005a9e;
     --secondary-color: #e3e3e3;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
     --text-color: #333;
     --bg-color: #fff;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Reset et base */
+* {
+    box-sizing: border-box;
 }
 
 body {
@@ -14,6 +25,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    line-height: 1.6;
 }
 
 main {
@@ -21,13 +33,12 @@ main {
 }
 
 .container {
-    max-width: 960px;
+    max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
-    text-align: center;
 }
 
-/* Barre de navigation */
+/* Navigation */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -35,6 +46,7 @@ main {
     padding: 1rem 2rem;
     background-color: #f8f9fa;
     border-bottom: 1px solid var(--secondary-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .nav-brand {
@@ -50,25 +62,43 @@ main {
     padding: 0;
     display: flex;
     gap: 1.5rem;
+    align-items: center;
 }
 
 .nav-links a {
     text-decoration: none;
     color: var(--text-color);
     font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.user-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: normal;
 }
 
 /* Boutons */
 .btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     text-decoration: none;
     border: 1px solid var(--primary-color);
     background-color: var(--bg-color);
     color: var(--primary-color);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: all 0.2s;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .btn-primary {
@@ -79,6 +109,7 @@ main {
 .btn:hover {
     background-color: #004a83;
     color: #fff;
+    transform: translateY(-1px);
 }
 
 .cta-buttons {
@@ -86,6 +117,201 @@ main {
     display: flex;
     justify-content: center;
     gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Formulaires d'authentification */
+.auth-container {
+    max-width: 400px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.auth-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.auth-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.auth-form input[type="email"],
+.auth-form input[type="password"],
+.auth-form input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.auth-form input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 90, 158, 0.2);
+}
+
+.auth-form button[type="submit"] {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Messages */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+.info-message {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+/* Dashboard */
+.dashboard-container {
+    max-width: 1200px;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    border-left: 4px solid var(--primary-color);
+}
+
+.stat-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-number.free {
+    color: var(--success-color);
+}
+
+.stat-number.occupied {
+    color: var(--danger-color);
+}
+
+.stat-number.total {
+    color: var(--primary-color);
+}
+
+/* Grille des places de parking */
+.parking-grid {
+    margin-top: 3rem;
+}
+
+.parking-grid h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.spaces-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.parking-space {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-left: 4px solid;
+    transition: transform 0.2s;
+}
+
+.parking-space:hover {
+    transform: translateY(-2px);
+}
+
+.parking-space.libre {
+    border-left-color: var(--success-color);
+}
+
+.parking-space.occupee {
+    border-left-color: var(--danger-color);
+}
+
+.space-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.space-status {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sensor-id {
+    font-size: 0.8rem;
+    color: #6c757d;
 }
 
 /* Pied de page */
@@ -96,4 +322,44 @@ footer {
     border-top: 1px solid var(--secondary-color);
     font-size: 0.9rem;
     color: #6c757d;
+    margin-top: 3rem;
+}
+
+/* Accessibilité */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .spaces-grid {
+        grid-template-columns: 1fr;
+    }
 }
