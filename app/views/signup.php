@@ -1,14 +1,14 @@
 <?php require_once ROOT_PATH . '/app/views/partials/header.php'; ?>
 
 <div class="auth-container">
-    <div class="auth-card">
+    <div class="auth-card animate-fade-in">
         <div class="auth-header">
             <h1><i class="fas fa-user-plus"></i> Inscription</h1>
             <p>Créez votre compte pour accéder au parking intelligent</p>
         </div>
 
         <?php if (!empty($error)): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle"></i>
                 <?= $error ?>
             </div>
@@ -32,6 +32,7 @@
                         type="text" 
                         id="prenom" 
                         name="prenom" 
+                        class="form-control"
                         required 
                         placeholder="Votre prénom"
                         value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>"
@@ -47,6 +48,7 @@
                         type="text" 
                         id="nom" 
                         name="nom" 
+                        class="form-control"
                         required 
                         placeholder="Votre nom"
                         value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>"
@@ -63,6 +65,7 @@
                     type="email" 
                     id="email" 
                     name="email" 
+                    class="form-control"
                     required 
                     placeholder="votre.email@isep.fr"
                     value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
@@ -78,6 +81,7 @@
                     type="password" 
                     id="password" 
                     name="password" 
+                    class="form-control"
                     required 
                     placeholder="Au moins 6 caractères"
                     minlength="6"
@@ -94,6 +98,7 @@
                     type="password" 
                     id="confirm_password" 
                     name="confirm_password" 
+                    class="form-control"
                     required 
                     placeholder="Répétez votre mot de passe"
                 >
@@ -114,194 +119,155 @@
 
 <style>
 .auth-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 150px);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
+    padding: 2rem 1rem;
 }
 
 .auth-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
     width: 100%;
     max-width: 500px;
-    animation: slideUp 0.6s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    color: white;
 }
 
 .auth-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
 }
 
 .auth-header h1 {
-    color: #333;
+    color: white;
     font-size: 2rem;
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 0.75rem;
 }
 
 .auth-header p {
-    color: #666;
-    font-size: 1rem;
-}
-
-.alert {
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.alert-error {
-    background-color: rgba(220, 53, 69, 0.1);
-    border-left: 4px solid #dc3545;
-    color: #721c24;
-}
-
-.alert-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    border-left: 4px solid #28a745;
-    color: #155724;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .auth-form {
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 1rem;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: white;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
-.form-group input {
+.form-control {
     width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
+    color: white;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    background: #f8f9fa;
+    transition: var(--transition);
 }
 
-.form-group input:focus {
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-control:focus {
     outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .password-strength, .password-match {
-    margin-top: 5px;
+    margin-top: 0.5rem;
     font-size: 0.85rem;
     height: 20px;
 }
 
 .password-strength.weak {
-    color: #dc3545;
+    color: #f56565;
 }
 
 .password-strength.medium {
-    color: #ffc107;
+    color: #ecc94b;
 }
 
 .password-strength.strong {
-    color: #28a745;
+    color: #48bb78;
 }
 
 .password-match.match {
-    color: #28a745;
+    color: #48bb78;
 }
 
 .password-match.no-match {
-    color: #dc3545;
-}
-
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    color: #f56565;
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    border: none;
     color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-primary:hover {
+    background: linear-gradient(45deg, var(--primary-dark), var(--secondary-dark));
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-}
-
-.btn-full {
-    width: 100%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .auth-footer {
     text-align: center;
-    border-top: 1px solid #e1e5e9;
-    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
 }
 
 .auth-footer p {
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .auth-footer a {
-    color: #667eea;
-    text-decoration: none;
+    color: white;
     font-weight: 600;
-}
-
-.auth-footer a:hover {
     text-decoration: underline;
 }
 
 @media (max-width: 480px) {
     .auth-card {
-        padding: 30px 20px;
+        padding: 1.5rem;
     }
     
     .form-row {
@@ -322,6 +288,7 @@ document.getElementById('password').addEventListener('input', function() {
     
     if (password.length === 0) {
         strengthDiv.textContent = '';
+        strengthDiv.className = 'password-strength';
         return;
     }
     
@@ -359,6 +326,7 @@ document.getElementById('confirm_password').addEventListener('input', function()
     
     if (confirmPassword.length === 0) {
         matchDiv.textContent = '';
+        matchDiv.className = 'password-match';
         return;
     }
     
