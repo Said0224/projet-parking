@@ -26,7 +26,7 @@
                 <div class="form-group">
                     <label for="prenom">
                         <i class="fas fa-user"></i>
-                        Prénom
+                        Prénom *
                     </label>
                     <input 
                         type="text" 
@@ -42,7 +42,7 @@
                 <div class="form-group">
                     <label for="nom">
                         <i class="fas fa-user"></i>
-                        Nom
+                        Nom *
                     </label>
                     <input 
                         type="text" 
@@ -59,7 +59,7 @@
             <div class="form-group">
                 <label for="email">
                     <i class="fas fa-envelope"></i>
-                    Adresse email
+                    Adresse email *
                 </label>
                 <input 
                     type="email" 
@@ -75,7 +75,7 @@
             <div class="form-group">
                 <label for="password">
                     <i class="fas fa-lock"></i>
-                    Mot de passe
+                    Mot de passe *
                 </label>
                 <input 
                     type="password" 
@@ -92,7 +92,7 @@
             <div class="form-group">
                 <label for="confirm_password">
                     <i class="fas fa-lock"></i>
-                    Confirmer le mot de passe
+                    Confirmer le mot de passe *
                 </label>
                 <input 
                     type="password" 
@@ -183,22 +183,22 @@
 .form-control {
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(176, 187, 248, 0.2);
     border-radius: var(--border-radius);
-    color: white;
+    color: black;
     font-size: 1rem;
     transition: var(--transition);
 }
 
 .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(134, 129, 129, 0.5);
 }
 
 .form-control:focus {
     outline: none;
     border-color: white;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
 }
 
 .password-strength, .password-match {

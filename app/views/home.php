@@ -150,7 +150,7 @@
 
 .feature-icon {
     font-size: 3rem;
-    color: var(--primary);
+    color: white;
     margin-bottom: 1.5rem;
 }
 
