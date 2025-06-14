@@ -64,6 +64,24 @@ class AuthController {
             $_SESSION['user_prenom'] = $user['prenom'];
             $_SESSION['login_time'] = time();
 
+            $_SESSION['is_admin'] = $user['is_admin'] ?? false;
+
+        // Redirection selon le statut
+        if ($user['is_admin']) {
+            header('Location: /admin');
+        } else {
+            header('Location: /user/dashboard');
+        }
+
+            $_SESSION['is_admin'] = $user['is_admin'] ?? false; // Ajouter cette ligne
+
+            // Modifier la redirection pour tenir compte du statut admin
+            if ($user['is_admin']) {
+                header('Location: /admin');
+            } else {
+                header('Location: /user/dashboard');
+            }
+
             // Gestion du "Se souvenir de moi"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
@@ -72,8 +90,31 @@ class AuthController {
             }
 
             // Redirection vers le dashboard
-            header('Location: /dashboard');
-            exit;
+            
+
+            // Dans la méthode login(), après avoir défini les variables de session
+
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_nom'] = $user['nom'];
+        $_SESSION['user_prenom'] = $user['prenom'];
+        $_SESSION['login_time'] = time();
+        $_SESSION['is_admin'] = $user['is_admin'] ?? false; // AJOUTER CETTE LIGNE
+
+        // Gestion du "Se souvenir de moi"
+        if ($remember) {
+            $token = bin2hex(random_bytes(32));
+            setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
+        }
+
+        // NOUVELLE REDIRECTION SELON LE STATUT
+        if ($user['is_admin']) {
+            header('Location: /admin');
+        } else {
+            header('Location: /user/dashboard');
+        }
+        exit;
+        
         } else {
             // Échec de la connexion
             $_SESSION['login_error'] = "Email ou mot de passe incorrect.";

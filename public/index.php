@@ -72,6 +72,74 @@ try {
             $controller = new IoTDashboardController();
             $controller->index();
             break;
+
+        // ===== ROUTES ADMIN =====
+        case '/admin':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->index();
+            break;
+
+        case '/admin/users':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->manageUsers();
+            break;
+
+        case '/admin/parking':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->manageParking();
+            break;
+
+        case '/admin/update-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->updateUserStatus();
+            break;
+
+        case '/admin/delete-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->deleteUser();
+            break;
+
+        case '/admin/create-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->createUser();
+            break;
+
+        case '/admin/update-spot':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->updateParkingSpot();
+            break;
+
+        // ===== ROUTES UTILISATEUR =====
+        case '/user/dashboard':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->dashboard();
+            break;
+
+        case '/user/parking':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->parking();
+            break;
+
+        case '/user/reserve':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->reserve();
+            break;
+
+        case '/user/cancel-reservation':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->cancelReservation();
+            break;
             
         default:
             http_response_code(404);
@@ -88,3 +156,4 @@ try {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
 }
+?>
