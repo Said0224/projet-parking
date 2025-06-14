@@ -64,8 +64,7 @@
             <p>Pas encore de compte ? <a href="/signup">Créer un compte</a></p>
             <div class="demo-accounts">
                 <h4>Comptes de démonstration :</h4>
-                <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>
-                <p><strong>Admin :</strong> admin@isep.fr / admin123</p>
+                <p><strong>Admin :</strong> admin@isep.fr / admin2024</p>
             </div>
         </div>
     </div>
