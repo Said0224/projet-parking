@@ -121,7 +121,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: white;
+    color:blanchedalmond ;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -133,7 +133,7 @@
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--border-radius);
-    color: white;
+    color: black;
     font-size: 1rem;
     transition: var(--transition);
 }
@@ -196,7 +196,7 @@
 }
 
 .auth-footer p {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
     margin-bottom: 1rem;
 }
 
