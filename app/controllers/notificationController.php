@@ -1,65 +1,37 @@
 <?php
-require_once 'models/NotificationModel.php';
-// NotificationController.php
+$emailNotif = $notificationModel->getEmailNotificationPreference($_SESSION['user_id']);
 
-class NotificationController
-{
-    private $model;
+require_once ROOT_PATH . '/app/models/Notification.php';
+require_once ROOT_PATH . '/app/controllers/AuthController.php';
 
-    public function __construct($pdo)
-    {
-        $this->model = new NotificationModel($pdo);
+class NotificationController {
+    public function index() {
+        AuthController::requireAuth();
+
+        $page_title = "Mes Notifications - Parking Intelligent";
+        $notificationModel = new Notification();
+
+        $notifications = $notificationModel->getNotificationsForUser($_SESSION['user_id']);
+        $notificationModel->markAllAsRead($_SESSION['user_id']);
+        $emailNotif = $notificationModel->getEmailNotificationPreference($_SESSION['user_id']);
+
+        require_once ROOT_PATH . '/app/views/notifications.php';
     }
+}
+/**
+ * Reçoit la requête AJAX pour activer/désactiver les notifications par e‑mail.
+ */
+public function toggleEmailNotifications() {
+    AuthController::requireAuth();
 
-    public function index()
-    {
-        session_start();
-        $userId = $_SESSION['user_id'] ?? null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $enabled = isset($_POST['enabled']) && $_POST['enabled'] === 'true';
 
-        $notifications = $this->model->getAll();
-        $emailNotif = $this->model->getEmailNotifSetting($userId);
+        $notificationModel = new Notification();
+        $success = $notificationModel->updateEmailNotificationPreference($_SESSION['user_id'], $enabled);
 
-        include 'views/notification.view.php';
-    }
-
-    public function markAllAsRead()
-    {
-        session_start();
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Unauthorized']);
-            return;
-        }
-
-        $this->model->markAllAsRead();
-        echo json_encode(['success' => true]);
-    }
-
-    public function filterByType($type)
-    {
-        session_start();
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Unauthorized']);
-            return;
-        }
-
-        $notifications = $this->model->getByType($type);
-        echo json_encode($notifications);
-    }
-
-    public function toggleEmailNotif()
-    {
-        session_start();
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Unauthorized']);
-            return;
-        }
-
-        $enabled = $_POST['enabled'] === 'true' ? 1 : 0;
-        $this->model->updateEmailNotifSetting($_SESSION['user_id'], $enabled);
-
-        echo json_encode(['success' => true]);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success]);
+        exit;
     }
 }
