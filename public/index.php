@@ -140,32 +140,13 @@ try {
             $controller = new UserController();
             $controller->cancelReservation();
             break;
-        
-
             
-            // Routes IoT Dashboard
-        case '/iot-dashboard':
-            include ROOT_PATH . '/app/views/iot-dashboard.php';
-            break;
-            
-        case '/iot-dashboard/capteurs':
-            include ROOT_PATH . '/app/views/iot-capteurs.php';
-            break;
-            
-        case '/iot-dashboard/actionneurs':
-            include ROOT_PATH . '/app/views/iot-actionneurs.php';
-            break;
-                    
-
-
         default:
             http_response_code(404);
             echo "<h1>Page non trouvée (404)</h1>";
             echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
             echo "<a href='/'>Retour à l'accueil</a>";
             break;
-
-        
     }
 } catch (Error $e) {
     echo "<h1>Erreur PHP détectée :</h1>";
