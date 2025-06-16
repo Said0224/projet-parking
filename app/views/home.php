@@ -7,11 +7,11 @@
             <p class="hero-description">Ce site vous permet de visualiser en temps réel l'état d'occupation des places de notre parking.</p>
             
             <div class="hero-buttons">
-                <a href="/dashboard" class="btn btn-primary">
+                <a href="<?= BASE_URL ?>/dashboard" class="btn btn-primary">
                     <i class="fas fa-parking"></i>
                     Voir les places
                 </a>
-                <a href="/login" class="btn btn-secondary">
+                <a href="<?= BASE_URL ?>/login" class="btn btn-secondary">
                     <i class="fas fa-sign-in-alt"></i>
                     Se connecter
                 </a>

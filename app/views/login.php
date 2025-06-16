@@ -14,7 +14,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/login/process" class="auth-form">
+        <form method="POST" action="<?= BASE_URL ?>/login/process" class="auth-form">
             <div class="form-group">
                 <label for="email">
                     <i class="fas fa-envelope"></i>
@@ -61,7 +61,7 @@
         </form>
 
         <div class="auth-footer">
-            <p>Pas encore de compte ? <a href="/signup">Créer un compte</a></p>
+            <p>Pas encore de compte ? <a href="<?= BASE_URL ?>/signup">Créer un compte</a></p>
             <div class="demo-accounts">
                 <h4>Comptes de démonstration :</h4>
                 <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>

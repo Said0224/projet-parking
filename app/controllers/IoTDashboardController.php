@@ -7,7 +7,7 @@ class IoTDashboardController {
     public function index() {
         // Vérifier si l'utilisateur est connecté
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
@@ -84,7 +84,7 @@ class IoTDashboardController {
             
             // Redirection pour éviter la resoumission
             if (empty($errorMessage)) {
-                header("Location: /iot-dashboard?success=" . urlencode($successMessage));
+                header("Location: " . BASE_URL . "/iot-dashboard?success=" . urlencode($successMessage));
                 exit;
             }
         }
