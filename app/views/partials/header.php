@@ -37,6 +37,7 @@
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li><a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a></li>
                         <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>
+                        <li><a href="<?= BASE_URL ?>/notifications" class="nav-link"><i class="fas fa-bell"></i> Notifications</a></li>
                         <li><a href="<?= BASE_URL ?>/profile" class="nav-link">Profil</a></li>
                         <li><a href="<?= BASE_URL ?>/logout" class="nav-link">Déconnexion</a></li>
                     <?php else: ?>

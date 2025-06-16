@@ -86,6 +86,12 @@ try {
             $controller = new IoTDashboardController();
             $controller->index();
             break;
+
+        case '/notifications':
+            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
+            $controller = new NotificationController();
+            $controller->index();
+            break;
             
         default:
             http_response_code(404);
