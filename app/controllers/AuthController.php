@@ -9,7 +9,8 @@ class AuthController {
     public function showLoginForm() {
         // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
         
@@ -25,7 +26,8 @@ class AuthController {
      */
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
@@ -48,7 +50,8 @@ class AuthController {
 
         if (!empty($errors)) {
             $_SESSION['login_error'] = implode('<br>', $errors);
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
@@ -63,100 +66,30 @@ class AuthController {
             $_SESSION['user_nom'] = $user['nom'];
             $_SESSION['user_prenom'] = $user['prenom'];
             $_SESSION['login_time'] = time();
-        $_SESSION['is_admin'] = $user['is_admin'] ?? false;
-
-        // Redirection selon le statut
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            // Dans la méthode login(), après avoir défini les variables de session
-
-$_SESSION['user_id'] = $user['id'];
-$_SESSION['user_email'] = $user['email'];
-$_SESSION['user_nom'] = $user['nom'];
-$_SESSION['user_prenom'] = $user['prenom'];
-$_SESSION['login_time'] = time();
-$_SESSION['is_admin'] = $user['is_admin'] ?? false; // AJOUTER CETTE LIGNE
-
-// Gestion du "Se souvenir de moi"
-if ($remember) {
-    $token = bin2hex(random_bytes(32));
-    setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
-}
-
-// NOUVELLE REDIRECTION SELON LE STATUT
-if ($user['is_admin']) {
-    header('Location: /admin');
-} else {
-    header('Location: /user/dashboard');
-}
-exit;
-        }
-            // Dans votre méthode login(), après la ligne $_SESSION['login_time'] = time();
-        $_SESSION['is_admin'] = $user['is_admin'] ?? false; // Ajouter cette ligne
-
-        // Modifier la redirection pour tenir compte du statut admin
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            header('Location: /user/dashboard');
-        }
 
             $_SESSION['is_admin'] = $user['is_admin'] ?? false;
 
-        // Redirection selon le statut
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            header('Location: /user/dashboard');
-        }
-
-            $_SESSION['is_admin'] = $user['is_admin'] ?? false; // Ajouter cette ligne
-
-            // Modifier la redirection pour tenir compte du statut admin
-            if ($user['is_admin']) {
-                header('Location: /admin');
-            } else {
-                header('Location: /user/dashboard');
-            }
 
             // Gestion du "Se souvenir de moi"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
-                setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true); // 30 jours
-                // Ici vous pourriez stocker le token en base pour plus de sécurité
+                setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
             }
 
-            // Redirection vers le dashboard
-            
 
-            // Dans la méthode login(), après avoir défini les variables de session
-
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_nom'] = $user['nom'];
-        $_SESSION['user_prenom'] = $user['prenom'];
-        $_SESSION['login_time'] = time();
-        $_SESSION['is_admin'] = $user['is_admin'] ?? false; // AJOUTER CETTE LIGNE
-
-        // Gestion du "Se souvenir de moi"
-        if ($remember) {
-            $token = bin2hex(random_bytes(32));
-            setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
-        }
-
-        // NOUVELLE REDIRECTION SELON LE STATUT
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            header('Location: /user/dashboard');
-        }
-        exit;
+            // ===== REDIRECTION CORRIGÉE SELON LE STATUT =====
+            if ($user['is_admin']) {
+                header('Location: ' . BASE_URL . '/admin');
+            } else {
+                header('Location: ' . BASE_URL . '/user/dashboard');
+            }
+            exit;
         
         } else {
             // Échec de la connexion
             $_SESSION['login_error'] = "Email ou mot de passe incorrect.";
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
@@ -167,7 +100,8 @@ exit;
     public function showRegistrationForm() {
         // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
         
@@ -184,7 +118,8 @@ exit;
      */
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /signup');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
 
@@ -223,7 +158,8 @@ exit;
 
         if (!empty($errors)) {
             $_SESSION['register_error'] = implode('<br>', $errors);
-            header('Location: /signup');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
 
@@ -232,11 +168,13 @@ exit;
         
         if ($userModel->create($email, $password, $nom, $prenom)) {
             $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
             $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
-            header('Location: /signup');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
     }
@@ -254,7 +192,8 @@ exit;
         session_destroy();
         
         // Rediriger vers la page d'accueil
-        header('Location: /');
+        // REDIRECTION CORRIGÉE
+        header('Location: ' . BASE_URL . '/');
         exit;
     }
 
@@ -263,7 +202,8 @@ exit;
      */
     public static function requireAuth() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
@@ -279,7 +219,8 @@ exit;
         $user = $userModel->findById($_SESSION['user_id']);
         
         if (!$user) {
-            header('Location: /logout');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/logout');
             exit;
         }
         
@@ -297,7 +238,8 @@ exit;
         self::requireAuth();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /profile');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/profile');
             exit;
         }
 
@@ -316,7 +258,8 @@ exit;
 
         if (!empty($errors)) {
             $_SESSION['profile_error'] = implode('<br>', $errors);
-            header('Location: /profile');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/profile');
             exit;
         }
 
@@ -330,7 +273,8 @@ exit;
             $_SESSION['profile_error'] = "Erreur lors de la mise à jour du profil.";
         }
         
-        header('Location: /profile');
+        // REDIRECTION CORRIGÉE
+        header('Location: ' . BASE_URL . '/profile');
         exit;
     }
 }
