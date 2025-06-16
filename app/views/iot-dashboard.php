@@ -326,10 +326,10 @@
 
         <!-- Navigation -->
         <div class="nav-bar">
-            <div class="nav-links">
-                <a href="/dashboard" class="active">Parking</a>
-                <a href="/iot-dashboard">IoT Dashboard</a>
-                <a href="/logout">Déconnexion</a>
+           <div class="nav-links">
+                <a href="<?= BASE_URL ?>/dashboard" class="active">Parking</a>
+                <a href="<?= BASE_URL ?>/iot-dashboard">IoT Dashboard</a>
+                <a href="<?= BASE_URL ?>/logout">Déconnexion</a>
             </div>
             <span>👤 <?= htmlspecialchars($_SESSION['user_email']) ?></span>
         </div>

@@ -23,8 +23,8 @@ class User {
 
             // Insérer le nouvel utilisateur
             $stmt = $this->db->prepare("
-                INSERT INTO users (email, password_hash, nom, prenom, is_admin, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO users (email, password_hash, nom, prenom, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ");
             
             return $stmt->execute([$email, $password_hash, $nom, $prenom]);
@@ -135,7 +135,7 @@ class User {
     public function getAllUsers() {
         try {
             $stmt = $this->db->query("
-                SELECT id, email, nom, prenom, is_admin, created_at, updated_at 
+                SELECT id, email, nom, prenom, created_at, updated_at 
                 FROM users 
                 ORDER BY created_at DESC
             ");
@@ -158,60 +158,4 @@ class User {
             return false;
         }
     }
-
-    // NOUVELLES MÉTHODES POUR L'ADMINISTRATION
-    
-    /**
-     * Mettre à jour le statut admin d'un utilisateur
-     */
-    public function updateUserAdminStatus($user_id, $is_admin) {
-        try {
-            $stmt = $this->db->prepare("UPDATE users SET is_admin = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-            return $stmt->execute([$is_admin, $user_id]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans User::updateUserAdminStatus : " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Supprimer un utilisateur (avec ses réservations)
-     */
-    public function deleteUser($user_id) {
-        try {
-            // D'abord supprimer les réservations de l'utilisateur
-            $stmt1 = $this->db->prepare("DELETE FROM reservations WHERE user_id = ?");
-            $stmt1->execute([$user_id]);
-            
-            // Puis supprimer l'utilisateur
-            $stmt2 = $this->db->prepare("DELETE FROM users WHERE id = ?");
-            return $stmt2->execute([$user_id]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans User::deleteUser : " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Créer un utilisateur (pour l'admin)
-     */
-    public function createUser($email, $password, $nom, $prenom, $is_admin = false) {
-        try {
-            // Vérifier si l'email existe déjà
-            if ($this->findByEmail($email)) {
-                return false;
-            }
-
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $this->db->prepare("
-                INSERT INTO users (email, password_hash, nom, prenom, is_admin, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ");
-            return $stmt->execute([$email, $password_hash, $nom, $prenom, $is_admin]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans User::createUser : " . $e->getMessage());
-            return false;
-        }
-    }
 }
-?>

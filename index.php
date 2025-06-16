@@ -7,12 +7,26 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-define('ROOT_PATH', dirname(__DIR__));
+define('ROOT_PATH', __DIR__);
+define('BASE_URL', '/projet-parking'); // On définit le nom de notre dossier
 
-$request_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
+// On récupère l'URL demandée
+$raw_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
+
+// On retire le nom du dossier de l'URL pour avoir le chemin relatif
+$request_uri = '/'; // Valeur par défaut
+if (strpos($raw_uri, BASE_URL) === 0) {
+    $request_uri = substr($raw_uri, strlen(BASE_URL));
+}
+
+// Si après suppression on se retrouve avec une chaîne vide (ex: /projet-parking/), on la remplace par /
+if (empty($request_uri)) {
+    $request_uri = '/';
+}
 
 try {
     switch ($request_uri) {
+
         case '/':
             require_once ROOT_PATH . '/app/controllers/HomeController.php';
             $controller = new HomeController();

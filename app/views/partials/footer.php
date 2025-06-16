@@ -11,10 +11,10 @@
                 <div class="footer-section">
                     <h3>Liens rapides</h3>
                     <ul>
-                        <li><a href="/">Accueil</a></li>
-                        <li><a href="/dashboard">Dashboard</a></li>
-                        <li><a href="/login">Connexion</a></li>
-                        <li><a href="/signup">Inscription</a></li>
+                        <li><a href="<?= BASE_URL ?>/">Accueil</a></li>
+                        <li><a href="<?= BASE_URL ?>/dashboard">Dashboard</a></li>
+                        <li><a href="<?= BASE_URL ?>/login">Connexion</a></li>
+                        <li><a href="<?= BASE_URL ?>/signup">Inscription</a></li>
                     </ul>
                 </div>
                 

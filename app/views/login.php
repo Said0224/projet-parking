@@ -14,7 +14,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/login/process" class="auth-form">
+        <form method="POST" action="<?= BASE_URL ?>/login/process" class="auth-form">
             <div class="form-group">
                 <label for="email">
                     <i class="fas fa-envelope"></i>
@@ -61,10 +61,11 @@
         </form>
 
         <div class="auth-footer">
-            <p>Pas encore de compte ? <a href="/signup">Créer un compte</a></p>
+            <p>Pas encore de compte ? <a href="<?= BASE_URL ?>/signup">Créer un compte</a></p>
             <div class="demo-accounts">
                 <h4>Comptes de démonstration :</h4>
-                <p><strong>Admin :</strong> admin@isep.fr / admin2024</p>
+                <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>
+                <p><strong>Admin :</strong> admin@isep.fr / admin123</p>
             </div>
         </div>
     </div>
@@ -121,7 +122,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color:blanchedalmond ;
+    color: white;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -133,7 +134,7 @@
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--border-radius);
-    color: black;
+    color: white;
     font-size: 1rem;
     transition: var(--transition);
 }
@@ -196,7 +197,7 @@
 }
 
 .auth-footer p {
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.8);
     margin-bottom: 1rem;
 }
 
