@@ -66,13 +66,16 @@ class AuthController {
             $_SESSION['user_nom'] = $user['nom'];
             $_SESSION['user_prenom'] = $user['prenom'];
             $_SESSION['login_time'] = time();
+
             $_SESSION['is_admin'] = $user['is_admin'] ?? false;
+
 
             // Gestion du "Se souvenir de moi"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
                 setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
             }
+
 
             // ===== REDIRECTION CORRIGÉE SELON LE STATUT =====
             if ($user['is_admin']) {

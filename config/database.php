@@ -11,7 +11,7 @@ define('DB_PASS', 'JVQ6LotVLJAHjH5r');
 // On utilise "mysql:" au lieu de "pgsql:" et on ajoute le charset.
 define('DB_DSN', "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4");
 
-// Classe Database qui gère la connexion (Singleton Pattern)
+
 class Database {
     private static $instance = null;
 
@@ -20,6 +20,7 @@ class Database {
 
     public static function getInstance() {
         if (self::$instance === null) {
+
             // Options pour PDO, optimisées pour la sécurité et la robustesse
             $options = [
                 PDO::ATTR_PERSISTENT => false, // Crucial pour éviter "Too many connections"
@@ -30,6 +31,7 @@ class Database {
 
             try {
                 // On crée une nouvelle instance de PDO avec les bonnes informations
+
                 self::$instance = new PDO(DB_DSN, DB_USER, DB_PASS, $options);
             } catch (PDOException $e) {
                 // En cas d'échec, on log l'erreur et on arrête le script proprement
@@ -41,10 +43,7 @@ class Database {
         return self::$instance;
     }
 
-    /**
-     * Ferme la connexion en détruisant l'objet PDO.
-     * Appelé à la fin de chaque requête dans index.php
-     */
+    
     public static function closeConnection() {
         self::$instance = null;
     }

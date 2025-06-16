@@ -17,8 +17,10 @@ class AdminController {
     public function index() {
         // Vérifier si l'utilisateur est admin
         if (!$this->isAdmin()) {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
+
             exit;
         }
         
@@ -32,8 +34,10 @@ class AdminController {
     
     public function manageUsers() {
         if (!$this->isAdmin()) {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
+
             exit;
         }
         
@@ -44,8 +48,10 @@ class AdminController {
     
     public function manageParking() {
         if (!$this->isAdmin()) {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
+
             exit;
         }
         
@@ -56,8 +62,10 @@ class AdminController {
     
     public function updateUserStatus() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
+
             exit;
         }
         
@@ -65,27 +73,35 @@ class AdminController {
         $is_admin = isset($_POST['is_admin']) ? true : false;
         
         $this->userModel->updateUserAdminStatus($user_id, $is_admin);
+
         // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
+
     }
     
     public function deleteUser() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
+
             exit;
         }
         
         $user_id = $_POST['user_id'];
         $this->userModel->deleteUser($user_id);
+
         // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
+
     }
     
     public function createUser() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
+
             exit;
         }
         
@@ -96,14 +112,18 @@ class AdminController {
         $is_admin = isset($_POST['is_admin']) ? true : false;
         
         $this->userModel->createUser($email, $password, $nom, $prenom, $is_admin);
+
         // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
+
     }
     
     public function updateParkingSpot() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
+
             exit;
         }
         
@@ -115,11 +135,16 @@ class AdminController {
         ];
         
         $this->parkingSpotModel->updateSpot($spot_id, $data);
+<
         // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/parking');
+
     }
     
     private function isAdmin() {
         return isset($_SESSION['user_id']) && isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
     }
+
 }
+?>
+
