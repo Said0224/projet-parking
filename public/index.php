@@ -13,6 +13,12 @@ $request_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
 
 try {
     switch ($request_uri) {
+        case '/notification/toggle-email':
+            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
+            $controller = new NotificationController();
+            $controller->toggleEmailNotifications();
+            break;
+
         case '/':
             require_once ROOT_PATH . '/app/controllers/HomeController.php';
             $controller = new HomeController();

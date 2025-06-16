@@ -70,6 +70,7 @@ document.getElementById('email-toggle').addEventListener('change', function () {
 });
 </script>
 
+
 <!-- CSS -->
 <style>
 .notif {
