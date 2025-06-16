@@ -324,109 +324,11 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 </div>
 
 <style>
-/* Correction des débordements et ajustements généraux */
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-.dashboard-container {
-    max-width: 100vw;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1rem;
-    overflow-x: hidden;
-}
-
-/* Header du dashboard */
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
-}
-
-.header-content h1 {
-    color: white;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    word-wrap: break-word;
-}
-
-.header-content h1 i {
-    color: #ffd700;
-    margin-right: 0.5rem;
-}
-
-.header-content p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-    margin: 0;
-    word-wrap: break-word;
-}
-
-/* Navigation secondaire */
-.dashboard-nav {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 15px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    gap: 1rem;
-}
-
-.nav-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.nav-tab {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-.nav-tab:hover, .nav-tab.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.user-info {
-    color: white;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-/* Grille des statistiques */
+/* Styles spécifiques aux capteurs */
 .sensors-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
@@ -434,14 +336,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
-    min-width: 0;
 }
 
 .sensors-stats .stat-card:hover {
@@ -450,15 +351,14 @@ body {
 }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     color: white;
-    flex-shrink: 0;
 }
 
 .active-sensors .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
@@ -466,32 +366,25 @@ body {
 .temperature .stat-icon { background: linear-gradient(135deg, #3b82f6, #1e40af); }
 .data-rate .stat-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
-.stat-info {
-    min-width: 0;
-    flex: 1;
-}
-
 .stat-info .stat-number {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 0.25rem;
-    word-wrap: break-word;
 }
 
 .stat-info .stat-label {
     color: #64748b;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    word-wrap: break-word;
 }
 
 /* Grille des capteurs */
 .sensors-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
 .sensor-card {
@@ -502,7 +395,6 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     transition: all 0.3s ease;
-    min-width: 0;
 }
 
 .sensor-card:hover {
@@ -516,48 +408,39 @@ body {
 
 .sensor-header {
     background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1));
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-    flex-wrap: wrap;
-    gap: 0.5rem;
 }
 
 .sensor-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-    flex: 1;
+    gap: 0.75rem;
 }
 
 .sensor-title i {
     color: #3b82f6;
-    font-size: 1.125rem;
-    flex-shrink: 0;
+    font-size: 1.25rem;
 }
 
 .sensor-title h3 {
     margin: 0;
     color: #1e293b;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    word-wrap: break-word;
-    min-width: 0;
 }
 
 .sensor-status {
-    padding: 0.375rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    white-space: nowrap;
-    flex-shrink: 0;
+    gap: 0.5rem;
 }
 
 .status-active {
@@ -571,22 +454,21 @@ body {
 }
 
 .sensor-body {
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .sensor-value-display {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     padding: 1rem;
     background: #f8fafc;
     border-radius: 15px;
 }
 
 .current-value {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    word-wrap: break-word;
 }
 
 .current-value .value {
@@ -594,7 +476,7 @@ body {
 }
 
 .current-value .unit {
-    font-size: 1rem;
+    font-size: 1.25rem;
     color: #64748b;
 }
 
@@ -609,26 +491,21 @@ body {
     gap: 0.5rem;
     color: #64748b;
     font-size: 0.875rem;
-    flex-wrap: wrap;
 }
 
 .trend-up { color: #ef4444; }
 
 .sensor-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
 .info-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.5rem;
-    background: #f8fafc;
-    border-radius: 8px;
-    min-width: 0;
 }
 
 .info-item .label {
@@ -637,25 +514,21 @@ body {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap;
 }
 
 .info-item .value {
     color: #1e293b;
     font-weight: 600;
     font-size: 0.875rem;
-    word-wrap: break-word;
 }
 
 .sensor-actions {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
 .btn-action {
     flex: 1;
-    min-width: 100px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     color: #64748b;
@@ -693,19 +566,19 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .actions-header h3 {
     color: #1e293b;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .actions-header i {
@@ -714,7 +587,7 @@ body {
 
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
 }
 
@@ -722,16 +595,15 @@ body {
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border: 1px solid #e2e8f0;
     color: #64748b;
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 15px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     text-align: center;
-    min-width: 0;
 }
 
 .action-btn:hover {
@@ -742,43 +614,31 @@ body {
 }
 
 .action-btn i {
-    font-size: 1.25rem;
-    flex-shrink: 0;
+    font-size: 1.5rem;
 }
 
 .action-btn span {
     font-weight: 500;
     font-size: 0.875rem;
-    word-wrap: break-word;
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .sensors-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 0.5rem;
-    }
-    
-    .dashboard-nav {
-        flex-direction: column;
-        text-align: center;
-        padding: 0.75rem;
-    }
-    
-    .nav-tabs {
-        justify-content: center;
-    }
-    
     .sensors-stats {
         grid-template-columns: repeat(2, 1fr);
     }
     
     .sensors-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sensors-stats {
         grid-template-columns: 1fr;
     }
     
@@ -787,29 +647,7 @@ body {
     }
     
     .actions-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .sensor-actions {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .sensors-stats {
         grid-template-columns: 1fr;
-    }
-    
-    .actions-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-info .stat-number {
-        font-size: 1.25rem;
-    }
-    
-    .current-value {
-        font-size: 1.5rem;
     }
 }
 </style>
