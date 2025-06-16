@@ -1,11 +1,12 @@
+# Fichier : .htaccess à la racine du projet
+
 RewriteEngine On
 
-# Définit le dossier de base de votre projet
-RewriteBase /projet-parking/
-
-# Ne pas réécrire les requêtes pour des fichiers ou des dossiers existants
+# Ne réécrit pas les requêtes pour des fichiers physiques (css, js, images)
 RewriteCond %{REQUEST_FILENAME} !-f
+# Ne réécrit pas les requêtes pour des dossiers physiques
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Réécrire toutes les autres requêtes vers index.php
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+# Redirige tout le reste vers index.php
+# Le chemin vers index.php est relatif au .htaccess, donc il n'y a pas besoin de sous-dossier ici.
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]

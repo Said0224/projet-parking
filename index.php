@@ -9,7 +9,10 @@ if (session_status() == PHP_SESSION_NONE) {
 
 define('ROOT_PATH', __DIR__);
 // La variable BASE_URL reste utile pour construire les liens dans les vues
-define('BASE_URL', '/projet-parking');
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$base_url = ($script_name === '/') ? '' : $script_name;
+define('BASE_URL', $base_url);
+$request_uri = '/' . trim($_GET['url'] ?? '', '/');
 
 // --- DÉBUT DES MODIFICATIONS ---
 
@@ -152,6 +155,25 @@ try {
             require_once ROOT_PATH . '/app/controllers/UserController.php';
             $controller = new UserController();
             $controller->cancelReservation();
+            break;
+
+         case '/api/update-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->updateSpotStatus();
+            break;
+
+        // ===== NOUVELLE ROUTE API POUR LIRE LE STATUT =====
+        case '/api/get-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotStatus();
+            break;
+            
+        case '/api/get-all-spots-status':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->getAllSpotsStatus();
             break;
             
         default:
