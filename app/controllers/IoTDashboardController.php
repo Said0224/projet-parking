@@ -1,6 +1,7 @@
 <?php
 require_once ROOT_PATH . '/app/models/ParkingSensor.php';
 require_once ROOT_PATH . '/app/models/Actuator.php';
+require_once ROOT_PATH . '/app/models/Notification.php';
 
 class IoTDashboardController {
     
