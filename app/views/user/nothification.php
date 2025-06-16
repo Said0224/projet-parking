@@ -2,14 +2,16 @@
 <?php require_once __DIR__ . '/../partials/navbar.php'; ?>
 
 <main class="container">
-    <h1>Profil</h1>
+    <h1>Notifications</h1>
 
     <?php if (isset($_SESSION['user_id'])): ?>
-        <p><strong>Email :</strong> <?= htmlspecialchars($_SESSION['user_email']) ?></p>
-        <!-- Tu peux ajouter d'autres infos ici comme le nom, prénom, etc. -->
-        <p>Bienvenue sur votre espace personnel.</p>
+        <ul>
+            <li>🔔 Votre réservation est confirmée.</li>
+            <li>🔔 Un nouveau parking est disponible près de chez vous.</li>
+            <li>🔔 N'oubliez pas votre créneau demain à 14h.</li>
+        </ul>
     <?php else: ?>
-        <p>Vous devez être connecté pour accéder à votre profil.</p>
+        <p>Veuillez vous connecter pour voir vos notifications.</p>
         <a href="/login">Se connecter</a>
     <?php endif; ?>
 </main>
