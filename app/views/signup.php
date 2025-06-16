@@ -21,7 +21,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/signup/process" class="auth-form">
+        <form method="POST" action="<?= BASE_URL ?>/signup/process" class="auth-form">
             <div class="form-row">
                 <div class="form-group">
                     <label for="prenom">

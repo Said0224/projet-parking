@@ -9,7 +9,7 @@ class AuthController {
     public function showLoginForm() {
         // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
+            header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
         
@@ -25,7 +25,7 @@ class AuthController {
      */
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
@@ -48,7 +48,7 @@ class AuthController {
 
         if (!empty($errors)) {
             $_SESSION['login_error'] = implode('<br>', $errors);
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
@@ -64,24 +64,6 @@ class AuthController {
             $_SESSION['user_prenom'] = $user['prenom'];
             $_SESSION['login_time'] = time();
 
-            $_SESSION['is_admin'] = $user['is_admin'] ?? false;
-
-        // Redirection selon le statut
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            header('Location: /user/dashboard');
-        }
-
-            $_SESSION['is_admin'] = $user['is_admin'] ?? false; // Ajouter cette ligne
-
-            // Modifier la redirection pour tenir compte du statut admin
-            if ($user['is_admin']) {
-                header('Location: /admin');
-            } else {
-                header('Location: /user/dashboard');
-            }
-
             // Gestion du "Se souvenir de moi"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
@@ -90,35 +72,12 @@ class AuthController {
             }
 
             // Redirection vers le dashboard
-            
-
-            // Dans la méthode login(), après avoir défini les variables de session
-
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_nom'] = $user['nom'];
-        $_SESSION['user_prenom'] = $user['prenom'];
-        $_SESSION['login_time'] = time();
-        $_SESSION['is_admin'] = $user['is_admin'] ?? false; // AJOUTER CETTE LIGNE
-
-        // Gestion du "Se souvenir de moi"
-        if ($remember) {
-            $token = bin2hex(random_bytes(32));
-            setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
-        }
-
-        // NOUVELLE REDIRECTION SELON LE STATUT
-        if ($user['is_admin']) {
-            header('Location: /admin');
-        } else {
-            header('Location: /user/dashboard');
-        }
-        exit;
-        
+            header('Location: ' . BASE_URL . '/dashboard');
+            exit;
         } else {
             // Échec de la connexion
             $_SESSION['login_error'] = "Email ou mot de passe incorrect.";
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
@@ -129,7 +88,7 @@ class AuthController {
     public function showRegistrationForm() {
         // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
+            header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
         
@@ -146,7 +105,7 @@ class AuthController {
      */
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /signup');
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
 
@@ -185,7 +144,7 @@ class AuthController {
 
         if (!empty($errors)) {
             $_SESSION['register_error'] = implode('<br>', $errors);
-            header('Location: /signup');
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
 
@@ -194,11 +153,11 @@ class AuthController {
         
         if ($userModel->create($email, $password, $nom, $prenom)) {
             $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
             $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
-            header('Location: /signup');
+            header('Location: ' . BASE_URL . '/signup');
             exit;
         }
     }
@@ -216,7 +175,7 @@ class AuthController {
         session_destroy();
         
         // Rediriger vers la page d'accueil
-        header('Location: /');
+        header('Location: ' . BASE_URL . '/');
         exit;
     }
 
@@ -225,7 +184,7 @@ class AuthController {
      */
     public static function requireAuth() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
@@ -259,7 +218,7 @@ class AuthController {
         self::requireAuth();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /profile');
+            header('Location: ' . BASE_URL . '/profile');
             exit;
         }
 
@@ -278,7 +237,7 @@ class AuthController {
 
         if (!empty($errors)) {
             $_SESSION['profile_error'] = implode('<br>', $errors);
-            header('Location: /profile');
+            header('Location: ' . BASE_URL . '/profile');
             exit;
         }
 
@@ -292,7 +251,7 @@ class AuthController {
             $_SESSION['profile_error'] = "Erreur lors de la mise à jour du profil.";
         }
         
-        header('Location: /profile');
+        header('Location: ' . BASE_URL . '/profile');
         exit;
     }
 }
