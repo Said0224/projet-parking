@@ -33,17 +33,19 @@
                 </a>
                 
                 <ul class="navbar-nav">
-                    <li><a href="<?= BASE_URL ?>/" class="nav-link">Accueil</a></li>
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <li><a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a></li>
-                        <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>
-                        <li><a href="<?= BASE_URL ?>/profile" class="nav-link">Profil</a></li>
-                        <li><a href="<?= BASE_URL ?>/logout" class="nav-link">Déconnexion</a></li>
-                    <?php else: ?>
-                        <li><a href="<?= BASE_URL ?>/login" class="nav-link">Connexion</a></li>
-                        <li><a href="<?= BASE_URL ?>/signup" class="nav-link">Inscription</a></li>
-                    <?php endif; ?>
-                </ul>
+    <li><a href="<?= BASE_URL ?>/" class="nav-link">Accueil</a></li>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <li><a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a></li>
+        <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>
+        <li><a href="<?= BASE_URL ?>/notifications" class="nav-link">Notifications</a></li>
+        
+        <li><a href="<?= BASE_URL ?>/profile" class="nav-link">Profil</a></li>
+        <li><a href="<?= BASE_URL ?>/logout" class="nav-link">Déconnexion</a></li>
+    <?php else: ?>
+        <li><a href="<?= BASE_URL ?>/login" class="nav-link">Connexion</a></li>
+        <li><a href="<?= BASE_URL ?>/signup" class="nav-link">Inscription</a></li>
+    <?php endif; ?>
+</ul>
             </div>
         </nav>
     </header>
