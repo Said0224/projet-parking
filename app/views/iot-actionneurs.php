@@ -20,16 +20,16 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     <!-- Navigation -->
     <div class="dashboard-nav">
         <div class="nav-tabs">
-            <a href="/iot-dashboard" class="nav-tab">
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab">
                 <i class="fas fa-arrow-left"></i> Retour IoT
             </a>
-            <a href="/iot-dashboard/capteurs" class="nav-tab">
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab">
                 <i class="fas fa-satellite-dish"></i> Capteurs
             </a>
-            <a href="/iot-dashboard/actionneurs" class="nav-tab active">
+            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab active">
                 <i class="fas fa-cogs"></i> Actionneurs
             </a>
-            <a href="/logout" class="nav-tab">
+            <a href="<?= BASE_URL ?>/logout" class="nav-tab">
                 <i class="fas fa-sign-out-alt"></i> Déconnexion
             </a>
         </div>

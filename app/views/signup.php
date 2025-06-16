@@ -21,7 +21,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/signup/process" class="auth-form">
+        <form method="POST" action="<?= BASE_URL ?>/signup/process" class="auth-form">
             <div class="form-row">
                 <div class="form-group">
                     <label for="prenom">
@@ -112,7 +112,7 @@
         </form>
 
         <div class="auth-footer">
-            <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+            <p>Déjà un compte ? <a href="<?= BASE_URL ?>/login">Se connecter</a></p>
         </div>
     </div>
 </div>

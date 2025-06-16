@@ -39,10 +39,10 @@
     </div>
 
     <div class="admin-actions">
-        <a href="/admin/users" class="btn btn-primary">
+        <a href="<?= BASE_URL ?>/admin/users" class="btn btn-primary">
             <i class="fas fa-users"></i> Gérer les utilisateurs
         </a>
-        <a href="/admin/parking" class="btn btn-primary">
+        <a href="<?= BASE_URL ?>/admin/parking" class="btn btn-primary">
             <i class="fas fa-parking"></i> Gérer le parking
         </a>
     </div>

@@ -21,7 +21,7 @@
     <?php endif; ?>
 
     <div class="dashboard-actions">
-        <a href="/user/parking" class="action-card">
+        <a href="<?= BASE_URL ?>/user/parking" class="action-card">
             <div class="action-icon">
                 <i class="fas fa-search"></i>
             </div>
@@ -52,7 +52,7 @@
         </div>
         <?php if (count($availableSpots) > 6): ?>
             <div class="text-center mt-3">
-                <a href="/user/parking" class="btn btn-outline-primary">Voir toutes les places</a>
+                <a href="<?= BASE_URL ?>/user/parking" class="btn btn-outline-primary">Voir toutes les places</a>
             </div>
         <?php endif; ?>
     </div>
@@ -93,7 +93,7 @@
                             </td>
                             <td>
                                 <?php if ($reservation['status'] == 'active' && strtotime($reservation['start_time']) > time()): ?>
-                                    <form action="/user/cancel-reservation" method="POST" style="display: inline;" 
+                                    <form action="<?= BASE_URL ?>/user/cancel-reservation" method="POST" style="display: inline;" 
                                           onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">
                                         <input type="hidden" name="reservation_id" value="<?= $reservation['id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-danger">
@@ -116,7 +116,7 @@
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Réserver la place <span id="modalSpotNumber"></span></h2>
-        <form action="/user/reserve" method="POST">
+        <form action="<?= BASE_URL ?>/user/reserve" method="POST">
             <input type="hidden" id="modalSpotId" name="spot_id">
             
             <div class="form-group">

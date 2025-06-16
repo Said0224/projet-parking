@@ -10,14 +10,6 @@ define('DB_PASS', 'appg9');
 // Data Source Name (DSN) pour PostgreSQL
 define('DB_DSN', "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME);
 
-// Options pour PDO
-$options = [
-    PDO::ATTR_PERSISTENT => true,
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
 // Classe Database adaptée pour PostgreSQL
 class Database {
     private static $instance = null;
@@ -27,13 +19,28 @@ class Database {
 
     public static function getInstance() {
         if (self::$instance === null) {
+            // Options pour PDO
+            $options = [
+                PDO::ATTR_PERSISTENT => false, // Connexions non-persistantes
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ];
             try {
-                self::$instance = new PDO(DB_DSN, DB_USER, DB_PASS, $GLOBALS['options']);
+                self::$instance = new PDO(DB_DSN, DB_USER, DB_PASS, $options);
             } catch (PDOException $e) {
                 error_log("Erreur de connexion à la base de données : " . $e->getMessage());
                 die("Erreur de connexion à la base de données. Veuillez réessayer plus tard.");
             }
         }
         return self::$instance;
+    }
+
+    /**
+     * Nouvelle méthode pour fermer la connexion
+     * En mettant l'instance à null, le destructeur de PDO est appelé, ce qui ferme la connexion.
+     */
+    public static function closeConnection() {
+        self::$instance = null;
     }
 }
