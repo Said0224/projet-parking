@@ -13,7 +13,8 @@ class UserController {
     
     public function dashboard() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
@@ -26,7 +27,8 @@ class UserController {
     
     public function parking() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
         
@@ -37,7 +39,8 @@ class UserController {
     
     public function reserve() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /user/parking');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/user/parking');
             exit;
         }
         
@@ -52,12 +55,14 @@ class UserController {
             $_SESSION['error_message'] = "Erreur lors de la réservation. La place n'est peut-être plus disponible.";
         }
         
-        header('Location: /user/dashboard');
+        // REDIRECTION CORRIGÉE
+        header('Location: ' . BASE_URL . '/user/dashboard');
     }
     
     public function cancelReservation() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /user/dashboard');
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/user/dashboard');
             exit;
         }
         
@@ -70,7 +75,7 @@ class UserController {
             $_SESSION['error_message'] = "Erreur lors de l'annulation de la réservation.";
         }
         
-        header('Location: /user/dashboard');
+        // REDIRECTION CORRIGÉE
+        header('Location: ' . BASE_URL . '/user/dashboard');
     }
 }
-?>

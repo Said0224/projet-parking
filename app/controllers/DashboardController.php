@@ -6,11 +6,12 @@ class DashboardController {
      * Affiche le tableau de bord (nécessite une connexion)
      */
     public function index() {
-    // Vérifier si l'utilisateur est connecté
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login'); // <-- LA REDIRECTION SE FAIT ICI !
-        exit;
-    }
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/login');
+            exit;
+        }
         
         $page_title = "Tableau de Bord - Parking Intelligent";
         
