@@ -7,12 +7,22 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-define('ROOT_PATH', dirname(__DIR__));
+define('ROOT_PATH', __DIR__);
+// La variable BASE_URL reste utile pour construire les liens dans les vues
+define('BASE_URL', '/projet-parking');
 
-$request_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
+// --- DÉBUT DES MODIFICATIONS ---
+
+// 1. Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
+// On ajoute un '/' au début et on supprime les '/' en trop.
+$request_uri = '/' . trim($_GET['url'] ?? '', '/');
+
+// --- FIN DES MODIFICATIONS ---
 
 try {
+    // Le reste du fichier (le switch) ne change pas.
     switch ($request_uri) {
+
         case '/':
             require_once ROOT_PATH . '/app/controllers/HomeController.php';
             $controller = new HomeController();
@@ -36,7 +46,10 @@ try {
             $controller = new AuthController();
             $controller->logout();
             break;
-            
+
+        // ... et ainsi de suite pour toutes vos autres routes ...
+        // Le reste de votre switch est correct et n'a pas besoin d'être modifié.
+        
         case '/signup':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -145,7 +158,7 @@ try {
             http_response_code(404);
             echo "<h1>Page non trouvée (404)</h1>";
             echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
-            echo "<a href='/'>Retour à l'accueil</a>";
+            echo "<a href='" . BASE_URL . "/'>Retour à l'accueil</a>";
             break;
     }
 } catch (Error $e) {
@@ -155,5 +168,9 @@ try {
 } catch (Exception $e) {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
+} finally {
+    // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
+    // On ferme la connexion à la base de données pour la libérer
+    Database::closeConnection();
 }
 ?>

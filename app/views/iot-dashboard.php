@@ -20,16 +20,16 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     <!-- Navigation secondaire -->
     <div class="dashboard-nav">
         <div class="nav-tabs">
-            <a href="/admin" class="nav-tab">
+            <a href="<?= BASE_URL ?>/admin" class="nav-tab">
                 <i class="fas fa-tachometer-alt"></i> Admin
             </a>
-            <a href="/iot-dashboard" class="nav-tab active">
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab active">
                 <i class="fas fa-microchip"></i> IoT Dashboard
             </a>
-            <a href="/admin/users" class="nav-tab">
+            <a href="<?= BASE_URL ?>/admin/users" class="nav-tab">
                 <i class="fas fa-users"></i> Utilisateurs
             </a>
-            <a href="/logout" class="nav-tab">
+            <a href="<?= BASE_URL ?>/logout" class="nav-tab">
                 <i class="fas fa-sign-out-alt"></i> Déconnexion
             </a>
         </div>
@@ -69,7 +69,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
         </div>
         
         <div class="iot-nav-cards">
-            <a href="/iot-dashboard/capteurs" class="iot-nav-card capteurs-card">
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="iot-nav-card capteurs-card">
                 <div class="nav-card-icon">
                     <i class="fas fa-satellite-dish"></i>
                 </div>
@@ -90,7 +90,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                 </div>
             </a>
             
-            <a href="/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
+            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
                 <div class="nav-card-icon">
                     <i class="fas fa-cogs"></i>
                 </div>

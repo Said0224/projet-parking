@@ -26,14 +26,22 @@ class ParkingSensor {
      */
     public function getLatestParkingStatus() {
         try {
-            $stmt = $this->db->query("
-                SELECT DISTINCT ON (place) place, date, heure, valeur 
-                FROM capteurProximite 
-                ORDER BY place, date DESC, heure DESC
-            ");
+            // Cette sous-requête trouve l'ID de la dernière mesure pour chaque 'place'.
+            // La requête principale joint ensuite pour obtenir les données complètes.
+            $sql = "
+                SELECT cp1.*
+                FROM capteurProximite cp1
+                INNER JOIN (
+                    SELECT place, MAX(id) as max_id
+                    FROM capteurProximite
+                    GROUP BY place
+                ) cp2 ON cp1.place = cp2.place AND cp1.id = cp2.max_id
+                ORDER BY cp1.place ASC
+            ";
+            $stmt = $this->db->query($sql);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log("Erreur dans getLatestParkingStatus : " . $e->getMessage());
+            error_log("Erreur dans getLatestParkingStatus (MySQL) : " . $e->getMessage());
             return [];
         }
     }

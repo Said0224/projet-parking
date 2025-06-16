@@ -7,14 +7,19 @@
             <p class="hero-description">Ce site vous permet de visualiser en temps réel l'état d'occupation des places de notre parking.</p>
             
             <div class="hero-buttons">
-                <a href="/dashboard" class="btn btn-primary">
-                    <i class="fas fa-parking"></i>
-                    Voir les places
-                </a>
-                <a href="/login" class="btn btn-secondary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Se connecter
-                </a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <?php // L'utilisateur est connecté ?>
+                    <a href="<?= BASE_URL ?><?= $_SESSION['is_admin'] ? '/admin' : '/user/dashboard' ?>" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Accéder à mon dashboard
+                    </a>
+                <?php else: ?>
+                    <?php // L'utilisateur n'est pas connecté ?>
+                    <a href="<?= BASE_URL ?>/login" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Se connecter pour voir les places
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -81,7 +86,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('/placeholder.svg?height=500&width=1000') no-repeat center center;
+    /* Correction du chemin de l'image de fond */
+    background: url('<?= BASE_URL ?>/public/placeholder.svg?height=500&width=1000') no-repeat center center;
     background-size: cover;
     opacity: 0.15;
     z-index: -1;

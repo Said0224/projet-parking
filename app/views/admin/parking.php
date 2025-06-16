@@ -3,7 +3,7 @@
 <div class="container">
     <div class="page-header">
         <h1><i class="fas fa-parking"></i> Gestion du parking</h1>
-        <a href="/admin" class="btn btn-secondary">
+        <a href="<?= BASE_URL ?>/admin" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour au dashboard
         </a>
     </div>
@@ -26,7 +26,7 @@
                 </p>
             </div>
 
-            <form action="/admin/update-spot" method="POST" class="spot-form">
+           <form action="<?= BASE_URL ?>/admin/update-spot" method="POST" class="spot-form">
                 <input type="hidden" name="spot_id" value="<?= $spot['id'] ?>">
                 
                 <div class="form-group">

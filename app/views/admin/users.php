@@ -6,7 +6,7 @@
 <div class="container">
     <div class="page-header">
         <h1><i class="fas fa-users"></i> Gestion des utilisateurs</h1>
-        <a href="/admin" class="btn btn-secondary">
+        <a href="<?= BASE_URL ?>/admin" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour au dashboard
         </a>
     </div>
@@ -17,7 +17,7 @@
             <h3><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</h3>
         </div>
         <div class="card-body">
-            <form action="/admin/create-user" method="POST">
+            <form action="<?= BASE_URL ?>/admin/create-user" method="POST">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -90,7 +90,7 @@
                             <td><?= htmlspecialchars($user['email']) ?></td>
                             <td><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></td>
                             <td>
-                                <form action="/admin/update-user" method="POST" style="display: inline;">
+                                 <form action="<?= BASE_URL ?>/admin/update-user" method="POST" style="display: inline;">
                                     <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                     <div class="form-switch">
                                         <input class="form-check-input" type="checkbox" name="is_admin" 
@@ -105,7 +105,7 @@
                             <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
                             <td>
                                 <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                <form action="/admin/delete-user" method="POST" style="display: inline;" 
+                                <form action="<?= BASE_URL ?>/admin/delete-user" method="POST" style="display: inline;" 
                                       onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet utilisateur ?\n\nCette action est irréversible.')">
                                     <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                     <button type="submit" class="btn btn-danger btn-sm" title="Supprimer l'utilisateur">
