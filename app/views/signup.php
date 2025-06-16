@@ -112,7 +112,7 @@
         </form>
 
         <div class="auth-footer">
-            <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+            <p>Déjà un compte ? <a href="<?= BASE_URL ?>/login">Se connecter</a></p>
         </div>
     </div>
 </div>

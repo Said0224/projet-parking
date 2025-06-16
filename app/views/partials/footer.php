@@ -29,7 +29,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; <?= date('Y') ?> Parking Intelligent - ISEP. Tous droits réservés.</p>
+                <p>© <?= date('Y') ?> Parking Intelligent - ISEP. Tous droits réservés.</p>
             </div>
         </div>
     </footer>
@@ -37,11 +37,11 @@
     <script>
     // Script pour marquer le lien actif dans la navigation
     document.addEventListener('DOMContentLoaded', function() {
-        const currentPath = window.location.pathname;
+        const currentPath = window.location.pathname.replace('<?= BASE_URL ?>', '') || '/';
         const navLinks = document.querySelectorAll('.nav-link');
         
         navLinks.forEach(link => {
-            const href = link.getAttribute('href');
+            const href = link.getAttribute('href').replace('<?= BASE_URL ?>', '');
             if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
                 link.classList.add('active');
             }

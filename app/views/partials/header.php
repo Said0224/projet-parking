@@ -11,10 +11,10 @@
     <meta name="description" content="Gestion en temps réel des places de parking du projet commun ISEP.">
     
     <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="<?= BASE_URL ?>/public/favicon.ico" type="image/x-icon">
     
     <!-- Lien vers notre feuille de style CSS -->
-     <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
     
     <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -35,12 +35,22 @@
                 <ul class="navbar-nav">
                     <li><a href="<?= BASE_URL ?>/" class="nav-link">Accueil</a></li>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <li><a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a></li>
-                        <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>
-                        <li><a href="<?= BASE_URL ?>/notifications" class="nav-link"><i class="fas fa-bell"></i> Notifications</a></li>
+                        <?php // Utilisateur connecté ?>
+                        
+                        <?php if ($_SESSION['is_admin']): ?>
+                            <?php // Liens spécifiques pour l'ADMIN ?>
+                            <li><a href="<?= BASE_URL ?>/admin" class="nav-link">Admin</a></li>
+                            <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>
+                        <?php else: ?>
+                            <?php // Liens spécifiques pour l'UTILISATEUR standard ?>
+                            <li><a href="<?= BASE_URL ?>/user/dashboard" class="nav-link">Mon Dashboard</a></li>
+                        <?php endif; ?>
+
                         <li><a href="<?= BASE_URL ?>/profile" class="nav-link">Profil</a></li>
                         <li><a href="<?= BASE_URL ?>/logout" class="nav-link">Déconnexion</a></li>
+
                     <?php else: ?>
+                        <?php // Utilisateur non connecté ?>
                         <li><a href="<?= BASE_URL ?>/login" class="nav-link">Connexion</a></li>
                         <li><a href="<?= BASE_URL ?>/signup" class="nav-link">Inscription</a></li>
                     <?php endif; ?>
