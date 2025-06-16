@@ -397,6 +397,388 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
   outline-offset: 2px;
 }
 
+
+/* --- STYLES POUR LE NOUVEAU DASHBOARD 3D --- */
+
+.dashboard-container {
+    color: white; /* Texte blanc pour un meilleur contraste sur le fond dégradé */
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+}
+
+.dashboard-header h1 {
+    color: white;
+}
+
+.dashboard-main-3d {
+    display: grid;
+    grid-template-columns: 250px 1fr 350px;
+    gap: 1.5rem;
+    height: calc(100vh - 300px); /* Ajustez si nécessaire */
+    min-height: 600px;
+}
+
+.parking-controls, .details-panel-wrapper {
+    /* Utilise le style .card que vous avez déjà */
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.floor-switcher h3 {
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.floor-switcher .btn-full {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+.floor-switcher .btn.active {
+    /* Style du bouton actif hérité de .btn-primary */
+}
+
+/* Vue Parking 3D */
+.parking-view-container {
+    perspective: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+}
+
+.parking-perspective {
+    transform-style: preserve-3d;
+    transform: rotateX(60deg) rotateZ(-30deg);
+    transition: transform 0.5s ease;
+}
+
+.parking-floor-3d {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 10 places par rangée */
+    gap: 20px;
+    transform-style: preserve-3d;
+}
+
+.parking-spot-3d {
+    width: 60px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.parking-spot-3d:hover {
+    transform: translateZ(10px);
+}
+
+.parking-spot-3d .spot-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: black;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+/* Statuts et couleurs adaptées à votre thème */
+.parking-spot-3d.libre .spot-face.top { background-color: rgba(72, 187, 120, 0.8); } /* var(--success) */
+.parking-spot-3d.occupee .spot-face.top { background-color: rgba(229, 62, 62, 0.8); } /* var(--danger) */
+.parking-spot-3d.reservee .spot-face.top { background-color: rgba(237, 137, 54, 0.8); } /* var(--warning) */
+
+.parking-spot-3d.selected {
+    /* Utilise la couleur primaire du projet pour la sélection */
+    box-shadow: 0 0 50px 20px var(--primary);
+}
+
+
+/* Panneau de détails */
+.details-panel h3 {
+    text-align: center;
+    color: white;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.details-panel .placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2rem;
+}
+
+.details-section {
+    margin-top: 1.5rem;
+}
+
+.details-section h4 {
+    color: white;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.info-item span:first-child {
+    opacity: 0.8;
+}
+.info-item span:last-child {
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: white;
+}
+.status-libre { background-color: var(--success); }
+.status-occupee { background-color: var(--danger); }
+.status-reservee { background-color: var(--warning); }
+
+
+/* --- STYLES POUR LE NOUVEAU DASHBOARD 3D --- */
+
+.dashboard-container {
+    color: white; /* Texte blanc pour un meilleur contraste sur le fond dégradé */
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+}
+
+.dashboard-header h1 {
+    color: white;
+}
+
+.dashboard-main-3d {
+    display: grid;
+    grid-template-columns: 250px 1fr 350px;
+    gap: 1.5rem;
+    height: calc(100vh - 300px); /* Ajustez si nécessaire */
+    min-height: 600px;
+}
+
+.parking-controls, .details-panel-wrapper {
+    /* Utilise le style .card mais avec un fond adapté */
+    background-color: rgba(26, 32, 44, 0.7); /* Fond plus sombre */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    display: flex; /* Permet au contenu de s'étirer */
+    flex-direction: column;
+}
+
+.floor-switcher h3 {
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.floor-switcher .btn-full {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+/* Le JS gère le changement de classe vers btn-primary */
+
+
+/* Vue Parking 3D */
+.parking-view-container {
+    perspective: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    overflow: hidden; /* Empêche les débordements */
+}
+
+.parking-perspective {
+    transform-style: preserve-3d;
+    transform: rotateX(60deg) rotateZ(-30deg);
+    transition: transform 0.5s ease;
+}
+
+.parking-floor-3d {
+    display: grid;
+    /* 4 places, un pilier, 4 places, un pilier... */
+    grid-template-columns: repeat(10, 1fr);
+    gap: 15px;
+    transform-style: preserve-3d;
+    padding: 10px;
+}
+
+.parking-spot-3d {
+    width: 60px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s;
+}
+
+.parking-spot-3d:hover {
+    transform: translateZ(10px);
+}
+
+.parking-spot-3d .spot-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: black;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+/* Statuts et couleurs adaptées à votre thème */
+.parking-spot-3d.libre .spot-face.top { background-color: rgba(72, 187, 120, 0.8); } /* var(--success) */
+.parking-spot-3d.occupee .spot-face.top { background-color: rgba(229, 62, 62, 0.8); } /* var(--danger) */
+.parking-spot-3d.reservee .spot-face.top { background-color: rgba(237, 137, 54, 0.8); } /* var(--warning) */
+
+.parking-spot-3d.selected {
+    /* Utilise la couleur primaire du projet pour la sélection */
+    box-shadow: 0 0 50px 20px var(--primary);
+}
+
+
+/* Panneau de détails */
+.details-panel-wrapper .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.details-panel h3 {
+    text-align: center;
+    color: white;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.5rem;
+}
+
+.details-panel .placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin: auto; /* Centre verticalement et horizontalement */
+}
+
+.details-section {
+    margin-top: 1.5rem;
+}
+
+.details-section h4 {
+    color: white;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.25rem;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.info-item span:first-child {
+    opacity: 0.8;
+}
+.info-item span:last-child {
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: white;
+}
+.status-libre { background-color: var(--success); }
+.status-occupee { background-color: var(--danger); }
+.status-reservee { background-color: var(--warning); }
+
+
+/* Responsive pour le dashboard */
+@media (max-width: 1200px) {
+    .dashboard-main-3d {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        height: auto;
+    }
+    .parking-view-container {
+        min-height: 50vh;
+    }
+}
+@media (max-width: 768px) {
+    .dashboard-main-3d {
+        grid-template-columns: 1fr;
+    }
+    .parking-perspective {
+        transform: rotateX(50deg) rotateZ(0deg) scale(0.9);
+    }
+}
+
+/* Responsive pour le dashboard */
+@media (max-width: 1200px) {
+    .dashboard-main-3d {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        height: auto;
+    }
+    .parking-view-container {
+        min-height: 50vh;
+    }
+}
+@media (max-width: 768px) {
+    .dashboard-main-3d {
+        grid-template-columns: 1fr;
+    }
+    .parking-perspective {
+        transform: rotateX(50deg) rotateZ(0deg);
+    }
+}
+
 /* Mode sombre */
 @media (prefers-color-scheme: dark) {
   .card {

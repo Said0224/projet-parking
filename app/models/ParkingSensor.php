@@ -5,8 +5,9 @@ class ParkingSensor {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance();
-    }
+    // Forcer la connexion à la base de données des capteurs (PostgreSQL)
+    $this->db = Database::getInstance('sensors');
+}
 
     /**
      * Récupère toutes les données des capteurs de proximité (places de parking)

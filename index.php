@@ -75,10 +75,19 @@ try {
             $controller->updateProfile();
             break;
             
+        
+
         case '/dashboard':
             require_once ROOT_PATH . '/app/controllers/DashboardController.php';
             $controller = new DashboardController();
             $controller->index();
+            break;
+        
+        // --- NOUVELLE ROUTE API ---
+        case '/dashboard/api/getPlaceDetails':
+            require_once ROOT_PATH . '/app/controllers/DashboardController.php';
+            $controller = new DashboardController();
+            $controller->getPlaceDetails();
             break;
             
         case '/iot-dashboard':
