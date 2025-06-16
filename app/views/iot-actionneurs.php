@@ -447,109 +447,11 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 </div>
 
 <style>
-/* Correction des débordements et ajustements généraux */
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-.dashboard-container {
-    max-width: 100vw;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1rem;
-    overflow-x: hidden;
-}
-
-/* Header du dashboard */
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
-}
-
-.header-content h1 {
-    color: white;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    word-wrap: break-word;
-}
-
-.header-content h1 i {
-    color: #ffd700;
-    margin-right: 0.5rem;
-}
-
-.header-content p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-    margin: 0;
-    word-wrap: break-word;
-}
-
-/* Navigation secondaire */
-.dashboard-nav {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 15px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    gap: 1rem;
-}
-
-.nav-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.nav-tab {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-.nav-tab:hover, .nav-tab.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.user-info {
-    color: white;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-/* Grille des statistiques */
+/* Styles spécifiques aux actionneurs */
 .actuators-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
@@ -557,14 +459,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
-    min-width: 0;
 }
 
 .actuators-stats .stat-card:hover {
@@ -572,74 +473,39 @@ body {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-.stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: white;
-    flex-shrink: 0;
-}
-
 .active-leds .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .charging-stations .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
 .power-consumption .stat-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
 .automation .stat-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
-.stat-info {
-    min-width: 0;
-    flex: 1;
-}
-
-.stat-info .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.25rem;
-    word-wrap: break-word;
-}
-
-.stat-info .stat-label {
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 500;
-    word-wrap: break-word;
-}
-
 /* Sections d'actionneurs */
 .actuators-section {
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
 .section-header {
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
+    margin-bottom: 2rem;
 }
 
 .section-header h2 {
     color: white;
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-size: 1.75rem;
     font-weight: 700;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    word-wrap: break-word;
 }
 
 .section-header i {
     color: #ffd700;
-    flex-shrink: 0;
 }
 
 /* Grilles d'actionneurs */
 .leds-grid, .charging-stations-grid, .oled-control-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2rem;
 }
 
 .actuator-card {
@@ -650,7 +516,6 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     transition: all 0.3s ease;
-    min-width: 0;
 }
 
 .actuator-card:hover {
@@ -664,48 +529,39 @@ body {
 
 .actuator-header {
     background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1));
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-    flex-wrap: wrap;
-    gap: 0.5rem;
 }
 
 .actuator-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-    flex: 1;
+    gap: 0.75rem;
 }
 
 .actuator-title i {
     color: #3b82f6;
-    font-size: 1.125rem;
-    flex-shrink: 0;
+    font-size: 1.25rem;
 }
 
 .actuator-title h3 {
     margin: 0;
     color: #1e293b;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    word-wrap: break-word;
-    min-width: 0;
 }
 
 .actuator-status {
-    padding: 0.375rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    white-space: nowrap;
-    flex-shrink: 0;
+    gap: 0.5rem;
 }
 
 .status-red { background: #fecaca; color: #991b1b; }
@@ -714,30 +570,29 @@ body {
 .status-active { background: #dcfce7; color: #166534; }
 
 .actuator-body {
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 /* Contrôles LED */
 .led-preview {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
     padding: 1rem;
     background: #f8fafc;
     border-radius: 15px;
 }
 
 .led-visual {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 3px solid #e2e8f0;
     transition: all 0.3s ease;
-    flex-shrink: 0;
 }
 
 .led-visual.active {
@@ -749,16 +604,14 @@ body {
 
 .led-info {
     flex: 1;
-    min-width: 0;
 }
 
 .led-state {
     display: block;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 0.25rem;
-    word-wrap: break-word;
 }
 
 .led-brightness {
@@ -767,20 +620,18 @@ body {
 }
 
 .led-controls {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .color-controls {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     margin-bottom: 1rem;
-    flex-wrap: wrap;
 }
 
 .color-btn {
     flex: 1;
-    min-width: 80px;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     background: #f8fafc;
@@ -790,9 +641,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
+    gap: 0.5rem;
     font-weight: 500;
-    font-size: 0.75rem;
 }
 
 .color-btn:hover {
@@ -806,20 +656,17 @@ body {
 .brightness-control {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .brightness-control label {
     color: #64748b;
     font-weight: 500;
     font-size: 0.875rem;
-    white-space: nowrap;
 }
 
 .brightness-control input[type="range"] {
     flex: 1;
-    min-width: 100px;
     height: 6px;
     border-radius: 3px;
     background: #e2e8f0;
@@ -831,15 +678,14 @@ body {
     font-weight: 600;
     font-size: 0.875rem;
     min-width: 40px;
-    white-space: nowrap;
 }
 
 /* Contrôles de recharge */
 .charging-preview {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
     padding: 1rem;
     background: #f8fafc;
     border-radius: 15px;
@@ -850,26 +696,25 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    flex-shrink: 0;
 }
 
 .charging-port {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     color: white;
     background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 .charging-indicator {
-    width: 50px;
-    height: 6px;
+    width: 60px;
+    height: 8px;
     background: #e2e8f0;
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
@@ -881,16 +726,14 @@ body {
 
 .charging-info {
     flex: 1;
-    min-width: 0;
 }
 
 .charging-state {
     display: block;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 0.25rem;
-    word-wrap: break-word;
 }
 
 .charging-power {
@@ -899,22 +742,21 @@ body {
 }
 
 .charging-controls {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .power-controls {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     margin-bottom: 1rem;
-    flex-wrap: wrap;
 }
 
-.power-btn, .emergency-btn {
+.power-btn {
     flex: 1;
-    min-width: 120px;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     border: none;
     border-radius: 10px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -923,11 +765,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
-}
-
-.power-btn {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 .power-btn:hover {
@@ -936,7 +773,19 @@ body {
 }
 
 .emergency-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 10px;
     background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .emergency-btn:hover {
@@ -947,34 +796,31 @@ body {
 .power-setting, .pricing-control {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     margin-bottom: 0.75rem;
-    flex-wrap: wrap;
 }
 
 .power-setting label, .pricing-control label {
     color: #64748b;
     font-weight: 500;
     font-size: 0.875rem;
-    white-space: nowrap;
+    min-width: 120px;
 }
 
 .power-setting select, .pricing-control input {
     flex: 1;
-    min-width: 100px;
     padding: 0.5rem;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: white;
-    font-size: 0.875rem;
 }
 
 /* Contrôles OLED */
 .oled-display-area {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .oled-preview {
@@ -986,9 +832,8 @@ body {
 .oled-screen {
     background: #1a1a1a;
     border-radius: 15px;
-    padding: 1rem;
-    width: 100%;
-    max-width: 250px;
+    padding: 1.5rem;
+    width: 280px;
     border: 3px solid #333;
     box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
 }
@@ -996,28 +841,28 @@ body {
 .oled-content {
     color: #00ff00;
     font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     text-align: center;
 }
 
 .oled-content h4 {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 1rem 0;
     color: #ffffff;
-    font-size: 0.875rem;
+    font-size: 1rem;
     border-bottom: 1px solid #333;
     padding-bottom: 0.5rem;
 }
 
 .oled-line {
-    margin: 0.375rem 0;
-    line-height: 1.3;
+    margin: 0.5rem 0;
+    line-height: 1.4;
 }
 
 .oled-time {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
     color: #ffff00;
     font-weight: bold;
-    font-size: 0.875rem;
+    font-size: 1rem;
     border-top: 1px solid #333;
     padding-top: 0.5rem;
 }
@@ -1025,19 +870,17 @@ body {
 .oled-controls-panel {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .display-controls {
     display: flex;
     gap: 0.5rem;
-    flex-wrap: wrap;
 }
 
 .control-btn {
     flex: 1;
-    min-width: 80px;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: #f8fafc;
@@ -1065,7 +908,7 @@ body {
 }
 
 .editor-field {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .editor-field label {
@@ -1073,7 +916,7 @@ body {
     color: #64748b;
     font-weight: 500;
     font-size: 0.875rem;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
 }
 
 .editor-field input, .editor-field textarea {
@@ -1086,7 +929,7 @@ body {
 }
 
 .editor-field textarea {
-    height: 50px;
+    height: 60px;
     resize: vertical;
 }
 
@@ -1098,8 +941,8 @@ body {
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
 }
 
 .info-item {
@@ -1109,22 +952,18 @@ body {
     padding: 0.5rem;
     background: #f8fafc;
     border-radius: 8px;
-    min-width: 0;
 }
 
 .info-item .label {
     color: #64748b;
     font-size: 0.75rem;
     font-weight: 500;
-    white-space: nowrap;
 }
 
 .info-item .value {
     color: #1e293b;
     font-weight: 600;
-    font-size: 0.75rem;
-    word-wrap: break-word;
-    text-align: right;
+    font-size: 0.875rem;
 }
 
 /* Actions globales */
@@ -1132,19 +971,19 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .actions-header h3 {
     color: #1e293b;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .actions-header i {
@@ -1153,7 +992,7 @@ body {
 
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
 }
 
@@ -1161,16 +1000,15 @@ body {
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border: 1px solid #e2e8f0;
     color: #64748b;
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 15px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     text-align: center;
-    min-width: 0;
 }
 
 .action-btn:hover {
@@ -1181,38 +1019,16 @@ body {
 }
 
 .action-btn i {
-    font-size: 1.25rem;
-    flex-shrink: 0;
+    font-size: 1.5rem;
 }
 
 .action-btn span {
     font-weight: 500;
     font-size: 0.875rem;
-    word-wrap: break-word;
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .oled-display-area {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 0.5rem;
-    }
-    
-    .dashboard-nav {
-        flex-direction: column;
-        text-align: center;
-        padding: 0.75rem;
-    }
-    
-    .nav-tabs {
-        justify-content: center;
-    }
-    
     .actuators-stats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1221,35 +1037,21 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .info-grid {
+    .oled-display-area {
         grid-template-columns: 1fr;
     }
     
     .actions-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
-    .color-controls, .power-controls {
-        flex-direction: column;
-    }
-    
-    .display-controls {
-        justify-content: center;
-    }
-    
-    .power-setting, .pricing-control {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .brightness-control {
-        flex-direction: column;
-        align-items: stretch;
-    }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .actuators-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid {
         grid-template-columns: 1fr;
     }
     
@@ -1257,12 +1059,8 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .stat-info .stat-number {
-        font-size: 1.25rem;
-    }
-    
-    .oled-content {
-        font-size: 0.625rem;
+    .color-controls, .power-controls {
+        flex-direction: column;
     }
 }
 </style>
