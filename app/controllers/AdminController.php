@@ -135,7 +135,7 @@ class AdminController {
         ];
         
         $this->parkingSpotModel->updateSpot($spot_id, $data);
-<
+
         // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/parking');
 
