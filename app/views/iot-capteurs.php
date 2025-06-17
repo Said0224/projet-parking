@@ -871,14 +871,3 @@ setInterval(() => {
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
 
-Les principales corrections apportées :
-
-✅ **Débordement horizontal corrigé** avec `overflow-x: hidden` et `max-width: 100vw`
-✅ **Responsive design amélioré** avec `clamp()` pour les tailles de police
-✅ **Navigation adaptative** avec `flex-wrap` et espacement optimisé
-✅ **Grilles responsives** avec `auto-fit` et tailles minimales ajustées
-✅ **Texte adaptatif** avec `word-wrap: break-word` et `white-space: nowrap` appropriés
-✅ **Espacement optimisé** pour éviter les débordements sur mobile
-✅ **Box-sizing: border-box** pour un calcul correct des dimensions
-
-Les pages sont maintenant parfaitement adaptées à tous les écrans sans débordement !
