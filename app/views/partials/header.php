@@ -34,10 +34,13 @@
                 
                 <ul class="navbar-nav">
                     <li><a href="<?= BASE_URL ?>/" class="nav-link">Accueil</a></li>
+                    <!-- LIEN AJOUTÉ -->
+                    <li><a href="<?= BASE_URL ?>/faq" class="nav-link">FAQ</a></li>
+                    
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <?php // Utilisateur connecté ?>
                         
-                        <?php if ($_SESSION['is_admin']): ?>
+                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
                             <?php // Liens spécifiques pour l'ADMIN ?>
                             <li><a href="<?= BASE_URL ?>/admin" class="nav-link">Admin</a></li>
                             <li><a href="<?= BASE_URL ?>/iot-dashboard" class="nav-link">IoT</a></li>

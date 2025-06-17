@@ -62,5 +62,26 @@ class ParkingSpot {
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$id]);
     }
+
+
+    public function updateSpotStatusByNumber($spot_number, $status) {
+        $query = "UPDATE parking_spots SET 
+                  status = ?, 
+                  updated_at = CURRENT_TIMESTAMP 
+                  WHERE spot_number = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([
+            $status,
+            $spot_number
+        ]);
+    }
+
+
+    public function getSpotByNumber($spot_number) {
+        $query = "SELECT * FROM parking_spots WHERE spot_number = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$spot_number]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
 ?>

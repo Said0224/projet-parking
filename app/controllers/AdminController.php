@@ -15,12 +15,8 @@ class AdminController {
     }
     
     public function index() {
-        // Vérifier si l'utilisateur est admin
         if (!$this->isAdmin()) {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
-
             exit;
         }
         
@@ -34,10 +30,7 @@ class AdminController {
     
     public function manageUsers() {
         if (!$this->isAdmin()) {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
-
             exit;
         }
         
@@ -48,10 +41,7 @@ class AdminController {
     
     public function manageParking() {
         if (!$this->isAdmin()) {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
-
             exit;
         }
         
@@ -62,10 +52,7 @@ class AdminController {
     
     public function updateUserStatus() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
-
             exit;
         }
         
@@ -73,35 +60,23 @@ class AdminController {
         $is_admin = isset($_POST['is_admin']) ? true : false;
         
         $this->userModel->updateUserAdminStatus($user_id, $is_admin);
-
-        // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
-
     }
     
     public function deleteUser() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
-
             exit;
         }
         
         $user_id = $_POST['user_id'];
         $this->userModel->deleteUser($user_id);
-
-        // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
-
     }
     
     public function createUser() {
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/admin');
-
             exit;
         }
         
@@ -112,39 +87,57 @@ class AdminController {
         $is_admin = isset($_POST['is_admin']) ? true : false;
         
         $this->userModel->createUser($email, $password, $nom, $prenom, $is_admin);
-
-        // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/admin/users');
-
     }
     
+    
+
     public function updateParkingSpot() {
+        // On s'attend à une requête AJAX, donc on prépare une réponse JSON
+        header('Content-Type: application/json');
+
+        // Vérification des permissions
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
-            header('Location: ' . BASE_URL . '/admin');
-
+            http_response_code(403); // Forbidden
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
             exit;
         }
-        
-        $spot_id = $_POST['spot_id'];
+
+        $spot_id = $_POST['spot_id'] ?? null;
+        if (!$spot_id) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'message' => 'ID de la place manquant.']);
+            exit;
+        }
+
+        // Préparation des données (avec la correction 1/0 pour le booléen)
         $data = [
             'status' => $_POST['status'],
             'price_per_hour' => $_POST['price_per_hour'],
-            'has_charging_station' => isset($_POST['has_charging_station']) ? true : false
+            'has_charging_station' => isset($_POST['has_charging_station']) ? 1 : 0
         ];
-        
-        $this->parkingSpotModel->updateSpot($spot_id, $data);
 
-        // REDIRECTION CORRIGÉE
-        header('Location: ' . BASE_URL . '/admin/parking');
-
+        // Tentative de mise à jour
+        if ($this->parkingSpotModel->updateSpot($spot_id, $data)) {
+            // En cas de succès, on renvoie un message de succès
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Place ' . htmlspecialchars($_POST['spot_number'] ?? $spot_id) . ' mise à jour avec succès !'
+            ]);
+        } else {
+            // En cas d'échec
+            http_response_code(500); // Internal Server Error
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erreur lors de la mise à jour de la place en base de données.'
+            ]);
+        }
+        // Notez qu'il n'y a plus de redirection "header('Location: ...')"
+        exit; // On arrête le script ici
     }
     
     private function isAdmin() {
         return isset($_SESSION['user_id']) && isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
     }
-
 }
 ?>
-

@@ -9,7 +9,8 @@ if (session_status() == PHP_SESSION_NONE) {
 
 define('ROOT_PATH', __DIR__);
 // La variable BASE_URL reste utile pour construire les liens dans les vues
-define('BASE_URL', '/projet-parking');
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', rtrim($script_name, '/'));
 
 // --- DÉBUT DES MODIFICATIONS ---
 
@@ -29,6 +30,13 @@ try {
             $controller->index();
             break;
             
+        // ===== NOUVELLE ROUTE POUR LA FAQ =====
+        case '/faq':
+            require_once ROOT_PATH . '/app/controllers/HomeController.php';
+            $controller = new HomeController();
+            $controller->faq();
+            break;
+
         case '/login':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -153,6 +161,25 @@ try {
             $controller = new UserController();
             $controller->cancelReservation();
             break;
+
+         case '/api/update-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->updateSpotStatus();
+            break;
+
+        // ===== NOUVELLE ROUTE API POUR LIRE LE STATUT =====
+        case '/api/get-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotStatus();
+            break;
+            
+        case '/api/get-all-spots-status':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->getAllSpotsStatus();
+            break;
             
         default:
             http_response_code(404);
@@ -171,6 +198,7 @@ try {
 } finally {
     // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
     // On ferme la connexion à la base de données pour la libérer
+    require_once ROOT_PATH . '/config/database.php';
     Database::closeConnection();
 }
 ?>

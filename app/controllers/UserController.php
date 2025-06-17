@@ -42,37 +42,41 @@ class UserController {
     }
     
     public function reserve() {
+        header('Content-Type: application/json');
+
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
-            header('Location: ' . BASE_URL . '/user/parking');
-
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
             exit;
         }
-        
+
         $spot_id = $_POST['spot_id'];
         $start_time = $_POST['start_time'];
         $end_time = $_POST['end_time'];
         $user_id = $_SESSION['user_id'];
         
-        if ($this->reservationModel->createReservation($user_id, $spot_id, $start_time, $end_time)) {
-            $_SESSION['success_message'] = "Réservation effectuée avec succès !";
-        } else {
-            $_SESSION['error_message'] = "Erreur lors de la réservation. La place n'est peut-être plus disponible.";
+        // Validation simple
+        if (empty($spot_id) || empty($start_time) || empty($end_time)) {
+             http_response_code(400);
+             echo json_encode(['success' => false, 'message' => 'Tous les champs sont requis.']);
+             exit;
         }
-        
 
-        // REDIRECTION CORRIGÉE
-        header('Location: ' . BASE_URL . '/user/dashboard');
-
+        if ($this->reservationModel->createReservation($user_id, $spot_id, $start_time, $end_time)) {
+            echo json_encode(['success' => true, 'message' => 'Réservation effectuée avec succès !']);
+        } else {
+            http_response_code(409); // 409 Conflict: la ressource ne peut être créée (déjà prise)
+            echo json_encode(['success' => false, 'message' => "Erreur lors de la réservation. La place n'est peut-être plus disponible pour ce créneau."]);
+        }
+        exit;
     }
     
     public function cancelReservation() {
+        header('Content-Type: application/json');
+
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            // REDIRECTION CORRIGÉE
-            header('Location: ' . BASE_URL . '/user/dashboard');
-
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
             exit;
         }
         
@@ -80,13 +84,32 @@ class UserController {
         $user_id = $_SESSION['user_id'];
         
         if ($this->reservationModel->cancelReservation($reservation_id, $user_id)) {
-            $_SESSION['success_message'] = "Réservation annulée avec succès !";
+            echo json_encode(['success' => true, 'message' => 'Réservation annulée avec succès !']);
         } else {
-            $_SESSION['error_message'] = "Erreur lors de l'annulation de la réservation.";
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => "Erreur lors de l'annulation de la réservation."]);
         }
+        exit;
+    }
 
-        // REDIRECTION CORRIGÉE
-        header('Location: ' . BASE_URL . '/user/dashboard');
+    public function getAllSpotsStatus() {
+        header('Content-Type: application/json');
+
+        // On peut ajouter une vérification de session si on veut que l'API soit privée
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
+            exit;
+        }
+        
+        try {
+            $spots = $this->parkingSpotModel->getAllSpots();
+            echo json_encode(['success' => true, 'spots' => $spots]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur serveur lors de la récupération des places.']);
+        }
+        exit;
     }
 }
 
