@@ -149,6 +149,12 @@ try {
             $controller->updateParkingSpot();
             break;
 
+        case '/admin/api/reservations':
+        require_once ROOT_PATH . '/app/controllers/AdminController.php';
+        $controller = new AdminController();
+        $controller->getReservationsAjax();
+        break;
+
         // ===== ROUTES UTILISATEUR =====
         case '/user/dashboard':
             require_once ROOT_PATH . '/app/controllers/UserController.php';
