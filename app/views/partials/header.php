@@ -54,6 +54,9 @@ if (isset($_SESSION['user_id'])) { // Vérifier uniquement si l'utilisateur est 
                 
                 <ul class="navbar-nav">
                     <li><a href="<?= BASE_URL ?>/" class="nav-link">Accueil</a></li>
+                    <!-- LIEN AJOUTÉ -->
+                    <li><a href="<?= BASE_URL ?>/faq" class="nav-link">FAQ</a></li>
+                    
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <?php // Utilisateur connecté ?>
                         

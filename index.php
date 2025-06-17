@@ -30,6 +30,13 @@ try {
             $controller->index();
             break;
             
+        // ===== NOUVELLE ROUTE POUR LA FAQ =====
+        case '/faq':
+            require_once ROOT_PATH . '/app/controllers/HomeController.php';
+            $controller = new HomeController();
+            $controller->faq();
+            break;
+
         case '/login':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
