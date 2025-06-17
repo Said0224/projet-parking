@@ -870,4 +870,3 @@ setInterval(() => {
 </script>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
-

@@ -67,7 +67,7 @@ try {
             $controller->index();
             break;
             
-    
+
 
         // ===== ROUTES ADMIN =====
         case '/admin':
