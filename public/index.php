@@ -67,12 +67,7 @@ try {
             $controller->index();
             break;
             
-        case '/iot-dashboard':
-            require_once ROOT_PATH . '/app/controllers/IoTDashboardController.php';
-            $controller = new IoTDashboardController();
-            $controller->index();
-            break;
-
+        
         // ===== ROUTES ADMIN =====
         case '/admin':
             require_once ROOT_PATH . '/app/controllers/AdminController.php';
