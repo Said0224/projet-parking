@@ -9,7 +9,8 @@ if (session_status() == PHP_SESSION_NONE) {
 
 define('ROOT_PATH', __DIR__);
 // La variable BASE_URL reste utile pour construire les liens dans les vues
-define('BASE_URL', '/projet-parking');
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', rtrim($script_name, '/'));
 
 // --- DÉBUT DES MODIFICATIONS ---
 
@@ -190,6 +191,7 @@ try {
 } finally {
     // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
     // On ferme la connexion à la base de données pour la libérer
+    require_once ROOT_PATH . '/config/database.php';
     Database::closeConnection();
 }
 ?>

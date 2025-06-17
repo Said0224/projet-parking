@@ -5,8 +5,16 @@ import time
 # --- CONFIGURATION ---
 SERIAL_PORT = 'COM12'  # <-- À MODIFIER !
 BAUD_RATE = 9600
-API_UPDATE_URL = 'http://localhost/projet-parking/api/update-spot-status'
-API_GET_URL = 'http://localhost/projet-parking/api/get-spot-status'
+
+# MODIFICATION: Base de l'URL de l'API. Changez cette ligne en fonction de votre environnement.
+# Pour le développement local dans le sous-dossier:
+API_BASE_URL = 'http://localhost/projet-parking'
+# Pour la production sur votre site en ligne (à la racine):
+# API_BASE_URL = 'http://votre-domaine.com'
+
+# Les URLs des endpoints sont maintenant construites dynamiquement.
+API_UPDATE_URL = f'{API_BASE_URL}/api/update-spot-status'
+API_GET_URL = f'{API_BASE_URL}/api/get-spot-status'
 # ---------------------
 
 print("--- Pont Serie vers API (Bidirectionnel) ---")
