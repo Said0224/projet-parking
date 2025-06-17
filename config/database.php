@@ -1,11 +1,11 @@
 <?php
 
 // Configuration de la connexion à la base de données PostgreSQL commune
-define('DB_HOST', 'app.garageisep.com');
-define('DB_PORT', '5409');
-define('DB_NAME', 'app_db');
-define('DB_USER', 'app_user');
-define('DB_PASS', 'appg9');
+define('DB_HOST', 'host.docker.internal');
+define('DB_PORT', '5432');
+define('DB_NAME', 'app_db_locale');
+define('DB_USER', 'postgres');
+define('DB_PASS', 'postgres');
 
 // Data Source Name (DSN) pour PostgreSQL
 define('DB_DSN', "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME);
