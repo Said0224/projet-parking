@@ -67,7 +67,8 @@ try {
             $controller->index();
             break;
             
-        
+
+
         // ===== ROUTES ADMIN =====
         case '/admin':
             require_once ROOT_PATH . '/app/controllers/AdminController.php';

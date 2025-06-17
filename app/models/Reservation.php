@@ -74,21 +74,22 @@ class Reservation {
         $where = [];
         $params = [];
         
-        if (!empty($filters['search'])) {
-            $where[] = "(u.email LIKE ? OR u.nom LIKE ? OR u.prenom LIKE ? OR ps.spot_number LIKE ?)";
-            $searchTerm = '%' . $filters['search'] . '%';
-            array_push($params, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+        // --- NOUVEAUX FILTRES ---
+        if (!empty($filters['date'])) {
+            // On filtre sur la date de début de la réservation
+            $where[] = "DATE(r.start_time) = ?";
+            $params[] = $filters['date'];
         }
+
+        if (!empty($filters['spot_id'])) {
+            $where[] = "r.spot_id = ?";
+            $params[] = $filters['spot_id'];
+        }
+        // --- FIN DES NOUVEAUX FILTRES ---
         
         if (!empty($filters['status'])) {
             $where[] = "r.status = ?";
             $params[] = $filters['status'];
-        }
-
-        // Filtre pour les réservations d'un utilisateur spécifique
-        if (!empty($filters['user_id'])) {
-            $where[] = "r.user_id = ?";
-            $params[] = $filters['user_id'];
         }
         
         if (!empty($where)) {
@@ -104,6 +105,7 @@ class Reservation {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
     // NOUVELLE MÉTHODE POUR COMPTER LE TOTAL
     public function getTotalReservationsCount($filters = []) {
         $sql = "SELECT COUNT(r.id) 
@@ -114,20 +116,21 @@ class Reservation {
         $where = [];
         $params = [];
         
-        if (!empty($filters['search'])) {
-            $where[] = "(u.email LIKE ? OR u.nom LIKE ? OR u.prenom LIKE ? OR ps.spot_number LIKE ?)";
-            $searchTerm = '%' . $filters['search'] . '%';
-            array_push($params, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+        // --- NOUVEAUX FILTRES ---
+        if (!empty($filters['date'])) {
+            $where[] = "DATE(r.start_time) = ?";
+            $params[] = $filters['date'];
         }
         
+        if (!empty($filters['spot_id'])) {
+            $where[] = "r.spot_id = ?";
+            $params[] = $filters['spot_id'];
+        }
+        // --- FIN DES NOUVEAUX FILTRES ---
+
         if (!empty($filters['status'])) {
             $where[] = "r.status = ?";
             $params[] = $filters['status'];
-        }
-
-        if (!empty($filters['user_id'])) {
-            $where[] = "r.user_id = ?";
-            $params[] = $filters['user_id'];
         }
         
         if (!empty($where)) {

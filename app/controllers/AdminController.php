@@ -1,4 +1,6 @@
 <?php
+// Fichier : app/controllers/AdminController.php
+
 require_once ROOT_PATH . '/app/models/User.php';
 require_once ROOT_PATH . '/app/models/ParkingSpot.php';
 require_once ROOT_PATH . '/app/models/Reservation.php';
@@ -22,12 +24,57 @@ class AdminController {
         
         $users = $this->userModel->getAllUsers();
         $spots = $this->parkingSpotModel->getAllSpots();
-        $reservations = $this->reservationModel->getAllReservations();
+
+        // --- DÉBUT DE LA CORRECTION ---
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $reservations_per_page = 5;
+
+        // On construit le tableau des filtres à partir de l'URL, exactement comme dans la méthode AJAX
+        $filters = [];
+        if (!empty($_GET['filter_date'])) {
+            $filters['date'] = $_GET['filter_date'];
+        }
+        if (!empty($_GET['filter_spot_id'])) {
+            $filters['spot_id'] = $_GET['filter_spot_id'];
+        }
+        
+        // On passe le tableau des filtres aux méthodes du modèle
+        $total_reservations = $this->reservationModel->getTotalReservationsCount($filters);
+        $total_pages = ceil($total_reservations / $reservations_per_page);
+
+        $reservations = $this->reservationModel->getPaginatedReservations($page, $reservations_per_page, $filters);
+        // --- FIN DE LA CORRECTION ---
         
         $page_title = "Administration - Parking Intelligent";
         require_once ROOT_PATH . '/app/views/admin/dashboard.php';
     }
+
+    // La méthode getReservationsAjax que nous avons créée précédemment est déjà correcte et n'a pas besoin de changer.
+    public function getReservationsAjax() {
+        if (!$this->isAdmin()) {
+            http_response_code(403);
+            echo "Accès refusé.";
+            exit;
+        }
     
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $reservations_per_page = 5;
+    
+        $filters = [];
+        if (!empty($_GET['filter_date'])) {
+            $filters['date'] = $_GET['filter_date'];
+        }
+        if (!empty($_GET['filter_spot_id'])) {
+            $filters['spot_id'] = $_GET['filter_spot_id'];
+        }
+    
+        $total_reservations = $this->reservationModel->getTotalReservationsCount($filters);
+        $total_pages = ceil($total_reservations / $reservations_per_page);
+        $reservations = $this->reservationModel->getPaginatedReservations($page, $reservations_per_page, $filters);
+    
+        require ROOT_PATH . '/app/views/partials/reservations_table.php';
+        exit;
+    }    
     public function manageUsers() {
         if (!$this->isAdmin()) {
             header('Location: ' . BASE_URL . '/login');
