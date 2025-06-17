@@ -1,3 +1,23 @@
+<?php
+// NOUVEAU BLOC : GESTION DE L'EXPIRATION DE SESSION
+if (isset($_SESSION['user_id'])) { // Vérifier uniquement si l'utilisateur est connecté
+    $timeout_duration = 1800; // Durée en secondes (ici, 30 minutes)
+    $current_time = time();
+
+    if (isset($_SESSION['login_time']) && (($current_time - $_SESSION['login_time']) > $timeout_duration)) {
+        // La session a expiré
+        session_unset(); // Supprime les variables de session
+        session_destroy(); // Détruit la session
+        
+        // Redirige vers la page de connexion avec un message d'information
+        header('Location: ' . BASE_URL . '/login?status=session_expired');
+        exit;
+    }
+    
+    // Si la session n'a pas expiré, on met à jour le temps de la dernière activité
+    $_SESSION['login_time'] = $current_time;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
