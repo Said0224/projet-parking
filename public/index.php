@@ -67,10 +67,32 @@ try {
             $controller->index();
             break;
             
+        // ===== ROUTES IOT =====
         case '/iot-dashboard':
-            require_once ROOT_PATH . '/app/controllers/IoTDashboardController.php';
-            $controller = new IoTDashboardController();
-            $controller->index();
+            // Vérification admin
+            if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+                header('Location: /login');
+                exit;
+            }
+            require_once ROOT_PATH . '/app/views/iot-dashboard.php';
+            break;
+            
+        case '/admin/iot-capteurs':
+            // Vérification admin
+            if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+                header('Location: /login');
+                exit;
+            }
+            require_once ROOT_PATH . '/app/views/admin/iot-capteurs.php';
+            break;
+            
+        case '/admin/iot-actionneurs':
+            // Vérification admin
+            if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+                header('Location: /login');
+                exit;
+            }
+            require_once ROOT_PATH . '/app/views/admin/iot-actionneurs.php';
             break;
 
         // ===== ROUTES ADMIN =====

@@ -1,6 +1,8 @@
 <?php
 
 class DashboardController {
+
+    
     
     /**
      * Affiche le tableau de bord (nécessite une connexion)
@@ -25,4 +27,12 @@ class DashboardController {
         
         require_once ROOT_PATH . '/app/views/dashboard.php';
     }
+       public function admin()
+    {
+        // code for admin dashboard
+        require_once ROOT_PATH . '/app/views/admin_dashboard.php';
+    }
 }
+
+
+

@@ -69,7 +69,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
         </div>
         
         <div class="iot-nav-cards">
-            <a href="/iot-dashboard/capteurs" class="iot-nav-card capteurs-card">
+            <a href="/admin/iot-capteurs" class="iot-nav-card capteurs-card">
                 <div class="nav-card-icon">
                     <i class="fas fa-satellite-dish"></i>
                 </div>
@@ -89,8 +89,8 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                     <i class="fas fa-chevron-right"></i>
                 </div>
             </a>
-            
-            <a href="/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
+
+            <a href="/admin/iot-actionneurs" class="iot-nav-card actionneurs-card">
                 <div class="nav-card-icon">
                     <i class="fas fa-cogs"></i>
                 </div>
