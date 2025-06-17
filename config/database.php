@@ -7,6 +7,25 @@ define('DB_USER', 'kCrBSMvT17_projet_par');
 define('DB_PASS', 'JVQ6LotVLJAHjH5r');
 // Le port standard pour MySQL est 3306, il est généralement omis car c'est le défaut.
 
+/*
+// Configuration de la connexion à la base de données PostgreSQL commune
+define('DB_HOST', 'app.garageisep.com');
+define('DB_PORT', '5409');
+define('DB_NAME', 'app_db');
+define('DB_USER', 'app_user');
+define('DB_PASS', 'appg9');
+*/
+
+/*
+// Configuration de la connexion à la base de données PostgreSQL locale 
+define('DB_HOST', 'localhost');
+define('DB_PORT', '5432');
+define('DB_NAME', 'app_db_locale');
+define('DB_USER', 'postgres');
+define('DB_PASS', 'postgres');
+*/
+
+
 // --- NOUVEAU DSN (Data Source Name) POUR MYSQL ---
 // On utilise "mysql:" au lieu de "pgsql:" et on ajoute le charset.
 define('DB_DSN', "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4");
