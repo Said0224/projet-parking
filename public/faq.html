@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>FAQ – Parking Intelligent</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- 内联 CSS：只影响 FAQ 组件，不会冲突全站样式 -->
+<style>
+:root{
+  --faq-bg:#fafafa;
+  --faq-border:#c5c5c5;
+  --faq-radius:8px;
+  --faq-primary:#007bff;
+  --faq-text:#212529;
+  --faq-shadow:0 2px 4px rgba(0,0,0,.06);
+}
+body{font-family:system-ui,Arial,sans-serif;margin:0;padding:2rem;line-height:1.6;color:var(--faq-text)}
+h1{margin-top:0}
+.faq-search{width:100%;max-width:440px;padding:.55rem .9rem;font-size:1rem;border:1px solid var(--faq-border);border-radius:var(--faq-radius);margin-bottom:1.6rem}
+.faq-item{border:1px solid var(--faq-border);border-radius:var(--faq-radius);background:var(--faq-bg);margin-bottom:1rem;box-shadow:var(--faq-shadow);overflow:hidden;transition:box-shadow .2s}
+.faq-item[open]{box-shadow:0 4px 8px rgba(0,0,0,.08)}
+.faq-item>summary{position:relative;list-style:none;cursor:pointer;font-weight:600;padding:.9rem 1.1rem .9rem 2.2rem}
+.faq-item>summary::-webkit-details-marker{display:none}
+.faq-item>summary::before{content:"＋";position:absolute;left:.9rem;top:50%;transform:translateY(-50%);font-weight:700;color:var(--faq-primary)}
+.faq-item[open]>summary::before{content:"－"}
+.faq-body{padding:.75rem 1.2rem 1.2rem}
+</style>
+</head>
+
+<body>
+
+<h1>Foire&nbsp;Aux&nbsp;Questions</h1>
+
+<input class="faq-search" type="search" placeholder="Tapez un mot-clé…" oninput="filterFaq(this.value)">
+
+<details class="faq-item">
+  <summary>Comment réserver une place&nbsp;?</summary>
+  <div class="faq-body">
+    Connectez-vous, puis cliquez sur « Réserver » dans le tableau de bord. Choisissez date et
+    heure, puis validez.
+  </div>
+</details>
+
+<details class="faq-item">
+  <summary>Puis-je annuler ma réservation&nbsp;?</summary>
+  <div class="faq-body">
+    Oui, jusqu’à 2 heures avant l’horaire de début, depuis votre page Profil.
+  </div>
+</details>
+
+<details class="faq-item">
+  <summary>Que signifie la LED rouge sur le capteur&nbsp;?</summary>
+  <div class="faq-body">
+    Rouge = place occupée&nbsp;; Verte = place libre.
+  </div>
+</details>
+
+<script>
+function filterFaq(keyword){
+  const t=keyword.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(d=>{
+    const hit=d.querySelector('summary').textContent.toLowerCase().includes(t);
+    d.style.display=hit?'':'none';
+  });
+}
+</script>
+
+</body>
+</html>
