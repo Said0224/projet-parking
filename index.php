@@ -9,10 +9,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 define('ROOT_PATH', __DIR__);
 // La variable BASE_URL reste utile pour construire les liens dans les vues
-$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-$base_url = ($script_name === '/') ? '' : $script_name;
-define('BASE_URL', $base_url);
-$request_uri = '/' . trim($_GET['url'] ?? '', '/');
+define('BASE_URL', '/projet-parking');
 
 // --- DÉBUT DES MODIFICATIONS ---
 
