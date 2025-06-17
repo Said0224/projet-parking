@@ -55,17 +55,19 @@ class AuthController {
             exit;
         }
 
+        
+
         // Tentative d'authentification
         $userModel = new User();
         $user = $userModel->authenticate($email, $password);
 
-        if ($user) {
+         if ($user) {
             // Connexion réussie
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_nom'] = $user['nom'];
             $_SESSION['user_prenom'] = $user['prenom'];
-            $_SESSION['login_time'] = time();
+            $_SESSION['login_time'] = time(); // NOUVEAU : Enregistrer le moment de la connexion
 
             $_SESSION['is_admin'] = $user['is_admin'] ?? false;
 

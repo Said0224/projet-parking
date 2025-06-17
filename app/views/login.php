@@ -7,7 +7,17 @@
             <p>Accédez à votre dashboard de parking intelligent</p>
         </div>
 
-        <?php if (!empty($error)): ?>
+        <?php 
+        // Logique modifiée pour afficher l'erreur
+        $error = $_SESSION['login_error'] ?? '';
+        unset($_SESSION['login_error']);
+        
+        if (isset($_GET['status']) && $_GET['status'] === 'session_expired') {
+            $error = "Votre session a expiré pour inactivité. Veuillez vous reconnecter.";
+        }
+
+        if (!empty($error)): 
+        ?>
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle"></i>
                 <?= $error ?>

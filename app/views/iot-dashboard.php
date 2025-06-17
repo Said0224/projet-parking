@@ -90,7 +90,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                 </div>
             </a>
             
-            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
+             <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
                 <div class="nav-card-icon">
                     <i class="fas fa-cogs"></i>
                 </div>

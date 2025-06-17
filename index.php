@@ -89,9 +89,21 @@ try {
             break;
             
         case '/iot-dashboard':
-            require_once ROOT_PATH . '/app/controllers/IoTDashboardController.php';
-            $controller = new IoTDashboardController();
-            $controller->index();
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->dashboard();
+            break;
+
+        case '/iot-dashboard/capteurs': // Nouvelle route
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->capteurs();
+            break;
+
+        case '/iot-dashboard/actionneurs': // Nouvelle route
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->actionneurs();
             break;
 
         // ===== ROUTES ADMIN =====

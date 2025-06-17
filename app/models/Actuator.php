@@ -13,6 +13,7 @@ class Actuator {
      */
     public function getAllLEDs() {
         try {
+            // Utilise le nom de table exact 'LED'
             $stmt = $this->db->query("SELECT * FROM LED ORDER BY id ASC");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
@@ -52,6 +53,7 @@ class Actuator {
      */
     public function getOLEDData() {
         try {
+            // Utilise le nom de table exact 'OLED'
             $stmt = $this->db->query("SELECT * FROM OLED ORDER BY id DESC LIMIT 1");
             return $stmt->fetch();
         } catch (PDOException $e) {
@@ -65,12 +67,13 @@ class Actuator {
      */
     public function updateOLED($places_dispo, $bornes_dispo, $user = '', $plaque = '') {
         try {
+            // Attention: `user` est un mot-clé réservé en SQL, il faut l'entourer de backticks (`).
             $stmt = $this->db->prepare("
                 UPDATE OLED SET 
                 places_dispo = ?, 
                 bornes_dispo = ?, 
                 heure = CURRENT_TIMESTAMP,
-                \"user\" = ?,
+                `user` = ?,
                 plaque_immatriculation = ?
                 WHERE id = 1
             ");

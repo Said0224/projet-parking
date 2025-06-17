@@ -44,6 +44,11 @@ class Database {
     }
 
     
+    // NOUVELLE MÉTHODE CI-DESSOUS
+    /**
+     * Ferme la connexion à la base de données en détruisant l'instance.
+     * Cela force PDO à libérer la connexion au serveur MySQL.
+     */
     public static function closeConnection() {
         self::$instance = null;
     }
