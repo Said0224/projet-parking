@@ -1,6 +1,12 @@
 <?php
 
-// --- NOUVELLE CONFIGURATION POUR LA BASE DE DONNÉES MySQL ---
+// ---  POUR LA BASE DE DONNÉES POSTGRES COMMUNE ---
+/*define('DB_HOST', 'app.garageisep.com');
+define('DB_PORT', '5409');
+define('DB_NAME', 'app_db');
+define('DB_USER', 'app_user');
+define('DB_PASS', 'appg9');
+*/
 define('DB_HOST', 'herogu.garageisep.com');
 define('DB_NAME', 'IxMd95C0YL_projet_par');
 define('DB_USER', 'kCrBSMvT17_projet_par');
