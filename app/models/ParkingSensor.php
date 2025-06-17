@@ -8,9 +8,8 @@ class ParkingSensor {
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Récupère toutes les données des capteurs de proximité (places de parking)
-     */
+    // --- Capteur de Proximité ---
+
     public function getAllParkingSpaces() {
         try {
             $stmt = $this->db->query("SELECT * FROM capteurProximite ORDER BY place ASC");
@@ -21,13 +20,8 @@ class ParkingSensor {
         }
     }
 
-    /**
-     * Récupère les dernières données de chaque place
-     */
     public function getLatestParkingStatus() {
         try {
-            // Cette sous-requête trouve l'ID de la dernière mesure pour chaque 'place'.
-            // La requête principale joint ensuite pour obtenir les données complètes.
             $sql = "
                 SELECT cp1.*
                 FROM capteurProximite cp1
@@ -46,14 +40,53 @@ class ParkingSensor {
         }
     }
 
+    // --- AUTRES CAPTEURS ---
+
     /**
-     * Ajoute une nouvelle mesure de capteur de proximité
+     * Récupère la dernière mesure d'un type de capteur donné.
+     * @param string $tableName Le nom exact de la table du capteur (ex: 'capteurGaz')
+     * @return array|null Les données de la dernière mesure ou null.
      */
+    private function getLatestReading($tableName) {
+        try {
+            // Valide le nom de la table pour la sécurité (évite l'injection SQL)
+            $allowedTables = ['capteurGaz', 'capteurLum', 'capteurSon', 'capteurTemp'];
+            if (!in_array($tableName, $allowedTables)) {
+                throw new Exception("Nom de table non autorisé : " . $tableName);
+            }
+
+            // Utilise le nom de table validé
+            $stmt = $this->db->query("SELECT * FROM `$tableName` ORDER BY id DESC LIMIT 1");
+            return $stmt->fetch();
+        } catch (Exception $e) {
+            error_log("Erreur dans getLatestReading pour la table $tableName : " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function getLatestGasReading() {
+        return $this->getLatestReading('capteurGaz');
+    }
+
+    public function getLatestLightReading() {
+        return $this->getLatestReading('capteurLum');
+    }
+
+    public function getLatestSoundReading() {
+        return $this->getLatestReading('capteurSon');
+    }
+
+    public function getLatestTempReading() {
+        return $this->getLatestReading('capteurTemp');
+    }
+
+    // --- Méthodes de modification (Add, Update, Delete) ---
+
     public function addMeasurement($place, $valeur) {
         try {
             $stmt = $this->db->prepare("
                 INSERT INTO capteurProximite (place, date, heure, valeur) 
-                VALUES (?, CURRENT_DATE, CURRENT_TIME, ?)
+                VALUES (?, CURRENT_DATE(), CURRENT_TIME(), ?)
             ");
             return $stmt->execute([$place, $valeur]);
         } catch (PDOException $e) {
@@ -61,34 +94,6 @@ class ParkingSensor {
             return false;
         }
     }
-
-    /**
-     * Met à jour l'état d'une place de parking
-     */
-    public function updateParkingSpace($id, $place, $valeur) {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE capteurProximite 
-                SET place = ?, valeur = ?, date = CURRENT_DATE, heure = CURRENT_TIME 
-                WHERE id = ?
-            ");
-            return $stmt->execute([$place, $valeur, $id]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans updateParkingSpace : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Supprime une mesure
-     */
-    public function deleteMeasurement($id) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM capteurProximite WHERE id = ?");
-            return $stmt->execute([$id]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans deleteMeasurement : " . $e->getMessage());
-            return false;
-        }
-    }
+    
+    // Vous pouvez ajouter des méthodes similaires pour les autres capteurs si nécessaire
 }
