@@ -39,7 +39,7 @@
                     // Fonction d'aide pour afficher une place
                     function render_spot_3d($spot) {
                         if (!is_array($spot) || !isset($spot['spot_number'])) {
-                            echo "<div class='parking-spot-3d maintenance' data-id='0'><div class='spot-top'><span class='spot-number-3d'>?</span></div></div>";
+                            echo "<div class='parking-spot-3d maintenance' data-id='0'><div class='spot-top'><span class='spot-number-3d' >?</span></div></div>";
                             return;
                         }
                         $status = htmlspecialchars($spot['status']);
@@ -56,7 +56,7 @@
                         </div>";
                     }
 
-                    // Boucle sur chaque étage
+                     // Boucle sur chaque étage
                     if (isset($spotsByEtage) && is_array($spotsByEtage) && !empty($spotsByEtage)) {
                         foreach ($spotsByEtage as $etage => $spots) {
                             $placeMap = [];
@@ -65,22 +65,70 @@
                         <div class="parking-floor-3d" id="floor-<?= $etage ?>" data-floor="<?= $etage ?>" style="display: none;">
                             <?php
                             if ($etage == 1) { // Disposition complexe pour l'étage 1
+
+                                // ================== DÉBUT DES MODIFICATIONS ==================
+                                
+                                // 1. Définir la nouvelle disposition avec les rampes d'accès
                                 $layout_etage_1 = [
-                                    '101', '102', '103', 'pillar', '104', '105', '106', 'crossing', 'pillar', '107', '108', '109', 'pillar', '110', '111', '112', 'pillar', '113', '114', '115',
-                                    'aisle',
-                                    '116', '117', '118', 'pillar', '119', '120', '121', 'crossing', 'pillar', '122', '123', '124', 'pillar', '125', '126', '127', 'pillar', 'special-zone', null,
+                                    // Rangée 0: Accès principal
+                                    ['floor-access-top'],
+                                    // Rangée 1 (Haut)
+                                    ['ramp-down', '101', '102', '103', 'pillar', '104', '105', '106', 'crossing', 'pillar', '107', '108', '109', 'pillar', '110', '111', '112', 'pillar', '113', '114', '115', 'ramp-up'],
+                                    // Rangée 2 & 3: Allée de circulation
+                                    ['aisle'],
+                                    ['aisle'],
+                                     // Rangée 4 (Milieu-Haut)
+                                    [ null,'116', '117', '118', 'pillar', '119', '120', '121', 'crossing', 'pillar', '122', '123', '124', 'pillar', '125', '126', '127', 'pillar', "special-zone", null, ],
+                                    // Rangée 5 (Milieu-Bas)
+                                    [ null,'128', '129', '130', 'pillar', '131', '132', '133', 'crossing', 'pillar', '134', '135', '136', 'pillar', '137', '138', '139', 'pillar',  null, null, ],
+                                    // Rangée 6 & 7: Allée de circulation
+                                    ['aisle'],
+                                    ['aisle']
                                 ];
-                                foreach ($layout_etage_1 as $item) {
-                                    if (in_array($item, ['pillar', 'crossing', 'special-zone', 'aisle'])) {
-                                        $style = '';
-                                        if ($item === 'crossing' || $item === 'special-zone') $style = "style='grid-column: span 2;'";
-                                        if ($item === 'aisle') $style = "style='grid-column: 1 / -1;'";
-                                        $content = ($item === 'special-zone') ? '<span>VÉLO &<br>ASCENSEUR</span>' : '';
-                                        echo "<div class='parking-structure {$item}' {$style}>{$content}</div>";
-                                    } elseif ($item !== null) {
-                                        render_spot_3d($placeMap[$item] ?? ['spot_number' => $item, 'status' => 'maintenance', 'id' => 0]);
-                                    } else { echo "<div></div>"; }
+
+                                // 2. Logique d'affichage mise à jour pour gérer tous les types d'éléments
+                                foreach ($layout_etage_1 as $row) {
+                                    foreach($row as $item) {
+                                        if (in_array($item, ['pillar', 'crossing', 'special-zone', 'aisle', 'floor-access-top'])) {
+                                            $style = '';
+                                            $content = '';
+                                            $class_name = $item;
+
+                                            if ($item === 'crossing') $style = "style='grid-column: span 2;'";
+                                            if ($item === 'special-zone') {
+                                                $style = "style='grid-column: span 2;'"; // Ajusté pour 2 colonnes
+                                                $content = '<span>VÉLO &<br>ASCENSEUR</span>';
+                                            }
+                                            if ($item === 'aisle' || $item === 'floor-access-top') {
+                                                $style = "style='grid-column: 1 / -1;'"; // S'étend sur toute la largeur (23 colonnes)
+                                            }
+                                            if ($item === 'floor-access-top') {
+                                                $content = "<i class='fas fa-arrow-down'></i> ACCÈS VOITURES (ENTRÉE) <i class='fas fa-arrow-down'></i>";
+                                                $class_name = 'floor-access';
+                                            }
+
+                                            echo "<div class='parking-structure {$class_name}' {$style}>{$content}</div>";
+
+                                        } elseif (in_array($item, ['ramp-up', 'ramp-down'])) {
+                                            // Nouvelle condition pour afficher les rampes
+                                            $ramp_style = "style='grid-row: span 7;'"; // S'étend sur 7 rangées de la grille
+                                            $ramp_text = ($item === 'ramp-up') ? "VERS ÉTAGES SUP." : "VERS SORTIE";
+                                            $ramp_icon = ($item === 'ramp-up') ? "fa-arrow-up" : "fa-arrow-down";
+                                            echo "
+                                            <div class='parking-structure ramp {$item}' {$ramp_style}>
+                                                <i class='fas {$ramp_icon}'></i>
+                                                <span>{$ramp_text}</span>
+                                            </div>";
+
+                                        } elseif ($item !== null) {
+                                            render_spot_3d($placeMap[$item] ?? ['spot_number' => $item, 'status' => 'maintenance', 'id' => 0]);
+                                        } else {
+                                            echo "<div></div>"; // Espace vide
+                                        }
+                                    }
                                 }
+                                // =================== FIN DES MODIFICATIONS ===================
+                            
                             } else { // Disposition simple pour les autres étages
                                 foreach ($spots as $spot) {
                                     render_spot_3d($spot);

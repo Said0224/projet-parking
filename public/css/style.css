@@ -545,9 +545,56 @@ header {
 .floor-switcher .btn.active { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-color: #3b82f6; }
 .parking-view-container { perspective: 1500px; display: flex; align-items: center; justify-content: center;  border-radius: 15px; padding: 2rem; }
 .parking-perspective { transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(-30deg); transition: transform 0.5s ease; }
-.parking-floor-3d { display: grid; transform-style: preserve-3d; }
-#floor-1 { grid-template-columns: repeat(21, auto); gap: 10px; }
-#floor-2, #floor-3 { grid-template-columns: repeat(10, 1fr); gap: 15px; }
+.parking-floor-3d { 
+    display: grid; 
+    transform-style: preserve-3d; 
+    grid-auto-rows: auto; /* <-- C'est la commande clé. Elle s'applique à toutes les lignes créées. */
+}
+#floor-1 { 
+    grid-template-columns:  repeat(23, auto) ; /* 1 rampe + 21 places/structures + 1 rampe */
+    gap: 10px;
+}
+
+/* Style pour les nouvelles rampes */
+.parking-structure.ramp {
+    background: rgba(40, 40, 40, 0.7);
+    border: 2px dashed #ffd700;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 10px;
+    gap: 10px;
+    writing-mode: vertical-rl; /* Affiche le texte verticalement */
+    text-orientation: mixed;
+}
+
+.parking-structure.ramp-down {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-right: none;
+}
+
+.parking-structure.ramp-up {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-left: none;
+}
+
+.parking-structure.ramp i {
+    font-size: 1.5rem;
+    color: #ffd700;
+    margin-bottom: 10px;
+    transform: rotate(90deg); /* Réoriente l'icône correctement */
+}
+#floor-2, #floor-3 { 
+    grid-template-columns: repeat(10, 1fr); 
+    gap: 15px; 
+}
 .parking-spot-3d { width: 60px; height: 100px; position: relative; transform-style: preserve-3d; cursor: pointer; transition: transform 0.2s ease; }
 .parking-spot-3d:hover { transform: translateZ(10px); }
 .parking-spot-3d.selected .spot-top { box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.8); border: 2px solid #06b6d4; }
@@ -561,7 +608,7 @@ header {
 .parking-spot-3d.réservée .spot-top { background-color: rgba(23, 162, 184, 0.7); }
 .parking-spot-3d.maintenance .spot-top { background: repeating-linear-gradient(45deg, #333, #333 10px, #ffc107 10px, #ffc107 20px); }
 .spot-number-3d { text-shadow: 0 0 5px black; }
-.parking-structure { width: auto; height: 100%; display: flex; align-items: center; justify-content: center; }
+.parking-structure { width: auto; height: 200%; display: flex; align-items: center; justify-content: center; }
 .parking-structure.pillar { background-color: #555; border-radius: 5px; width: 20px; align-self: center; height: 100px;  }
 .parking-structure.aisle { height: 50px; background: none; }
 .parking-structure.crossing { background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.1) 10px, rgba(255, 255, 255, 0.1) 20px); border-left: 2px solid var(--color-grey);border-right: 2px solid var(--color-grey);width: 139px;height: 100px; }
@@ -572,6 +619,37 @@ header {
 .info-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; font-size: 1rem; }
 .info-item span:first-child { opacity: 0.8; }
 .btn-full { width: 100%; justify-content: center; }
+
+.horizontal-spot-wrapper {
+    /* Applique une rotation de 90 degrés */
+    
+    
+    /* Centre la place à l'intérieur de sa cellule de grille après rotation */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+/* ================== DÉBUT DES MODIFICATIONS ================== */
+.parking-structure.floor-access {
+    height: 60px;
+    background: linear-gradient(to right, rgba(60,60,60,0.8), rgba(80,80,80,0.9), rgba(60,60,60,0.8));
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 3px #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    border-top: 2px solid #aaa;
+    border-bottom: 2px solid #555;
+    margin: 10px 200px 0px 0;
+}
+/* =================== FIN DES MODIFICATIONS =================== */
+
 @media (max-width: 1400px) { .dashboard-main-3d { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; height: auto; } .parking-view-container { min-height: 60vh; order: 2; } .parking-controls { order: 1; } .details-panel-wrapper { order: 3; } }
 
 @media (max-width: 768px) {
