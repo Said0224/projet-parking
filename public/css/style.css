@@ -543,28 +543,28 @@ header {
 .floor-switcher { display: flex; flex-direction: column; gap: 0.5rem; }
 .floor-switcher .btn { width: 100%; justify-content: center; }
 .floor-switcher .btn.active { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-color: #3b82f6; }
-.parking-view-container { perspective: 1500px; display: flex; align-items: center; justify-content: center; overflow: auto; background: rgba(0,0,0,0.2); border-radius: 15px; padding: 2rem; }
+.parking-view-container { perspective: 1500px; display: flex; align-items: center; justify-content: center;  border-radius: 15px; padding: 2rem; }
 .parking-perspective { transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(-30deg); transition: transform 0.5s ease; }
 .parking-floor-3d { display: grid; transform-style: preserve-3d; }
-#floor-1 { grid-template-columns: repeat(19, auto); gap: 10px; }
+#floor-1 { grid-template-columns: repeat(21, auto); gap: 10px; }
 #floor-2, #floor-3 { grid-template-columns: repeat(10, 1fr); gap: 15px; }
 .parking-spot-3d { width: 60px; height: 100px; position: relative; transform-style: preserve-3d; cursor: pointer; transition: transform 0.2s ease; }
 .parking-spot-3d:hover { transform: translateZ(10px); }
 .parking-spot-3d.selected .spot-top { box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.8); border: 2px solid #06b6d4; }
 .spot-top { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: bold; color: white; border-radius: 5px; border: 1px solid rgba(255,255,255,0.3); transition: all 0.4s ease; }
 .spot-face { position: absolute; background-color: rgba(100,100,100,0.5); }
-.spot-face.front { width: 60px; height: 10px; transform: rotateX(-90deg) translateZ(50px) translateY(-45px); }
-.spot-face.left { width: 100px; height: 10px; transform: rotateY(90deg) translateZ(-30px) translateX(-45px); }
-.spot-face.right { width: 100px; height: 10px; transform: rotateY(90deg) translateZ(30px) translateX(-45px); }
+.spot-face.front { width: 60px; height: 10px;  transform: rotateX(0deg) translateZ(1px) translateY(1px); }
+.spot-face.left { width: 100px; height: 10px;  transform: rotateZ(90deg) translateZ(0px) translateX(45px) translateY(55px); }
+.spot-face.right { width: 100px; height: 10px; transform: rotateZ(90deg) translateZ(0px) translateX(45px) translateY(-15px); }
 .parking-spot-3d.disponible .spot-top { background-color: rgba(40, 167, 69, 0.7); }
 .parking-spot-3d.occupée .spot-top { background-color: rgba(220, 53, 69, 0.7); }
 .parking-spot-3d.réservée .spot-top { background-color: rgba(23, 162, 184, 0.7); }
 .parking-spot-3d.maintenance .spot-top { background: repeating-linear-gradient(45deg, #333, #333 10px, #ffc107 10px, #ffc107 20px); }
 .spot-number-3d { text-shadow: 0 0 5px black; }
 .parking-structure { width: auto; height: 100%; display: flex; align-items: center; justify-content: center; }
-.parking-structure.pillar { background-color: #555; border-radius: 5px; width: 20px; align-self: center; height: 120px; transform: translateZ(-10px); }
+.parking-structure.pillar { background-color: #555; border-radius: 5px; width: 20px; align-self: center; height: 100px;  }
 .parking-structure.aisle { height: 50px; background: none; }
-.parking-structure.crossing { background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.1) 10px, rgba(255, 255, 255, 0.1) 20px); }
+.parking-structure.crossing { background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.1) 10px, rgba(255, 255, 255, 0.1) 20px); border-left: 2px solid var(--color-grey);border-right: 2px solid var(--color-grey);width: 139px;height: 100px; }
 .parking-structure.special-zone { background-color: #3d3d3d; border: 1px dashed #ffd700; border-radius: 5px; text-align: center; font-size: 0.7rem; color: #ffd700; line-height: 1.2; padding: 5px; }
 .details-panel-wrapper .placeholder, .details-panel-wrapper .loader { text-align: center; padding-top: 4rem; font-size: 1.1rem; opacity: 0.7; }
 .details-panel-section { margin-bottom: 1.5rem; }
