@@ -240,7 +240,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                         <i class="fas fa-charging-station"></i>
                         <h3>Borne de Recharge #1</h3>
                     </div>
-                    <div class="actuator-status status-available">
+                    <div class="actuator-status status-disponible">
                         <i class="fas fa-circle"></i> Disponible
                     </div>
                 </div>
@@ -248,7 +248,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                 <div class="actuator-body">
                     <div class="charging-preview">
                         <div class="charging-visual">
-                            <div class="charging-port available">
+                            <div class="charging-port disponible">
                                 <i class="fas fa-plug"></i>
                             </div>
                             <div class="charging-indicator">
@@ -710,7 +710,7 @@ body {
 
 .status-red { background: #fecaca; color: #991b1b; }
 .status-green { background: #dcfce7; color: #166534; }
-.status-available { background: #dbeafe; color: #1e40af; }
+.status-disponible { background: #dbeafe; color: #1e40af; }
 .status-active { background: #dcfce7; color: #166534; }
 
 .actuator-body {
@@ -1353,7 +1353,7 @@ function toggleCharging(chargeId, button) {
         button.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
         chargingState.textContent = 'PRÊTE';
         statusBadge.innerHTML = '<i class="fas fa-circle"></i> Disponible';
-        statusBadge.className = 'actuator-status status-available';
+        statusBadge.className = 'actuator-status status-disponible';
         powerLevel.style.width = '0%';
     }
     

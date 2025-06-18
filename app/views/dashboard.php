@@ -11,7 +11,7 @@
         </div>
         <div class="stat-card">
             <h3>Places Occupées</h3>
-            <span class="stat-number occupied"><?= count(array_filter($parking_spaces, function($space) { return $space['status'] === 'occupee'; })) ?></span>
+            <span class="stat-number occupée"><?= count(array_filter($parking_spaces, function($space) { return $space['status'] === 'occupée'; })) ?></span>
         </div>
         <div class="stat-card">
             <h3>Total Places</h3>

@@ -40,10 +40,10 @@
                 <div class="form-group">
                     <label>Statut</label>
                     <select name="status" class="form-control">
-                        <option value="available" <?= $spot['status'] == 'available' ? 'selected' : '' ?>>Disponible</option>
-                        <option value="occupied" <?= $spot['status'] == 'occupied' ? 'selected' : '' ?>>Occupée</option>
+                        <option value="disponible" <?= $spot['status'] == 'disponible' ? 'selected' : '' ?>>Disponible</option>
+                        <option value="occupée" <?= $spot['status'] == 'occupée' ? 'selected' : '' ?>>Occupée</option>
                         <option value="maintenance" <?= $spot['status'] == 'maintenance' ? 'selected' : '' ?>>Maintenance</option>
-                        <option value="reserved" <?= $spot['status'] == 'reserved' ? 'selected' : '' ?>>Réservée</option>
+                        <option value="réservée" <?= $spot['status'] == 'réservée' ? 'selected' : '' ?>>Réservée</option>
                     </select>
                 </div>
 
@@ -174,10 +174,10 @@ function showNotification(message, type = 'success') {
     transition: border-color 0.3s ease;
 }
 
-.parking-spot-card.status-available { border-left-color: #28a745; }
-.parking-spot-card.status-occupied { border-left-color: #dc3545; }
+.parking-spot-card.status-disponible { border-left-color: #28a745; }
+.parking-spot-card.status-occupée { border-left-color: #dc3545; }
 .parking-spot-card.status-maintenance { border-left-color: #ffc107; }
-.parking-spot-card.status-reserved { border-left-color: #17a2b8; }
+.parking-spot-card.status-réservée { border-left-color: #17a2b8; }
 
 .spot-header {
     display: flex;
@@ -197,10 +197,10 @@ function showNotification(message, type = 'success') {
     transition: background-color 0.3s ease;
 }
 
-.status-badge.status-available { background-color: #28a745; }
-.status-badge.status-occupied { background-color: #dc3545; }
+.status-badge.status-disponible { background-color: #28a745; }
+.status-badge.status-occupée { background-color: #dc3545; }
 .status-badge.status-maintenance { background-color: #ffc107; color: #333; }
-.status-badge.status-reserved { background-color: #17a2b8; }
+.status-badge.status-réservée { background-color: #17a2b8; }
 
 .spot-info { margin-bottom: 1rem; }
 .spot-info p { margin: 0.5rem 0; color: #666; }

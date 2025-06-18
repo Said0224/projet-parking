@@ -20,7 +20,7 @@ class UserController {
             exit;
         }
         
-        $availableSpots = $this->parkingSpotModel->getAvailableSpots();
+        $disponibleSpots = $this->parkingSpotModel->getdisponibleSpots();
         $userReservations = $this->reservationModel->getUserReservations($_SESSION['user_id']);
         
         $page_title = "Mon Dashboard";

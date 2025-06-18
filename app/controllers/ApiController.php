@@ -13,7 +13,7 @@ class ApiController {
 
     /**
      * Met à jour le statut d'une place de parking depuis un capteur IoT.
-     * Reçoit en POST : spot_number et status ('available' ou 'occupied').
+     * Reçoit en POST : spot_number et status ('disponible' ou 'occupée').
      */
     public function updateSpotStatus() {
         // Définir le header pour une réponse en format JSON
@@ -36,9 +36,9 @@ class ApiController {
             exit;
         }
 
-        if (!in_array($status, ['available', 'occupied'])) {
+        if (!in_array($status, ['disponible', 'occupée'])) {
             http_response_code(400); // Bad Request
-            echo json_encode(['success' => false, 'message' => 'Statut invalide. Utilisez "available" ou "occupied".']);
+            echo json_encode(['success' => false, 'message' => 'Statut invalide. Utilisez "disponible" ou "occupée".']);
             exit;
         }
 

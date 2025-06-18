@@ -40,12 +40,12 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 
     <!-- Statistiques principales -->
     <div class="stats-grid">
-        <div class="stat-card available">
+        <div class="stat-card disponible">
             <div class="stat-number">1</div>
             <div class="stat-label">Places Libres</div>
         </div>
         
-        <div class="stat-card occupied">
+        <div class="stat-card occupée">
             <div class="stat-number">2</div>
             <div class="stat-label">Places Occupées</div>
         </div>
@@ -335,8 +335,8 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     margin-bottom: 0.5rem;
 }
 
-.stat-card.available .stat-number { color: #22c55e; }
-.stat-card.occupied .stat-number { color: #ef4444; }
+.stat-card.disponible .stat-number { color: #22c55e; }
+.stat-card.occupée .stat-number { color: #ef4444; }
 .stat-card.total .stat-number { color: #3b82f6; }
 .stat-card.leds .stat-number { color: #f59e0b; }
 

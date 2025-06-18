@@ -175,12 +175,12 @@
     color: #155724;
 }
 
-.status-completed {
+.status-passée {
     background-color: #cce5ff;
     color: #004085;
 }
 
-.status-cancelled {
+.status-annulée {
     background-color: #f8d7da;
     color: #721c24;
 }

@@ -97,15 +97,15 @@
 .parking-status-section h2 { color: white; text-align: center; margin-bottom: 1.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
 .spots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .spot-card { background: white; border-radius: 10px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; border: 2px solid; transition: all 0.3s ease; }
-.spot-card.available { border-color: #28a745; }
-.spot-card.occupied { border-color: #dc3545; background-color: #f8d7da; }
-.spot-card.reserved { border-color: #17a2b8; background-color: #d1ecf1; }
+.spot-card.disponible { border-color: #28a745; }
+.spot-card.occupée { border-color: #dc3545; background-color: #f8d7da; }
+.spot-card.réservée { border-color: #17a2b8; background-color: #d1ecf1; }
 .spot-card.maintenance { border-color: #ffc107; background-color: #fff3cd; }
 .spot-number { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; }
 .spot-status-text { font-weight: bold; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 1rem; }
-.spot-status-text.available { color: #28a745; }
-.spot-status-text.occupied { color: #dc3545; }
-.spot-status-text.reserved { color: #17a2b8; }
+.spot-status-text.disponible { color: #28a745; }
+.spot-status-text.occupée { color: #dc3545; }
+.spot-status-text.réservée { color: #17a2b8; }
 .spot-status-text.maintenance { color: #856404; }
 .spot-card .btn { width: 100%; }
 .spot-card .btn:disabled { background-color: #6c757d; cursor: not-allowed; }
@@ -122,8 +122,8 @@
 .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem; }
 .status { padding: .25em .6em; font-size: 75%; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: .25rem; color: #fff; }
 .status-active { background-color: #28a745; }
-.status-cancelled { background-color: #dc3545; }
-.status-completed { background-color: #6c757d; }
+.status-annulée { background-color: #dc3545; }
+.status-passée { background-color: #6c757d; }
 .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
 .notification { padding: 15px 25px; border-radius: 8px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateX(100%); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
 .notification.show { opacity: 1; transform: translateX(0); }
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.className = 'spot-card';
             
             let buttonHtml = `<button class="btn btn-primary btn-sm" onclick="openReservationModal(${spot.id}, '${spot.spot_number}', ${spot.price_per_hour})">Réserver</button>`;
-            if (spot.status !== 'available') {
+            if (spot.status !== 'disponible') {
                  buttonHtml = `<button class="btn btn-secondary btn-sm" disabled>Indisponible</button>`;
             }
             
@@ -167,11 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
         card.className = `spot-card ${spot.status}`;
         const statusText = card.querySelector('.spot-status-text');
         statusText.className = `spot-status-text ${spot.status}`;
-        statusText.textContent = spot.status.replace('available', 'disponible');
+        statusText.textContent = spot.status.replace('disponible', 'disponible');
 
         // Mettre à jour le bouton
         const button = card.querySelector('button');
-        if (spot.status === 'available') {
+        if (spot.status === 'disponible') {
             button.disabled = false;
             button.className = 'btn btn-primary btn-sm';
             button.textContent = 'Réserver';

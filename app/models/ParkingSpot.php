@@ -15,8 +15,8 @@ class ParkingSpot {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    public function getAvailableSpots() {
-        $query = "SELECT * FROM parking_spots WHERE status = 'available' ORDER BY spot_number";
+    public function getdisponibleSpots() {
+        $query = "SELECT * FROM parking_spots WHERE status = 'disponible' ORDER BY spot_number";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
