@@ -95,4 +95,37 @@ class ApiController {
             echo json_encode(['success' => false, 'message' => 'Erreur interne du serveur.']);
         }
     }
+
+    public function getSpotDetails() {
+        header('Content-Type: application/json');
+        
+        // Vérification de sécurité de base
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
+            exit;
+        }
+
+        $spot_id = $_GET['id'] ?? null;
+        if (!$spot_id) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'ID de la place manquant.']);
+            exit;
+        }
+
+        try {
+            $spotDetails = $this->parkingSpotModel->getSpotDetailsById((int)$spot_id);
+            if ($spotDetails) {
+                // On vérifie si l'utilisateur connecté est le propriétaire de la réservation
+                $spotDetails['is_owner'] = isset($spotDetails['user_id']) && $spotDetails['user_id'] == $_SESSION['user_id'];
+                echo json_encode(['success' => true, 'details' => $spotDetails]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Place non trouvée.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur interne du serveur.']);
+        }
+    }
 }

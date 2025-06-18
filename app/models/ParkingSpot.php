@@ -8,6 +8,40 @@ class ParkingSpot {
         $this->db = Database::getInstance();
     }
     
+    public function findAllWithDetails() {
+        $query = "SELECT 
+                    p.id, p.spot_number, p.etage, p.status, p.price_per_hour, p.has_charging_station,
+                    u.id as user_id, u.nom, u.prenom,
+                    r.id as reservation_id
+                  FROM parking_spots p
+                  LEFT JOIN reservations r ON p.id = r.spot_id AND r.status = 'active'
+                  LEFT JOIN users u ON r.user_id = u.id
+                  ORDER BY p.etage, p.spot_number ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les détails complets d'une seule place pour le panneau d'information.
+     * @param int $id L'ID de la place de parking.
+     */
+    public function getSpotDetailsById($id) {
+        $query = "SELECT 
+                    p.id, p.spot_number, p.etage, p.status, p.price_per_hour, p.has_charging_station,
+                    u.id as user_id, u.nom, u.prenom, u.email,
+                    r.id as reservation_id, r.start_time
+                  FROM parking_spots p
+                  LEFT JOIN reservations r ON p.id = r.spot_id AND r.status = 'active'
+                  LEFT JOIN users u ON r.user_id = u.id
+                  WHERE p.id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    // --- FIN MODIFICATION ---
+    
     public function getAllSpots() {
         $query = "SELECT * FROM parking_spots ORDER BY spot_number";
         $stmt = $this->db->prepare($query);
@@ -114,7 +148,7 @@ class ParkingSpot {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // NOUVELLE MÉTHODE POUR COMPTER LE TOTAL
+    // NOUVELLE MÃ‰THODE POUR COMPTER LE TOTAL
     public function getTotalSpotsCount($filters = []) {
         $sql = "SELECT COUNT(id) FROM parking_spots";
         

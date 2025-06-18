@@ -33,7 +33,14 @@
             </div>
         </div>
     </footer>
-    
+
+    <script>
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- NOUVEAU SCRIPT CI-DESSOUS -->
+    <script src="<?= BASE_URL ?>/public/js/dashboard-3d.js"></script>
+
     <script>
     // Script pour marquer le lien actif dans la navigation
     document.addEventListener('DOMContentLoaded', function() {

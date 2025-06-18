@@ -192,6 +192,12 @@ try {
             $controller = new ApiController();
             $controller->getSpotStatus();
             break;
+
+        case '/api/get-spot-details':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotDetails();
+            break;
             
         case '/api/get-all-spots-status':
             require_once ROOT_PATH . '/app/controllers/UserController.php';
