@@ -7,12 +7,18 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-define('ROOT_PATH', dirname(__DIR__));
+define('ROOT_PATH', __DIR__);
+define('BASE_URL', '/projet-parking');
 
-$request_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
+// Inclure la configuration de la base de données au début
+require_once ROOT_PATH . '/config/database.php';
+
+// Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
+$request_uri = '/' . trim($_GET['url'] ?? '', '/');
 
 try {
     switch ($request_uri) {
+
         case '/':
             require_once ROOT_PATH . '/app/controllers/HomeController.php';
             $controller = new HomeController();
@@ -36,7 +42,7 @@ try {
             $controller = new AuthController();
             $controller->logout();
             break;
-            
+        
         case '/signup':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -59,6 +65,18 @@ try {
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
             $controller->updateProfile();
+            break;
+
+        case '/profile/change-password':
+            require_once ROOT_PATH . '/app/controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->changePassword();
+            break;
+
+        case '/profile/delete-account':
+            require_once ROOT_PATH . '/app/controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->deleteAccount();
             break;
             
         case '/dashboard':
@@ -141,7 +159,7 @@ try {
             http_response_code(404);
             echo "<h1>Page non trouvée (404)</h1>";
             echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
-            echo "<a href='/'>Retour à l'accueil</a>";
+            echo "<a href='" . BASE_URL . "/'>Retour à l'accueil</a>";
             break;
     }
 } catch (Error $e) {
@@ -151,5 +169,8 @@ try {
 } catch (Exception $e) {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
+} finally {
+    // Ce bloc est maintenant sécurisé car config/database.php est chargé au début.
+    Database::closeConnection();
 }
 ?>

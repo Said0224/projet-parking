@@ -7,9 +7,7 @@ class AuthController {
      * Afficher le formulaire de connexion
      */
     public function showLoginForm() {
-        // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
@@ -26,7 +24,6 @@ class AuthController {
      */
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -35,22 +32,13 @@ class AuthController {
         $password = $_POST['password'] ?? '';
         $remember = isset($_POST['remember']);
 
-        // Validation des données
         $errors = [];
-        
-        if (empty($email)) {
-            $errors[] = "L'email est requis.";
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "Format d'email invalide.";
-        }
-        
-        if (empty($password)) {
-            $errors[] = "Le mot de passe est requis.";
-        }
+        if (empty($email)) $errors[] = "L'email est requis.";
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Format d'email invalide.";
+        if (empty($password)) $errors[] = "Le mot de passe est requis.";
 
         if (!empty($errors)) {
             $_SESSION['login_error'] = implode('<br>', $errors);
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -78,9 +66,7 @@ class AuthController {
                 setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
             }
 
-
-            // ===== REDIRECTION CORRIGÉE SELON LE STATUT =====
-            if ($user['is_admin']) {
+            if ($_SESSION['is_admin']) {
                 header('Location: ' . BASE_URL . '/admin');
             } else {
                 header('Location: ' . BASE_URL . '/user/dashboard');
@@ -88,9 +74,7 @@ class AuthController {
             exit;
         
         } else {
-            // Échec de la connexion
             $_SESSION['login_error'] = "Email ou mot de passe incorrect.";
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -100,9 +84,7 @@ class AuthController {
      * Afficher le formulaire d'inscription
      */
     public function showRegistrationForm() {
-        // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
         if (isset($_SESSION['user_id'])) {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
@@ -120,7 +102,6 @@ class AuthController {
      */
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
@@ -131,51 +112,29 @@ class AuthController {
         $nom = trim($_POST['nom'] ?? '');
         $prenom = trim($_POST['prenom'] ?? '');
 
-        // Validation des données
         $errors = [];
-        
-        if (empty($email)) {
-            $errors[] = "L'email est requis.";
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "Format d'email invalide.";
-        }
-        
-        if (empty($password)) {
-            $errors[] = "Le mot de passe est requis.";
-        } elseif (strlen($password) < 6) {
-            $errors[] = "Le mot de passe doit contenir au moins 6 caractères.";
-        }
-        
-        if ($password !== $confirm_password) {
-            $errors[] = "Les mots de passe ne correspondent pas.";
-        }
-        
-        if (empty($nom)) {
-            $errors[] = "Le nom est requis.";
-        }
-        
-        if (empty($prenom)) {
-            $errors[] = "Le prénom est requis.";
-        }
+        if (empty($email)) $errors[] = "L'email est requis.";
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Format d'email invalide.";
+        if (empty($password)) $errors[] = "Le mot de passe est requis.";
+        elseif (strlen($password) < 6) $errors[] = "Le mot de passe doit contenir au moins 6 caractères.";
+        if ($password !== $confirm_password) $errors[] = "Les mots de passe ne correspondent pas.";
+        if (empty($nom)) $errors[] = "Le nom est requis.";
+        if (empty($prenom)) $errors[] = "Le prénom est requis.";
 
         if (!empty($errors)) {
             $_SESSION['register_error'] = implode('<br>', $errors);
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
 
-        // Tentative de création du compte
         $userModel = new User();
         
         if ($userModel->create($email, $password, $nom, $prenom)) {
             $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
             $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
@@ -185,16 +144,10 @@ class AuthController {
      * Déconnexion
      */
     public function logout() {
-        // Supprimer le cookie "Se souvenir de moi"
         if (isset($_COOKIE['remember_token'])) {
             setcookie('remember_token', '', time() - 3600, '/', '', false, true);
         }
-
-        // Détruire la session
         session_destroy();
-        
-        // Rediriger vers la page d'accueil
-        // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/');
         exit;
     }
@@ -204,7 +157,6 @@ class AuthController {
      */
     public static function requireAuth() {
         if (!isset($_SESSION['user_id'])) {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -221,7 +173,6 @@ class AuthController {
         $user = $userModel->findById($_SESSION['user_id']);
         
         if (!$user) {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/logout');
             exit;
         }
@@ -240,7 +191,6 @@ class AuthController {
         self::requireAuth();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
@@ -249,18 +199,11 @@ class AuthController {
         $prenom = trim($_POST['prenom'] ?? '');
 
         $errors = [];
-        
-        if (empty($nom)) {
-            $errors[] = "Le nom est requis.";
-        }
-        
-        if (empty($prenom)) {
-            $errors[] = "Le prénom est requis.";
-        }
+        if (empty($nom)) $errors[] = "Le nom est requis.";
+        if (empty($prenom)) $errors[] = "Le prénom est requis.";
 
         if (!empty($errors)) {
             $_SESSION['profile_error'] = implode('<br>', $errors);
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
@@ -275,8 +218,72 @@ class AuthController {
             $_SESSION['profile_error'] = "Erreur lors de la mise à jour du profil.";
         }
         
-        // REDIRECTION CORRIGÉE
         header('Location: ' . BASE_URL . '/profile');
         exit;
+    }
+
+    /**
+     * Changer le mot de passe de l'utilisateur
+     */
+    public function changePassword() {
+        self::requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/profile');
+            exit;
+        }
+
+        $password = $_POST['password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+        $errors = [];
+
+        if (empty($password)) {
+            $errors[] = "Le nouveau mot de passe est requis.";
+        } elseif (strlen($password) < 6) {
+            $errors[] = "Le mot de passe doit contenir au moins 6 caractères.";
+        }
+        if ($password !== $confirm_password) {
+            $errors[] = "Les mots de passe ne correspondent pas.";
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['profile_error'] = implode('<br>', $errors);
+            header('Location: ' . BASE_URL . '/profile');
+            exit;
+        }
+        
+        $userModel = new User();
+        if ($userModel->changePassword($_SESSION['user_id'], $password)) {
+            $_SESSION['profile_success'] = "Mot de passe modifié avec succès.";
+        } else {
+            $_SESSION['profile_error'] = "Erreur lors de la modification du mot de passe.";
+        }
+        
+        header('Location: ' . BASE_URL . '/profile');
+        exit;
+    }
+
+    /**
+     * Supprimer le compte de l'utilisateur
+     */
+    public function deleteAccount() {
+        self::requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/profile');
+            exit;
+        }
+
+        $userModel = new User();
+        if ($userModel->deleteUser($_SESSION['user_id'])) {
+            // Déconnexion et destruction de la session après suppression
+            session_destroy();
+            header('Location: ' . BASE_URL . '/?message=account_deleted');
+            exit;
+        } else {
+            $_SESSION['profile_error'] = "Erreur lors de la suppression du compte.";
+            header('Location: ' . BASE_URL . '/profile');
+            exit;
+        }
     }
 }
