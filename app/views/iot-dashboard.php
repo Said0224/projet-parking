@@ -1,596 +1,820 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($page_title) ? htmlspecialchars($page_title) : 'Dashboard IoT - Parking Intelligent' ?></title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<?php 
+// Vérification que l'utilisateur est admin
+if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+    header('Location: /login');
+    exit;
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+require_once ROOT_PATH . '/app/views/partials/header.php'; 
+?>
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .nav-bar {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem 2rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #667eea;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-value.free { color: #28a745; }
-        .stat-value.occupied { color: #dc3545; }
-
-        .stat-label {
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .sensor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .sensor-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-
-        .sensor-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-header {
-            padding: 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .add-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .add-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f8f9fa;
-            padding: 12px 8px;
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
-            position: sticky;
-            top: 0;
-        }
-
-        td {
-            padding: 10px 8px;
-            text-align: center;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        tr:hover td {
-            background: #f8f9fa;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background-color: rgba(40, 167, 69, 0.2);
-            color: #28a745;
-        }
-
-        .badge-danger {
-            background-color: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 5px 8px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-edit {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .alert-success {
-            background-color: rgba(40, 167, 69, 0.2);
-            border-left: 5px solid #28a745;
-            color: #155724;
-        }
-
-        .alert-danger {
-            background-color: rgba(220, 53, 69, 0.2);
-            border-left: 5px solid #dc3545;
-            color: #721c24;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
+<div class="dashboard-container">
+    <!-- Header principal du dashboard -->
+    <div class="dashboard-header">
+        <div class="header-content">
             <h1><i class="fas fa-car"></i> Dashboard Parking Intelligent</h1>
             <p>Surveillance en temps réel de votre parking connecté</p>
         </div>
+    </div>
 
-        <!-- Navigation -->
-        <div class="nav-bar">
-           <div class="nav-links">
-                <a href="<?= BASE_URL ?>/dashboard" class="active">Parking</a>
-                <a href="<?= BASE_URL ?>/iot-dashboard">IoT Dashboard</a>
-                <a href="<?= BASE_URL ?>/logout">Déconnexion</a>
-            </div>
-            <span>👤 <?= htmlspecialchars($_SESSION['user_email']) ?></span>
+    <!-- Navigation secondaire -->
+    <div class="dashboard-nav">
+        <div class="nav-tabs">
+            <a href="<?= BASE_URL ?>/admin" class="nav-tab">
+                <i class="fas fa-tachometer-alt"></i> Admin
+            </a>
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab active">
+                <i class="fas fa-microchip"></i> IoT Dashboard
+            </a>
+            <a href="<?= BASE_URL ?>/admin/users" class="nav-tab">
+                <i class="fas fa-users"></i> Utilisateurs
+            </a>
+            <a href="<?= BASE_URL ?>/logout" class="nav-tab">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
         </div>
-
-        <?php if (!empty($errorMessage)): ?>
-        <div class="alert alert-danger">
-            <div><i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($errorMessage) ?></div>
-        </div>
-        <?php endif; ?>
-
-        <?php if (!empty($successMessage)): ?>
-        <div class="alert alert-success">
-            <div><i class="fas fa-check-circle"></i> <?= htmlspecialchars($successMessage) ?></div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Statistiques -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value free"><?= $freeSpaces ?></div>
-                <div class="stat-label">Places Libres</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value occupied"><?= $occupiedSpaces ?></div>
-                <div class="stat-label">Places Occupées</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value"><?= $totalSpaces ?></div>
-                <div class="stat-label">Total Places</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value"><?= count($leds) ?></div>
-                <div class="stat-label">LEDs Actives</div>
-            </div>
-        </div>
-
-        <!-- Grille des capteurs et actionneurs -->
-        <div class="sensor-grid">
-            <!-- Capteurs de Proximité (Places de Parking) -->
-            <div class="sensor-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-car sensor-icon"></i>
-                        Places de Parking
-                    </div>
-                    <button class="add-btn" onclick="openModal('create', 'capteurProximite')">
-                        <i class="fas fa-plus"></i> Ajouter
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Place</th>
-                                <th>Date</th>
-                                <th>Heure</th>
-                                <th>État</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($parkingSpaces as $space): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($space['id']) ?></td>
-                                    <td><strong>Place <?= htmlspecialchars($space['place']) ?></strong></td>
-                                    <td><?= htmlspecialchars($space['date']) ?></td>
-                                    <td><?= htmlspecialchars($space['heure']) ?></td>
-                                    <td>
-                                        <?php if ($space['valeur'] == 't' || $space['valeur'] == true): ?>
-                                            <span class="badge badge-danger"><i class="fas fa-car"></i> Occupée</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-success"><i class="fas fa-check"></i> Libre</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="action-buttons">
-                                        <button class="btn btn-edit" onclick="openModal('edit', 'capteurProximite', <?= htmlspecialchars(json_encode($space)) ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-delete" onclick="deleteRecord('capteurProximite', <?= $space['id'] ?>)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- LEDs de Signalisation -->
-            <div class="sensor-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-lightbulb sensor-icon"></i>
-                        LEDs de Signalisation
-                    </div>
-                    <button class="add-btn" onclick="openModal('create', 'LED')">
-                        <i class="fas fa-plus"></i> Ajouter
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>État</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($leds as $led): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($led['id']) ?></td>
-                                    <td>
-                                        <?php if ($led['etat'] == 't' || $led['etat'] == true): ?>
-                                            <span class="badge badge-success"><i class="fas fa-lightbulb"></i> Allumée</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-danger"><i class="fas fa-times"></i> Éteinte</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="action-buttons">
-                                        <button class="btn btn-edit" onclick="openModal('edit', 'LED', <?= htmlspecialchars(json_encode($led)) ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Informations OLED -->
-            <?php if ($oledData): ?>
-            <div class="sensor-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-display sensor-icon"></i>
-                        Affichage OLED
-                    </div>
-                </div>
-                
-                <div style="padding: 20px;">
-                    <p><strong>Places disponibles:</strong> <?= htmlspecialchars($oledData['places_dispo']) ?></p>
-                    <p><strong>Bornes de recharge:</strong> <?= htmlspecialchars($oledData['bornes_dispo']) ?></p>
-                    <p><strong>Prix parking:</strong> <?= htmlspecialchars($oledData['prix_parking']) ?>€</p>
-                    <p><strong>Prix recharge:</strong> <?= htmlspecialchars($oledData['prix_recharge']) ?>€</p>
-                    <p><strong>Dernière mise à jour:</strong> <?= htmlspecialchars($oledData['heure']) ?></p>
-                </div>
-            </div>
-            <?php endif; ?>
+        <div class="user-info">
+            <i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@isep.fr') ?>
         </div>
     </div>
 
-    <!-- Modal pour CRUD -->
-    <div id="crudModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Ajouter une donnée</h2>
-            <form id="crudForm" method="POST">
-                <input type="hidden" id="action" name="action">
-                <input type="hidden" id="table" name="table">
-                <input type="hidden" id="recordId" name="id">
-                
-                <div id="dynamicFields"></div>
-                
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn-secondary" onclick="closeModal()">Annuler</button>
-                    <button type="submit" class="btn-primary" id="submitBtn">Ajouter</button>
-                </div>
-            </form>
+    <!-- Statistiques principales -->
+    <div class="stats-grid">
+        <div class="stat-card disponible">
+            <div class="stat-number">1</div>
+            <div class="stat-label">Places Libres</div>
+        </div>
+        
+        <div class="stat-card occupée">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Places Occupées</div>
+        </div>
+        
+        <div class="stat-card total">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Total Places</div>
+        </div>
+        
+        <div class="stat-card leds">
+            <div class="stat-number">2</div>
+            <div class="stat-label">LEDs Actives</div>
         </div>
     </div>
 
-    <script>
-        function openModal(action, table, data = null) {
-            const modal = document.getElementById('crudModal');
-            const form = document.getElementById('crudForm');
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('submitBtn');
-            const dynamicFields = document.getElementById('dynamicFields');
-            
-            dynamicFields.innerHTML = '';
-            
-            document.getElementById('action').value = action;
-            document.getElementById('table').value = table;
-            
-            if (action === 'create') {
-                title.textContent = `Ajouter - ${table}`;
-                submitBtn.textContent = 'Ajouter';
-                form.reset();
-            } else if (action === 'edit' && data) {
-                title.textContent = `Modifier - ${table}`;
-                submitBtn.textContent = 'Modifier';
-                document.getElementById('recordId').value = data.id;
-            }
-            
-            // Générer les champs en fonction de la table
-            if (table === 'capteurProximite') {
-                const fieldHtml = `
-                    <div class="form-group">
-                        <label for="place">Numéro de place :</label>
-                        <input type="number" id="place" name="place" value="${data ? data.place : ''}" required min="1">
+    <!-- Navigation IoT -->
+    <div class="iot-navigation">
+        <div class="iot-nav-header">
+            <h2><i class="fas fa-microchip"></i> Système IoT</h2>
+            <p>Gestion des capteurs et actionneurs du parking intelligent</p>
+        </div>
+        
+        <div class="iot-nav-cards">
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="iot-nav-card capteurs-card">
+                <div class="nav-card-icon">
+                    <i class="fas fa-satellite-dish"></i>
+                </div>
+                <div class="nav-card-content">
+                    <h3>Capteurs</h3>
+                    <p>Surveillance et monitoring des capteurs de détection</p>
+                    <div class="nav-card-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-eye"></i> 3 Détecteurs
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-thermometer-half"></i> 1 Température
+                        </span>
                     </div>
-                    <div class="form-group">
-                        <label for="valeur">État :</label>
-                        <select id="valeur" name="valeur" required>
-                            <option value="false" ${data && (data.valeur === false || data.valeur === 'f') ? 'selected' : ''}>Libre</option>
-                            <option value="true" ${data && (data.valeur === true || data.valeur === 't') ? 'selected' : ''}>Occupée</option>
-                        </select>
-                    </div>
-                `;
-                dynamicFields.innerHTML = fieldHtml;
-            } else if (table === 'LED') {
-                const fieldHtml = `
-                    <div class="form-group">
-                        <label for="etat">État :</label>
-                        <select id="etat" name="etat" required>
-                            <option value="false" ${data && (data.etat === false || data.etat === 'f') ? 'selected' : ''}>Éteinte</option>
-                            <option value="true" ${data && (data.etat === true || data.etat === 't') ? 'selected' : ''}>Allumée</option>
-                        </select>
-                    </div>
-                `;
-                dynamicFields.innerHTML = fieldHtml;
-            }
+                </div>
+                <div class="nav-card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
             
-            modal.style.display = 'block';
-        }
+             <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
+                <div class="nav-card-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="nav-card-content">
+                    <h3>Actionneurs</h3>
+                    <p>Contrôle des LEDs et systèmes de signalisation</p>
+                    <div class="nav-card-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-lightbulb"></i> 2 LEDs
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-charging-station"></i> 1 Borne
+                        </span>
+                    </div>
+                </div>
+                <div class="nav-card-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+        </div>
+    </div>
 
-        function closeModal() {
-            document.getElementById('crudModal').style.display = 'none';
-        }
+    <!-- Section Affichage OLED -->
+    <div class="oled-main-section">
+        <div class="content-section oled-section">
+            <div class="section-header">
+                <h3><i class="fas fa-tv"></i> Affichage OLED Principal</h3>
+                <button class="btn-add" onclick="configOLED()">
+                    <i class="fas fa-cog"></i> Configurer
+                </button>
+            </div>
+            <div class="section-content">
+                <div class="oled-main-content">
+                    <div class="oled-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Places disponibles:</span>
+                            <span class="info-value">8</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Bornes de recharge:</span>
+                            <span class="info-value">1</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Prix parking:</span>
+                            <span class="info-value">6€</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Prix recharge:</span>
+                            <span class="info-value">3€</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Température:</span>
+                            <span class="info-value">22°C</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dernière mise à jour:</span>
+                            <span class="info-value"><?= date('d/m/Y H:i:s') ?></span>
+                        </div>
+                    </div>
+                    
+                    <div class="oled-preview-container">
+                        <div class="oled-preview">
+                            <div class="oled-screen">
+                                <div class="oled-content">
+                                    <h4>PARKING ISEP</h4>
+                                    <div class="oled-line">Places: 8/10</div>
+                                    <div class="oled-line">Bornes: 1 libre</div>
+                                    <div class="oled-line">Tarif: 6€/h</div>
+                                    <div class="oled-line">Recharge: 3€</div>
+                                    <div class="oled-line">Temp: 22°C</div>
+                                    <div class="oled-time"><?= date('H:i:s') ?></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="oled-controls">
+                            <button class="btn-control" onclick="updateOLED()">
+                                <i class="fas fa-sync"></i> Actualiser
+                            </button>
+                            <button class="btn-control" onclick="configOLED()">
+                                <i class="fas fa-cog"></i> Configurer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function deleteRecord(table, id) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette donnée ?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="table" value="${table}">
-                    <input type="hidden" name="id" value="${id}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
+    <!-- Statut système -->
+    <div class="system-status">
+        <div class="status-header">
+            <h3><i class="fas fa-heartbeat"></i> Statut du Système</h3>
+        </div>
+        <div class="status-grid">
+            <div class="status-item">
+                <div class="status-icon status-online">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <div class="status-info">
+                    <h4>Connexion IoT</h4>
+                    <span class="status-text">En ligne</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon status-online">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="status-info">
+                    <h4>Base de données</h4>
+                    <span class="status-text">Connectée</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon status-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="status-info">
+                    <h4>Maintenance</h4>
+                    <span class="status-text">1 capteur</span>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-icon status-online">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="status-info">
+                    <h4>Sécurité</h4>
+                    <span class="status-text">Sécurisé</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Fermer le modal en cliquant à l'extérieur
-        window.onclick = function(event) {
-            const modal = document.getElementById('crudModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
+<style>
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
 
-        // Auto-refresh toutes les 30 secondes
-        setInterval(() => {
-            location.reload();
-        }, 30000);
-    </script>
-</body>
-</html>
+/* Header du dashboard */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header-content h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header-content h1 i {
+    color: #ffd700;
+    margin-right: 1rem;
+}
+
+.header-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Navigation secondaire */
+.dashboard-nav {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-tab {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-tab:hover, .nav-tab.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.user-info {
+    color: white;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Grille des statistiques */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card.disponible .stat-number { color: #22c55e; }
+.stat-card.occupée .stat-number { color: #ef4444; }
+.stat-card.total .stat-number { color: #3b82f6; }
+.stat-card.leds .stat-number { color: #f59e0b; }
+
+.stat-label {
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 1px;
+}
+
+/* Navigation IoT */
+.iot-navigation {
+    margin-bottom: 3rem;
+}
+
+.iot-nav-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.iot-nav-header h2 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.iot-nav-header h2 i {
+    color: #ffd700;
+    margin-right: 1rem;
+}
+
+.iot-nav-header p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+}
+
+.iot-nav-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.iot-nav-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.iot-nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.iot-nav-card:hover::before {
+    left: 100%;
+}
+
+.iot-nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.capteurs-card:hover {
+    border-left: 4px solid #22c55e;
+}
+
+.actionneurs-card:hover {
+    border-left: 4px solid #f59e0b;
+}
+
+.nav-card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.capteurs-card .nav-card-icon {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.actionneurs-card .nav-card-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.nav-card-content {
+    flex: 1;
+}
+
+.nav-card-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.nav-card-content p {
+    color: #64748b;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+}
+
+.nav-card-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stat-item i {
+    color: #3b82f6;
+}
+
+.nav-card-arrow {
+    color: #64748b;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.iot-nav-card:hover .nav-card-arrow {
+    color: #3b82f6;
+    transform: translateX(5px);
+}
+
+/* Section OLED principale */
+.oled-main-section {
+    margin-bottom: 3rem;
+}
+
+.content-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+.section-header {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-header i {
+    color: #ffd700;
+}
+
+.btn-add {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-add:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.section-content {
+    padding: 2rem;
+}
+
+.oled-main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.oled-info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 4px solid #3b82f6;
+}
+
+.info-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.oled-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.oled-preview {
+    display: flex;
+    justify-content: center;
+}
+
+.oled-screen {
+    background: #1a1a1a;
+    border-radius: 15px;
+    padding: 1.5rem;
+    width: 250px;
+    border: 3px solid #333;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+}
+
+.oled-content {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.oled-content h4 {
+    margin: 0 0 1rem 0;
+    color: #ffffff;
+    font-size: 1rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.oled-line {
+    margin: 0.5rem 0;
+    line-height: 1.4;
+}
+
+.oled-time {
+    margin-top: 1rem;
+    color: #ffff00;
+    font-weight: bold;
+    font-size: 1rem;
+    border-top: 1px solid #333;
+    padding-top: 0.5rem;
+}
+
+.oled-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-control {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-control:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Statut système */
+.system-status {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-header h3 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-header i {
+    color: #3b82f6;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.status-item:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+.status-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.status-online {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.status-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.status-info h4 {
+    margin: 0 0 0.25rem 0;
+    color: #1e293b;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-text {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .iot-nav-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .oled-main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-nav {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .nav-tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .iot-nav-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function updateOLED() {
+    // Simuler une mise à jour
+    const timeElement = document.querySelector('.oled-time');
+    if (timeElement) {
+        timeElement.textContent = new Date().toLocaleTimeString();
+    }
+    
+    // Animation de mise à jour
+    const screen = document.querySelector('.oled-screen');
+    screen.style.boxShadow = '0 0 50px rgba(0, 255, 0, 0.8)';
+    setTimeout(() => {
+        screen.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
+    }, 1000);
+    
+    console.log('OLED mis à jour');
+}
+
+function configOLED() {
+    alert('Configuration de l\'affichage OLED');
+}
+
+// Mise à jour automatique de l'heure sur l'OLED
+setInterval(() => {
+    const timeElement = document.querySelector('.oled-time');
+    if (timeElement) {
+        timeElement.textContent = new Date().toLocaleTimeString();
+    }
+}, 1000);
+
+// Simulation de données en temps réel
+setInterval(() => {
+    console.log('Mise à jour des données IoT...');
+}, 10000);
+</script>
+
+<?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

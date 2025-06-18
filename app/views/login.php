@@ -7,7 +7,17 @@
             <p>Accédez à votre dashboard de parking intelligent</p>
         </div>
 
-        <?php if (!empty($error)): ?>
+        <?php 
+        // Logique modifiée pour afficher l'erreur
+        $error = $_SESSION['login_error'] ?? '';
+        unset($_SESSION['login_error']);
+        
+        if (isset($_GET['status']) && $_GET['status'] === 'session_expired') {
+            $error = "Votre session a expiré pour inactivité. Veuillez vous reconnecter.";
+        }
+
+        if (!empty($error)): 
+        ?>
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle"></i>
                 <?= $error ?>
@@ -64,8 +74,8 @@
             <p>Pas encore de compte ? <a href="<?= BASE_URL ?>/signup">Créer un compte</a></p>
             <div class="demo-accounts">
                 <h4>Comptes de démonstration :</h4>
-                <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>
                 <p><strong>Admin :</strong> admin@isep.fr / admin123</p>
+                <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>
             </div>
         </div>
     </div>
@@ -122,7 +132,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: white;
+    color:blanchedalmond ;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -134,7 +144,7 @@
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--border-radius);
-    color: white;
+    color: black;
     font-size: 1rem;
     transition: var(--transition);
 }
@@ -197,7 +207,7 @@
 }
 
 .auth-footer p {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
     margin-bottom: 1rem;
 }
 

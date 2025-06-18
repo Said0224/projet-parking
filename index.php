@@ -8,23 +8,20 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 define('ROOT_PATH', __DIR__);
-define('BASE_URL', '/projet-parking'); // On définit le nom de notre dossier
+// La variable BASE_URL reste utile pour construire les liens dans les vues
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', rtrim($script_name, '/'));
 
-// On récupère l'URL demandée
-$raw_uri = explode('?', $_SERVER['REQUEST_URI'], 2)[0];
+// --- DÉBUT DES MODIFICATIONS ---
 
-// On retire le nom du dossier de l'URL pour avoir le chemin relatif
-$request_uri = '/'; // Valeur par défaut
-if (strpos($raw_uri, BASE_URL) === 0) {
-    $request_uri = substr($raw_uri, strlen(BASE_URL));
-}
+// 1. Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
+// On ajoute un '/' au début et on supprime les '/' en trop.
+$request_uri = '/' . trim($_GET['url'] ?? '', '/');
 
-// Si après suppression on se retrouve avec une chaîne vide (ex: /projet-parking/), on la remplace par /
-if (empty($request_uri)) {
-    $request_uri = '/';
-}
+// --- FIN DES MODIFICATIONS ---
 
 try {
+    // Le reste du fichier (le switch) ne change pas.
     switch ($request_uri) {
 
         case '/':
@@ -33,6 +30,13 @@ try {
             $controller->index();
             break;
             
+        // ===== NOUVELLE ROUTE POUR LA FAQ =====
+        case '/faq':
+            require_once ROOT_PATH . '/app/controllers/HomeController.php';
+            $controller = new HomeController();
+            $controller->faq();
+            break;
+
         case '/login':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -50,7 +54,10 @@ try {
             $controller = new AuthController();
             $controller->logout();
             break;
-            
+
+        // ... et ainsi de suite pour toutes vos autres routes ...
+        // Le reste de votre switch est correct et n'a pas besoin d'être modifié.
+        
         case '/signup':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -75,32 +82,134 @@ try {
             $controller->updateProfile();
             break;
             
-        
-
         case '/dashboard':
             require_once ROOT_PATH . '/app/controllers/DashboardController.php';
             $controller = new DashboardController();
             $controller->index();
             break;
-        
-        // --- NOUVELLE ROUTE API ---
-        case '/dashboard/api/getPlaceDetails':
-            require_once ROOT_PATH . '/app/controllers/DashboardController.php';
-            $controller = new DashboardController();
-            $controller->getPlaceDetails();
-            break;
             
         case '/iot-dashboard':
-            require_once ROOT_PATH . '/app/controllers/IoTDashboardController.php';
-            $controller = new IoTDashboardController();
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->dashboard();
+            break;
+
+        case '/iot-dashboard/capteurs': // Nouvelle route
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->capteurs();
+            break;
+
+        case '/iot-dashboard/actionneurs': // Nouvelle route
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->actionneurs();
+            break;
+
+        // ===== ROUTES ADMIN =====
+        case '/admin':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
             $controller->index();
+            break;
+
+        case '/admin/users':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->manageUsers();
+            break;
+
+        case '/admin/parking':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->manageParking();
+            break;
+
+        case '/admin/update-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->updateUserStatus();
+            break;
+
+        case '/admin/delete-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->deleteUser();
+            break;
+
+        case '/admin/create-user':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->createUser();
+            break;
+
+        case '/admin/update-spot':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->updateParkingSpot();
+            break;
+
+        case '/admin/api/reservations':
+        require_once ROOT_PATH . '/app/controllers/AdminController.php';
+        $controller = new AdminController();
+        $controller->getReservationsAjax();
+        break;
+
+        // ===== ROUTES UTILISATEUR =====
+        case '/user/dashboard':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->dashboard();
+            break;
+
+        case '/user/parking':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->parking();
+            break;
+
+        case '/user/reserve':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->reserve();
+            break;
+
+        case '/user/cancel-reservation':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->cancelReservation();
+            break;
+
+         case '/api/update-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->updateSpotStatus();
+            break;
+
+        // ===== NOUVELLE ROUTE API POUR LIRE LE STATUT =====
+        case '/api/get-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotStatus();
+            break;
+
+        case '/api/get-spot-details':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotDetails();
+            break;
+            
+        case '/api/get-all-spots-status':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->getAllSpotsStatus();
             break;
             
         default:
             http_response_code(404);
             echo "<h1>Page non trouvée (404)</h1>";
             echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
-            echo "<a href='/'>Retour à l'accueil</a>";
+            echo "<a href='" . BASE_URL . "/'>Retour à l'accueil</a>";
             break;
     }
 } catch (Error $e) {
@@ -110,4 +219,10 @@ try {
 } catch (Exception $e) {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
+} finally {
+    // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
+    // On ferme la connexion à la base de données pour la libérer
+    require_once ROOT_PATH . '/config/database.php';
+    Database::closeConnection();
 }
+?>
