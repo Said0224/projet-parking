@@ -6,6 +6,22 @@ class DatabaseManager {
      */
     private static $config = [
         'local' => [
+            'dsn'      => 'mysql:host=127.0.0.1;dbname=parking_db;charset=utf8mb4',
+            'username' => 'root',
+            'password' => '',
+            'options'  => [
+                PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+    
+
+
+
+        
+        /*
+        'local' => [
             'dsn'      => 'mysql:host=herogu.garageisep.com;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
             'username' => 'kCrBSMvT17_projet_par',
             'password' => 'JVQ6LotVLJAHjH5r',
@@ -15,6 +31,7 @@ class DatabaseManager {
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]
+                */
         ],
         'iot' => [
             'dsn'      => 'pgsql:host=app.garageisep.com;port=5409;dbname=app_db',
