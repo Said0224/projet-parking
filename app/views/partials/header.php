@@ -69,6 +69,7 @@ if (isset($_SESSION['user_id'])) { // Vérifier uniquement si l'utilisateur est 
                             <li><a href="<?= BASE_URL ?>/user/dashboard" class="nav-link">Mon Dashboard</a></li>
                         <?php endif; ?>
 
+                        <li><a href="<?= BASE_URL ?>/notifications" class="nav-link">Notifications</a></li>
                         <li><a href="<?= BASE_URL ?>/profile" class="nav-link">Profil</a></li>
                         <li><a href="<?= BASE_URL ?>/logout" class="nav-link">Déconnexion</a></li>
 

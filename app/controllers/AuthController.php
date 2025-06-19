@@ -123,11 +123,18 @@ class AuthController {
         }
         $userModel = new User();
         if ($userModel->create($email, $password, $nom, $prenom)) {
+            // ---- DEBUT AJOUT ----
+            $newUser = $userModel->findByEmail($email);
+            if ($newUser) {
+                require_once ROOT_PATH . '/app/models/Notification.php';
+                $notificationModel = new Notification();
+                $notificationModel->createNotification($newUser['id'], 'account_created', 'Bienvenue ! Votre compte a été créé avec succès.');
+            }
+            // ---- FIN AJOUT ----
             $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
-        } else {
+        }  else {
             $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
             // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');

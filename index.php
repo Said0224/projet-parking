@@ -145,6 +145,17 @@ try {
             $controller = new IoTController();
             $controller->updateMotorState();
             break;
+        case '/notifications':
+            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
+            $controller = new NotificationController();
+            $controller->index();
+            break;
+            
+        case '/notifications/update-preference':
+            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
+            $controller = new NotificationController();
+            $controller->updateMailPreference();
+            break;
 
         // ===== ROUTES ADMIN =====
         case '/admin':

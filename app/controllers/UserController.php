@@ -69,6 +69,14 @@ class UserController {
         }
 
         if ($this->reservationModel->createReservation($user_id, $spot_id, $start_time, $end_time)) {
+            // ---- DEBUT AJOUT ----
+            require_once ROOT_PATH . '/app/models/Notification.php';
+            $notificationModel = new Notification();
+            $spotDetails = $this->parkingSpotModel->getSpotById($spot_id);
+            $message = "Votre réservation pour la place " . $spotDetails['spot_number'] . " a été confirmée.";
+            $notificationModel->createNotification($user_id, 'reservation_success', $message);
+            // ---- FIN AJOUT ----
+
             echo json_encode(['success' => true, 'message' => 'Réservation effectuée avec succès !']);
         } else {
             http_response_code(409); // 409 Conflict
@@ -90,6 +98,13 @@ class UserController {
         $user_id = $_SESSION['user_id'];
         
         if ($this->reservationModel->cancelReservation($reservation_id, $user_id)) {
+            // ---- DEBUT AJOUT ----
+            require_once ROOT_PATH . '/app/models/Notification.php';
+            $notificationModel = new Notification();
+            $message = "Votre réservation (ID: {$reservation_id}) a bien été annulée.";
+            $notificationModel->createNotification($user_id, 'reservation_cancelled', $message);
+            // ---- FIN AJOUT ----
+
             echo json_encode(['success' => true, 'message' => 'Réservation annulée avec succès !']);
         } else {
             http_response_code(500);
