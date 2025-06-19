@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboard3D = document.querySelector('.dashboard-main-3d');
     if (!dashboard3D) return;
 
+
     // --- Gestion du menu des étages (inchangé) ---
     const floorPanel = document.getElementById('floor-switcher-panel');
     const toggleButton = document.getElementById('floor-switcher-toggle');
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     if (floorContainer && floors.length > 0) {
         floors.forEach(floor => {
             const floorNum = floor.dataset.floor;
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => switchFloor(floorNum));
             floorContainer.appendChild(btn);
         });
+
         switchFloor(1); 
     }
     
@@ -148,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // Le reste du fichier est inchangé
+
 function switchFloor(floorNum) {
     document.querySelectorAll('.parking-floor-3d').forEach(f => f.style.display = 'none');
     const floorToShow = document.querySelector(`#floor-${floorNum}`);
@@ -164,6 +168,7 @@ function switchFloor(floorNum) {
     if (floorPanel) {
         floorPanel.classList.remove('active');
     }
+
 }
 
 function handleSpotClick(spotElement) {
@@ -194,7 +199,9 @@ async function displaySpotDetails(spotId) {
         let html = `<h3>Place ${details.spot_number}</h3>
             <div class="details-panel-section">
                 <h4><i class="fas fa-info-circle"></i> Informations</h4>
+
                 <div class="info-item"><span>Place</span> <span class="info-item"class="status status-${details.status}">${details.status}</span></div>`;
+
 
         if (details.status === 'occupée' || details.status === 'réservée') {
             html += `<div class="info-item"><span><i class="fas fa-user"></i> Occupant</span> <span>${details.prenom ? details.prenom + ' ' + details.nom : 'Anonyme'}</span></div>
@@ -204,16 +211,21 @@ async function displaySpotDetails(spotId) {
         html += `<div class="info-item"><span><i class="fas fa-euro-sign"></i> Tarif</span> <span>${parseFloat(details.price_per_hour).toFixed(2)} €/h</span></div>
                  <div class="info-item"><span><i class="fas fa-charging-station"></i> Borne</span> <span>${details.has_charging_station ? 'Oui' : 'Non'}</span></div>
             </div>
+
             `;
+
 
         if (details.status === 'disponible') {
             html += `<button class="btn btn-primary btn-full" onclick="openReservationModal(${details.id}, '${details.spot_number}', ${details.price_per_hour})">Réserver</button>`;
         } else if (details.status === 'réservée' && details.is_owner) {
+
             html += `<form onsubmit="event.preventDefault(); document.querySelector('#reservation-row-${details.reservation_id} .cancel-reservation-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}))">
                         <button type="submit" class="btn btn-danger btn-full">Annuler ma réservation</button>
                     </form>`;
         } else {
+
             html += `<p style="text-align:center; opacity:0.7;">Aucune réservation disponible.</p>`;
+
         }
         html += `</div>`;
         panel.innerHTML = html;

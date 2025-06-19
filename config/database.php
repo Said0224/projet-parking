@@ -7,6 +7,7 @@ define('DB_NAME', 'app_db');
 define('DB_USER', 'app_user');
 define('DB_PASS', 'appg9');
 */
+
 //define('DB_HOST', 'herogu.garageisep.com');*/
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'IxMd95C0YL_projet_par');
@@ -16,6 +17,7 @@ define('DB_PASS', '');
 //define('DB_PASS', 'JVQ6LotVLJAHjH5r');*/
 
 // Le port standard pour MySQL est 3306, il est généralement omis car c'est le défaut.
+
 
 // --- NOUVEAU DSN (Data Source Name) POUR MYSQL ---
 // On utilise "mysql:" au lieu de "pgsql:" et on ajoute le charset.

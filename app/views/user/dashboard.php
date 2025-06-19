@@ -4,26 +4,46 @@
 <div id="ajax-notification" class="notification-container"></div>
 
 <div class="container">
-    <div class="user-header">
-        <h1><i class="fas fa-tachometer-alt"></i> Mon Dashboard</h1>
-        <p>Bienvenue <?= htmlspecialchars($_SESSION['user_prenom'] ?? 'Utilisateur') ?> !</p>
-    </div>
 
-    <div class="dashboard-actions">
-        <a href="<?= BASE_URL ?>/user/parking" class="action-card">
-            <div class="action-icon"><i class="fas fa-car"></i></div>
-            <h3>Gérer mes réservations</h3>
-            <p>Consulter toutes les places et gérer vos réservations.</p>
-        </a>
+
+    <!-- ========================================================== -->
+    <!-- BLOC 1 MODIFIÉ : EN-TÊTE "MON DASHBOARD" ESTHÉTIQUE -->
+    <!-- ========================================================== -->
+    <div class="user-header-new">
+        <h1><i class="fas fa-clock"></i> Mon Dashboard</h1>
+        <p>Bienvenue, <?= htmlspecialchars($_SESSION['user_prenom'] ?? 'Utilisateur') ?> ! Gérez votre parking en toute simplicité.</p>
     </div>
 
     <!-- ========================================================== -->
-    <!-- DÉBUT DU BLOC 3D QUI REMPLACE L'ANCIENNE GRILLE -->
+    <!-- BLOC 2 MODIFIÉ : CARTE D'ACTION "GÉRER MES RÉSERVATIONS" -->
+    <!-- ========================================================== -->
+    <div class="dashboard-actions-new">
+        <div class="action-card-new">
+            <div class="action-card-new-content">
+                <div class="action-card-new-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="action-card-new-text">
+                    <h3>Gestion des réservations</h3>
+                    <p>Consultez l'historique, suivez vos réservations actives et planifiez vos prochaines visites.</p>
+                </div>
+            </div>
+            <div class="action-card-new-footer">
+                <a href="<?= BASE_URL ?>/user/parking" class="btn btn-primary">Voir mes réservations</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================== -->
+    <!-- SECTION 3D (INCHANGÉE) -->
+
     <!-- ========================================================== -->
     <div class="parking-status-section">
         <h2>État des places en temps réel</h2>
         
         <div class="dashboard-main-3d">
+
             <!-- Colonne centrale: la vue 3D du parking -->
             <div class="parking-view-container">
                 
@@ -175,6 +195,7 @@
                 </div>
             </div>
             
+
             <!-- Colonne de droite: panneau de détails -->
             <div class="details-panel-wrapper">
                 <div id="detailsPanel">
@@ -182,6 +203,7 @@
                 </div>
             </div>
         </div>
+
         <!-- ======================================================== -->
         <!-- FIN DE LA MODIFICATION DE LA STRUCTURE PRINCIPALE -->
         <!-- ======================================================== -->
@@ -207,10 +229,12 @@
                                 <td><strong><?= htmlspecialchars($reservation['spot_number']) ?></strong>
                                     <?php if ($reservation['has_charging_station']): ?><i class="fas fa-charging-station text-success" title="Borne de recharge"></i><?php endif; ?>
                                 </td>
+
                                 <td><?= date('d/m/Y H:i', strtotime($reservation['start_time'])) ?></td>
                                 <td><?= date('d/m/Y H:i', strtotime($reservation['end_time'])) ?></td>
                                 <td><?= number_format($reservation['price_per_hour'], 2) ?>€</td>
                                 <td><span class="status status-<?= $reservation['status'] ?>"><?= ucfirst($reservation['status']) ?></span></td>
+
                                 <td>
                                     <?php if ($reservation['status'] == 'active' && strtotime($reservation['start_time']) > time()): ?>
                                         <form action="<?= BASE_URL ?>/user/cancel-reservation" method="POST" class="cancel-reservation-form" style="display: inline;">
@@ -219,6 +243,7 @@
                                         </form>
                                     <?php endif; ?>
                                 </td>
+
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -247,6 +272,7 @@
         </form>
     </div>
 </div>
+
 
 
 <!-- ============================================= -->
@@ -401,6 +427,7 @@
 .action-card { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center; text-decoration: none; color: inherit; transition: transform 0.2s; }
 .action-card:hover { transform: translateY(-5px); text-decoration: none; color: inherit; }
 .action-icon { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem; }
+
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
 .modal-content { background-color: white; margin: 10% auto; padding: 2rem; border-radius: 10px; width: 90%; max-width: 500px; }
 .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
@@ -417,10 +444,12 @@
 .notification-danger { background: linear-gradient(135deg, #dc3545, #fd7e14); }
 </style>
 
+
 <!-- JavaScript du modal et des notifications (INCHANGÉ) -->
 <script>
     // Le JavaScript que vous aviez déjà pour la gestion du modal et des notifications
     // est déplacé ici pour une meilleure clarté.
+
     function handleReservationSubmit(event) {
         event.preventDefault();
         const form = event.target;

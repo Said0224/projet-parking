@@ -12,16 +12,15 @@ define('ROOT_PATH', __DIR__);
 $script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 define('BASE_URL', rtrim($script_name, '/'));
 
-// --- DÉBUT DES MODIFICATIONS ---
 
 // 1. Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
-// On ajoute un '/' au début et on supprime les '/' en trop.
 $request_uri = '/' . trim($_GET['url'] ?? '', '/');
 
-// --- FIN DES MODIFICATIONS ---
-
 try {
-    // Le reste du fichier (le switch) ne change pas.
+    // Inclure la configuration de la base de données une seule fois au début
+    require_once ROOT_PATH . '/config/database.php';
+
+
     switch ($request_uri) {
 
         case '/':
@@ -30,7 +29,7 @@ try {
             $controller->index();
             break;
             
-        // ===== NOUVELLE ROUTE POUR LA FAQ =====
+
         case '/faq':
             require_once ROOT_PATH . '/app/controllers/HomeController.php';
             $controller = new HomeController();
@@ -55,8 +54,6 @@ try {
             $controller->logout();
             break;
 
-        // ... et ainsi de suite pour toutes vos autres routes ...
-        // Le reste de votre switch est correct et n'a pas besoin d'être modifié.
         
         case '/signup':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
@@ -81,6 +78,20 @@ try {
             $controller = new AuthController();
             $controller->updateProfile();
             break;
+
+        // ===== ROUTE CORRIGÉE ET AJOUTÉE ICI =====
+        case '/profile/change-password':
+            require_once ROOT_PATH . '/app/controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->changePassword();
+            break;
+
+        // ===== ROUTE AJOUTÉE POUR LA SUPPRESSION DE COMPTE =====
+        case '/profile/delete-account':
+            require_once ROOT_PATH . '/app/controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->deleteAccount();
+            break;
             
         case '/dashboard':
             require_once ROOT_PATH . '/app/controllers/DashboardController.php';
@@ -95,12 +106,15 @@ try {
             break;
 
         case '/iot-dashboard/capteurs': // Nouvelle route
+
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
             $controller->capteurs();
             break;
 
+
         case '/iot-dashboard/actionneurs': // Nouvelle route
+
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
             $controller->actionneurs();
@@ -150,10 +164,12 @@ try {
             break;
 
         case '/admin/api/reservations':
+
         require_once ROOT_PATH . '/app/controllers/AdminController.php';
         $controller = new AdminController();
         $controller->getReservationsAjax();
         break;
+
 
         // ===== ROUTES UTILISATEUR =====
         case '/user/dashboard':
@@ -186,7 +202,7 @@ try {
             $controller->updateSpotStatus();
             break;
 
-        // ===== NOUVELLE ROUTE API POUR LIRE LE STATUT =====
+
         case '/api/get-spot-status':
             require_once ROOT_PATH . '/app/controllers/ApiController.php';
             $controller = new ApiController();
@@ -220,9 +236,11 @@ try {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
 } finally {
+
     // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
     // On ferme la connexion à la base de données pour la libérer
     require_once ROOT_PATH . '/config/database.php';
+
     Database::closeConnection();
 }
 ?>
