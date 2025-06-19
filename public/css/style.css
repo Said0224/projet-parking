@@ -543,18 +543,92 @@ header {
 .floor-switcher { display: flex; flex-direction: column; gap: 0.5rem; }
 .floor-switcher .btn { width: 100%; justify-content: center; }
 .floor-switcher .btn.active { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-color: #3b82f6; }
-.parking-view-container { perspective: 1500px; display: flex; align-items: center; justify-content: center;  border-radius: 15px; padding: 2rem; }
-.parking-perspective { transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(-30deg); transition: transform 0.5s ease; }
-.parking-floor-3d { 
-    display: grid; 
-    transform-style: preserve-3d; 
-    grid-auto-rows: auto; /* <-- C'est la commande clé. Elle s'applique à toutes les lignes créées. */
+/* =================================================================== */
+/* ============= STYLES POUR LE DASHBOARD 3D UTILISATEUR ============= */
+/* =================================================================== */
+
+.parking-view-container { 
+    position: relative;
+    perspective: 1500px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px; 
+    padding: 2rem; 
+    overflow: hidden;
+    cursor: grab;
+    user-select: none; /* Empêche la sélection de texte */
+    -webkit-user-select: none; /* Pour la compatibilité avec Safari */
 }
-#floor-1 { 
-    grid-template-columns:  repeat(23, auto) ; /* 1 rampe + 21 places/structures + 1 rampe */
+
+.parking-perspective { 
+    transform-style: preserve-3d; 
+    transform: rotateX(60deg) rotateZ(-30deg) scale(0.6);
+    /* La transition est retirée pour un glisser instantané */
+    flex-shrink: 0;
+}
+
+/* Classe pour gérer la transition uniquement lors du reset */
+.parking-perspective.view-transition {
+    transition: transform 0.4s ease-out;
+}
+
+/* Conteneur pour les boutons de contrôle */
+.view-manipulation-controls {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    z-index: 10;
+    display: flex; /* Aligne les boutons horizontalement */
     gap: 10px;
 }
 
+/* Style commun pour chaque bouton (Zoom et Reset) */
+.control-btn {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.control-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+.control-btn:active {
+    transform: scale(1);
+    background-color: rgba(30, 64, 175, 0.8);
+}
+
+/* Style spécifique pour le bouton reset pour le différencier */
+#reset-view-btn {
+    background-color: rgba(30, 64, 175, 0.6);
+}
+
+/* Styles pour le parking lui-même (inchangés) */
+.parking-floor-3d { 
+    display: grid; 
+    transform-style: preserve-3d; 
+    grid-auto-rows: auto;
+}
+#floor-1 { 
+    grid-template-columns:  repeat(23, auto);
+    gap: 10px;
+}
+.spot-number-3d {
+    user-select: none;
+    -webkit-user-select: none;
+}
 /* Style pour les nouvelles rampes */
 .parking-structure.ramp {
     background: rgba(40, 40, 40, 0.7);
@@ -592,7 +666,7 @@ header {
     transform: rotate(90deg); /* Réoriente l'icône correctement */
 }
 #floor-2, #floor-3 { 
-    grid-template-columns: repeat(10, 1fr); 
+    grid-template-columns: repeat(23, auto);
     gap: 15px; 
 }
 .parking-spot-3d { width: 60px; height: 100px; position: relative; transform-style: preserve-3d; cursor: pointer; transition: transform 0.2s ease; }
@@ -655,7 +729,7 @@ header {
     transform-style: preserve-3d;
     background-color: #4a4a4ad9;
     background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
-    padding: 0px;
+    padding: 15px;
     border-radius: 15px;
     box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
 }

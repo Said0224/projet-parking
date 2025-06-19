@@ -17,155 +17,164 @@
         </a>
     </div>
 
-        <!-- ========================================================== -->
+    <!-- ========================================================== -->
     <!-- DÉBUT DU BLOC 3D QUI REMPLACE L'ANCIENNE GRILLE -->
     <!-- ========================================================== -->
     <div class="parking-status-section">
         <h2>État des places en temps réel</h2>
         
         <div class="dashboard-main-3d">
-            <!-- Colonne de gauche: contrôles -->
-            <div class="parking-controls">
-                <div class="floor-switcher">
-                    <h3>Étages</h3>
-                    <!-- Les boutons pour les étages seront générés ici par JS -->
-                </div>
-            </div>
-
             <!-- Colonne centrale: la vue 3D du parking -->
             <div class="parking-view-container">
+                
+                <!-- Bouton "Burger" pour ouvrir le menu des étages -->
+                <button id="floor-switcher-toggle" class="control-btn" title="Changer d'étage">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+
+                <!-- Panneau coulissant pour les étages -->
+                <div id="floor-switcher-panel">
+                    <h3><i class="fas fa-building"></i> Choisir un étage</h3>
+                    <!-- Le JS génèrera les boutons ici -->
+                    <div id="floor-buttons-container"></div>
+                </div>
+
                 <div class="parking-perspective">
-                <!-- DÉBUT: Sol 3D et flèches de circulation -->
-                <div class="parking-ground">
-                    <!-- Flèches pour la voie du haut (sens aller) -->
-                    <div class="traffic-lane lane-1">
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <!-- Flèches pour la voie du bas (sens retour) -->
-                    <div class="traffic-lane lane-2">
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <!-- FIN: Flèches de circulation -->
+                    <div class="parking-ground">
+                        <div class="traffic-lane lane-1">
+                            <i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="traffic-lane lane-2">
+                            <i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i><i class="fas fa-arrow-up"></i>
+                        </div>
 
                     <?php
-                    // La boucle PHP qui génère les étages est maintenant À L'INTÉRIEUR du sol
-                    // Fonction d'aide pour afficher une place
-                    function render_spot_3d($spot) {
-                        if (!is_array($spot) || !isset($spot['spot_number'])) {
-                            echo "<div class='parking-spot-3d maintenance' data-id='0'><div class='spot-top'><span class='spot-number-3d' >?</span></div></div>";
-                            return;
+                    // ================= DÉBUT DU BLOC PHP UNIQUE ET CORRIGÉ =================
+
+                    // Fonction d'aide pour afficher une place (définie une seule fois)
+                    if (!function_exists('render_spot_3d')) {
+                        function render_spot_3d($spot) {
+                            if (!is_array($spot) || !isset($spot['spot_number'])) {
+                                echo "<div class='parking-spot-3d maintenance' data-id='0'><div class='spot-top'><span class='spot-number-3d'>?</span></div></div>";
+                                return;
+                            }
+                            $status = htmlspecialchars($spot['status']);
+                            $id = $spot['id'];
+                            $userId = $spot['user_id'] ?? 0;
+                            $number = htmlspecialchars($spot['spot_number']);
+                            $reservationId = $spot['reservation_id'] ?? 0;
+                            echo "
+                            <div class='parking-spot-3d {$status}' data-id='{$id}' data-number='{$number}' data-user-id='{$userId}' data-reservation-id='{$reservationId}'>
+                                <div class='spot-face front'></div>
+                                <div class='spot-top'><span class='spot-number-3d'>{$number}</span></div>
+                                <div class='spot-face left'></div>
+                                <div class='spot-face right'></div>
+                            </div>";
                         }
-                        $status = htmlspecialchars($spot['status']);
-                        $id = $spot['id'];
-                        $userId = $spot['user_id'] ?? 0;
-                        $number = htmlspecialchars($spot['spot_number']);
-                        $reservationId = $spot['reservation_id'] ?? 0;
-                        echo "
-                        <div class='parking-spot-3d {$status}' data-id='{$id}' data-number='{$number}' data-user-id='{$userId}' data-reservation-id='{$reservationId}'>
-                            <div class='spot-face front'></div>
-                            <div class='spot-top'><span class='spot-number-3d'>{$number}</span></div>
-                            <div class='spot-face left'></div>
-                            <div class='spot-face right'></div>
-                        </div>";
                     }
 
                     // Boucle sur chaque étage
                     if (isset($spotsByEtage) && is_array($spotsByEtage) && !empty($spotsByEtage)) {
+                        // On récupère le numéro de l'étage le plus haut pour la logique des rampes
+                        $maxEtage = max(array_keys($spotsByEtage));
+
                         foreach ($spotsByEtage as $etage => $spots) {
                             $placeMap = [];
-                            foreach ($spots as $spot) { $placeMap[$spot['spot_number']] = $spot; }
-                    ?>
-                        <div class="parking-floor-3d" id="floor-<?= $etage ?>" data-floor="<?= $etage ?>" style="display: none;">
-                            <?php
-                            if ($etage == 1) { // Disposition complexe pour l'étage 1
+                            foreach ($spots as $spot) {
+                                $placeMap[$spot['spot_number']] = $spot;
+                            }
 
-                                // ================== DÉBUT DES MODIFICATIONS ==================
-                                
-                                // 1. Définir la nouvelle disposition avec les rampes d'accès
-                                $layout_etage_1 = [
-                                    // Rangée 0: Accès principal
+                            // Définir un layout SPÉCIFIQUE pour chaque étage
+                            $floor_layout = [];
+
+                            if ($etage == 1) {
+                                // Layout pour l'étage 1 (Rez-de-chaussée / Sortie)
+                                $floor_layout = [
                                     ['floor-access-top'],
-                                    // Rangée 1 (Haut)
-                                    ['ramp-down', '101', '102', '103', 'pillar', '104', '105', '106', 'crossing', 'pillar', '107', '108', '109', 'pillar', '110', '111', '112', 'pillar', '113', '114', '115', 'ramp-up'],
-                                    // Rangée 2 & 3: Allée de circulation
+                                    [ '101', '102', '103', 'pillar', '104', '105', '106', 'crossing', 'pillar', '107', '108', '109', 'pillar', '110', '111', '112', 'pillar', '113', '114', '115', 'ramp-up'],
                                     ['aisle'],
                                     ['aisle'],
-                                    // Rangée 4 (Milieu-Haut)
-                                    [ null,'116', '117', '118', 'pillar', '119', '120', '121', 'crossing', 'pillar', '122', '123', '124', 'pillar', '125', '126', '127', 'pillar', "special-zone", null, ],
-                                    // Rangée 5 (Milieu-Bas)
-                                    [ null,'128', '129', '130', 'pillar', '131', '132', '133', 'crossing', 'pillar', '134', '135', '136', 'pillar', '137', '138', '139', 'pillar',  null, null, ],
-                                    // Rangée 6 & 7: Allée de circulation
-                                    
+                                    [ '116', '117', '118', 'pillar', '119', '120', '121', 'crossing', 'pillar', '122', '123', '124', 'pillar', '125', '126', '127', 'pillar', "special-zone", null,null, ],
+                                    [ '128', '129', '130', 'pillar', '131', '132', '133', 'crossing', 'pillar', '134', '135', '136', 'pillar', '137', '138', '139', 'pillar',  null, null, ],
                                 ];
-
-                                // 2. Logique d'affichage mise à jour pour gérer tous les types d'éléments
-                                foreach ($layout_etage_1 as $row) {
-                                    foreach($row as $item) {
+                            } elseif ($etage == 2) {
+                                // === À PERSONNALISER POUR L'ÉTAGE 2 ===
+                                $floor_layout = [
+                                    
+                                    ['ramp-down', '201', '202', '203', 'pillar', '204', '205', '206', 'crossing', 'pillar', '207', '208', '209', 'pillar', '210', '211', '212', 'pillar', '213', '214', '215', 'ramp-up'],
+                                    ['aisle'],
+                                    ['aisle'],
+                                    [ null, '216', '217', '218', 'pillar', '219', '220', '221', 'crossing', 'pillar', '222', '223', '224', 'pillar', '225', '226', '227', 'pillar', "special-zone", null, ],
+                                    [ null, '228', '229', '230', 'pillar', '231', '232', '233', 'crossing', 'pillar', '234', '235', '236', 'pillar', '237', '238', '239', 'pillar',  null, null, ],
+                                ];
+                            } else { // ($etage == 3 ou plus, dernier étage)
+                                // === À PERSONNALISER POUR L'ÉTAGE 3 (OU LE DERNIER) ===
+                                $floor_layout = [
+                                    
+                                    ['ramp-down', '301', '302', '303', 'pillar', '304', '305', '306', 'crossing', 'pillar', '307', '308', '309', 'pillar', '310', '311', '312', 'pillar', '313', '314', '315', 'ramp-up'],
+                                    ['aisle'],
+                                    ['aisle'],
+                                    [ null, '316', '317', '318', 'pillar', '319', '320', '321', 'crossing', 'pillar', '322', '323', '324', 'pillar', '325', '326', '327', 'pillar', "special-zone", null, ],
+                                    [ null, '328', '329', '330', 'pillar', '331', '332', '333', 'crossing', 'pillar', '334', '335', '336', 'pillar', '337', '338', '339', 'pillar',  null, null, ],
+                                ];
+                            }
+                    ?>
+                            <div class="parking-floor-3d" id="floor-<?= $etage ?>" data-floor="<?= $etage ?>" style="display: none;">
+                                <?php
+                                // Boucle de rendu unifiée
+                                foreach ($floor_layout as $row) {
+                                    foreach ($row as $item) {
                                         if (in_array($item, ['pillar', 'crossing', 'special-zone', 'aisle', 'floor-access-top'])) {
-                                            $style = '';
-                                            $content = '';
-                                            $class_name = $item;
-
+                                            $style = ''; $content = ''; $class_name = $item;
                                             if ($item === 'crossing') $style = "style='grid-column: span 2;'";
-                                            if ($item === 'special-zone') {
-                                                $style = "style='grid-column: span 3;'"; // Ajusté pour 2 colonnes
-                                                $content = '<span>VÉLO &<br>ASCENSEUR</span>';
-                                            }
-                                            if ($item === 'aisle' || $item === 'floor-access-top') {
-                                                $style = "style='grid-column: 1 / -1;'"; // S'étend sur toute la largeur (23 colonnes)
-                                            }
-                                            if ($item === 'floor-access-top') {
-                                                $content = "<i class='fas fa-arrow-down'></i> ACCÈS VOITURES (ENTRÉE) <i class='fas fa-arrow-down'></i>";
-                                                $class_name = 'floor-access';
-                                            }
-
+                                            if ($item === 'special-zone') { $style = "style='grid-column: span 3;'"; $content = '<span>VÉLO &<br>ASCENSEUR</span>'; }
+                                            if ($item === 'aisle' || $item === 'floor-access-top') { $style = "style='grid-column: 1 / -1;'"; }
+                                            if ($item === 'floor-access-top') { $content = "<i class='fas fa-arrow-down'></i> ENTREE VOITURES  <i class='fas fa-arrow-down'></i>"; $class_name = 'floor-access'; }
                                             echo "<div class='parking-structure {$class_name}' {$style}>{$content}</div>";
-
                                         } elseif (in_array($item, ['ramp-up', 'ramp-down'])) {
-                                            // Nouvelle condition pour afficher les rampes
-                                            $ramp_style = "style='grid-row: span 7;'"; // S'étend sur 7 rangées de la grille
-                                            $ramp_text = ($item === 'ramp-up') ? "VERS ÉTAGES SUP." : "VERS SORTIE";
-                                            $ramp_icon = ($item === 'ramp-up') ? "fa-arrow-up" : "fa-arrow-down";
-                                            echo "
-                                            <div class='parking-structure ramp {$item}' {$ramp_style}>
-                                                <i class='fas {$ramp_icon}'></i>
-                                                <span>{$ramp_text}</span>
-                                            </div>";
-
+                                            $ramp_style = "style='grid-row: span 7;'";
+                                            $ramp_text = '';
+                                            $ramp_icon = '';
+                                            if ($item === 'ramp-down') {
+                                                $ramp_text = ($etage == 1) ? "VERS SORTIE" : "VERS ÉTAGE " . ($etage - 1);
+                                                $ramp_icon = "fa-arrow-down";
+                                            } elseif ($item === 'ramp-up') {
+                                                if ($etage < $maxEtage) {
+                                                    $ramp_text = "VERS ÉTAGE " . ($etage + 1);
+                                                    $ramp_icon = "fa-arrow-up";
+                                                } else {
+                                                    $ramp_text = "VERS ÉTAGE 2";
+                                                    $ramp_icon = "fa-ban";
+                                                }
+                                            }
+                                            echo "<div class='parking-structure ramp {$item}' {$ramp_style}><i class='fas {$ramp_icon}'></i><span>{$ramp_text}</span></div>";
                                         } elseif ($item !== null) {
                                             render_spot_3d($placeMap[$item] ?? ['spot_number' => $item, 'status' => 'maintenance', 'id' => 0]);
                                         } else {
-                                            echo "<div></div>"; // Espace vide
+                                            echo "<div></div>";
                                         }
                                     }
                                 }
-                                // =================== FIN DES MODIFICATIONS ===================
-                            
-                            } else { // Disposition simple pour les autres étages
-                                foreach ($spots as $spot) {
-                                    render_spot_3d($spot);
-                                }
-                            }
-                            ?>
-                        </div>
-                    <?php 
+                                ?>
+                            </div>
+                    <?php
                         }
                     } else {
                         echo "<p style='color:white; font-size: 1.2rem; text-align:center;'>Aucune place de parking trouvée. Vérifiez que la base de données est peuplée.</p>";
                     }
-                    ?>
-                </div> <!-- Fin du parking-ground -->
-            </div>
-            </div>
 
+                    // ================= FIN DU BLOC PHP UNIQUE =================
+                    ?>
+                    </div> <!-- Fin du parking-ground -->
+                </div>
+
+                <div class="view-manipulation-controls">
+                    <button id="reset-view-btn" class="control-btn" title="Réinitialiser la vue"><i class="fas fa-crosshairs"></i></button>
+                    <button id="zoom-in-btn" class="control-btn" title="Zoomer"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoom-out-btn" class="control-btn" title="Dézoomer"><i class="fas fa-search-minus"></i></button>
+                </div>
+            </div>
+            
             <!-- Colonne de droite: panneau de détails -->
             <div class="details-panel-wrapper">
                 <div id="detailsPanel">
@@ -173,17 +182,21 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- ========================================================== -->
-    <!-- FIN DU BLOC 3D -->
-    <!-- ========================================================== -->
+        <!-- ======================================================== -->
+        <!-- FIN DE LA MODIFICATION DE LA STRUCTURE PRINCIPALE -->
+        <!-- ======================================================== -->
 
+    </div>
     <!-- Section "Mes réservations" (INCHANGÉE ET CONSERVÉE) -->
     <div class="my-reservations">
-        <h2>Mes réservations</h2>
-        <div id="reservations-table-container">
-            <?php if (empty($userReservations)): ?>
-                <p id="no-reservations-message" class="no-reservations">Vous n'avez aucune réservation active.</p>
+    <h2>Mes réservations</h2>
+    <div id="reservations-table-container">
+        <?php if (empty($userReservations)): ?>
+            <div id="no-reservations-message" class="no-reservations-panel">
+                <i class="fas fa-info-circle"></i>
+                <p>Vous n'avez aucune réservation pour le moment.</p>
+                <span>Réservez une place depuis la vue 3D ci-dessus pour la voir apparaître ici.</span>
+            </div>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table">
@@ -240,6 +253,130 @@
 <!-- ========== JAVASCRIPT & STYLES ========== -->
 <!-- ============================================= -->
 <style>
+    /* Styles pour le panneau "Aucune réservation" */
+.no-reservations-panel {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: rgba(255, 255, 255, 0.05); /* Fond subtil et transparent */
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 15px; /* Bords arrondis cohérents */
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.no-reservations-panel i {
+    font-size: 2.5rem;
+    color: #ffd700; /* Couleur d'accentuation du site */
+    margin-bottom: 1rem;
+    display: block; /* Permet au margin-bottom de fonctionner */
+}
+
+.no-reservations-panel p {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: white; /* Texte principal plus visible */
+}
+
+.no-reservations-panel span {
+    font-size: 1rem;
+    opacity: 0.7; /* Texte secondaire plus discret */
+}
+    .dashboard-main-3d { 
+    display: grid; 
+    /* La première colonne est supprimée, on passe à une grille à 2 colonnes */
+    grid-template-columns: 1fr 350px; 
+    gap: 1.5rem; 
+    min-height: 600px; 
+    margin-top: 2rem; 
+    margin-bottom: 2rem; 
+}
+
+/* Le conteneur de la vue 3D doit permettre le positionnement absolu de ses enfants */
+.parking-view-container {
+    position: relative;
+    /* ... (les autres styles restent inchangés) ... */
+}
+
+/* Style du bouton "burger" */
+#floor-switcher-toggle {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    z-index: 1010; /* Doit être au-dessus du panneau et de la vue 3D */
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    padding: 0; /* On retire le padding pour que l'icône soit bien centrée */
+}
+
+/* Style du panneau coulissant */
+#floor-switcher-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background: rgba(15, 23, 42, 0.8); /* Fond sombre et semi-transparent */
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1.5rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    /* Animation */
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* État actif du panneau (quand il est visible) */
+#floor-switcher-panel.active {
+    transform: translateX(0);
+}
+
+#floor-switcher-panel h3 {
+    color: #ffd700;
+    margin: 0 0 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.25rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+#floor-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#floor-buttons-container .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+#floor-buttons-container .btn.active {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* Ajustement responsive: on passe le panneau en pleine largeur sur mobile */
+@media (max-width: 768px) {
+    #floor-switcher-panel {
+        width: 100%;
+    }
+    .dashboard-main-3d {
+        /* On repasse en une seule colonne sur mobile */
+        grid-template-columns: 1fr;
+    }
+}
 .user-header, .action-card, .modal, .notification-container { /* Styles existants */ }
 /* Ajout de styles pour le loader et les états */
 .loader { text-align: center; padding: 2rem; color: white; font-size: 1.2rem; }
