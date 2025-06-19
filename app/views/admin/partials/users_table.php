@@ -24,16 +24,18 @@
                         <td>
                             <form action="<?= BASE_URL ?>/admin/update-user" method="POST" class="role-update-form">
                                 <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                <div class="role-switch-wrapper">
-                                    <div class="form-check form-switch">
-                                        <!-- L'attribut 'onchange' a été retiré de l'input ci-dessous -->
+                                <!-- ===== DÉBUT DE LA MODIFICATION ===== -->
+                                <div class="role-switch-container">
+                                    <div class="form-switch">
                                         <input class="form-check-input" type="checkbox" name="is_admin"
                                                id="role-switch-<?= $user['id'] ?>"
                                                <?= $user['is_admin'] ? 'checked' : '' ?>
                                                <?= ($_SESSION['user_id'] == $user['id']) ? 'disabled' : '' ?>>
-                                        <label class="form-check-label" for="role-switch-<?= $user['id'] ?>"><?= $user['is_admin'] ? 'Admin' : 'Utilisateur' ?></label>
+                                        <label class="form-check-label" for="role-switch-<?= $user['id'] ?>"></label>
                                     </div>
+                                    <span class="role-text"><?= $user['is_admin'] ? 'Admin' : 'Utilisateur' ?></span>
                                 </div>
+                                <!-- ===== FIN DE LA MODIFICATION ===== -->
                             </form>
                         </td>
                         <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>

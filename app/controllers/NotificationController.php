@@ -9,9 +9,6 @@ use PHPMailer\PHPMailer\SMTP;
 // Inclusion de l'autoloader de Composer (très important !)
 require_once ROOT_PATH . '/vendor/autoload.php';
 
-// ==========================================================
-// == CORRECTION : AJOUT DES INCLUSIONS DE MODÈLES MANQUANTES ==
-// ==========================================================
 require_once ROOT_PATH . '/app/models/Notification.php';
 require_once ROOT_PATH . '/app/models/User.php';
 
@@ -48,40 +45,41 @@ class NotificationController {
      * Met à jour la préférence de réception d'e-mails et envoie un mail de confirmation.
      */
     public function updateMailPreference() {
+        // ===== DÉBUT DE LA MODIFICATION =====
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/notifications');
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
             exit;
         }
 
         $user_id = $_SESSION['user_id'];
         $new_preference = isset($_POST['notif_email']) ? 1 : 0;
-        $current_preference = $this->notificationModel->getMailPreference($user_id);
-
-        // On ne fait rien si la préférence n'a pas changé
-        if ($new_preference == $current_preference) {
-            header('Location: ' . BASE_URL . '/notifications');
-            exit;
-        }
-
-        // Mettre à jour la préférence dans la base de données
+        
         if ($this->notificationModel->updateMailPreference($user_id, $new_preference)) {
-            $_SESSION['notif_success'] = "Préférences de notification mises à jour.";
-            
-            // --- Logique d'envoi d'e-mail ---
             $user = $this->userModel->findById($user_id);
             if ($user && $user['email']) {
-                $this->sendConfirmationEmail($user['email'], $new_preference);
+                $mailSent = $this->sendConfirmationEmail($user['email'], $new_preference);
+                if ($mailSent) {
+                    echo json_encode(['success' => true, 'message' => 'Préférences mises à jour et e-mail de confirmation envoyé.']);
+                } else {
+                    echo json_encode(['success' => true, 'message' => 'Préférences mises à jour, mais l\'e-mail n\'a pas pu être envoyé.']);
+                }
+            } else {
+                 echo json_encode(['success' => true, 'message' => 'Préférences mises à jour.']);
             }
         } else {
-            $_SESSION['notif_error'] = "Erreur lors de la mise à jour des préférences.";
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la mise à jour des préférences.']);
         }
-
-        header('Location: ' . BASE_URL . '/notifications');
         exit;
+        // ===== FIN DE LA MODIFICATION =====
     }
 
     /**
      * Fonction privée pour envoyer l'e-mail de confirmation.
+     * @return bool Vrai si l'email est envoyé, faux sinon.
      */
     private function sendConfirmationEmail($user_email, $new_preference) {
         $mail = new PHPMailer(true);
@@ -103,6 +101,7 @@ class NotificationController {
 
             // --- Contenu de l'e-mail ---
             $mail->isHTML(true);
+            $mail->CharSet = 'UTF-8';
             $subject = $new_preference ? "Activation des notifications par e-mail" : "Désactivation des notifications par e-mail";
             $body = $new_preference 
                 ? "Bonjour,<br><br>Vous avez activé la réception des notifications par e-mail pour votre compte sur le Parking Intelligent ISEP."
@@ -113,11 +112,11 @@ class NotificationController {
             $mail->AltBody = strip_tags($body);
 
             $mail->send();
-            $_SESSION['notif_success'] = "Préférences mises à jour et e-mail de confirmation envoyé.";
+            return true;
 
         } catch (Exception $e) {
-            $_SESSION['notif_error'] = "Le message n'a pas pu être envoyé. Erreur Mailer: {$mail->ErrorInfo}";
             error_log("Erreur PHPMailer: " . $e->getMessage());
+            return false;
         }
     }
 }

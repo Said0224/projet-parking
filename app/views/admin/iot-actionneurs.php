@@ -73,10 +73,12 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
             </div>
             <div class="actuator-body">
                 <p>Contrôler l'état de la LED.</p>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" data-action="toggle-led" <?= $led['etat'] ? 'checked' : '' ?>>
-                    <label class="form-check-label">Allumer / Éteindre</label>
+                <!-- ===== DÉBUT DE LA MODIFICATION ===== -->
+                <div class="form-switch">
+                    <input class="form-check-input" type="checkbox" id="led-switch-<?= $led['id'] ?>" data-action="toggle-led" <?= $led['etat'] ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="led-switch-<?= $led['id'] ?>"></label>
                 </div>
+                <!-- ===== FIN DE LA MODIFICATION ===== -->
             </div>
         </div>
         <?php endforeach; ?>
@@ -247,41 +249,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
         }
-    });
-    
-    // --- GESTION DES SLIDERS MOTEUR (AU RELÂCHEMENT) ---
-    container.addEventListener('input', (e) => {
-        const target = e.target;
-        const action = target.dataset.action;
-        if (action !== 'set-motor-speed') return;
         
-        const card = target.closest('.actuator-card');
-        const speedDisplay = card.querySelector('.speed-display');
-        if(speedDisplay) speedDisplay.textContent = `${target.value} RPM`;
-    });
-    
-    container.addEventListener('mouseup', (e) => {
-        const target = e.target;
-        const action = target.dataset.action;
-        if (action !== 'set-motor-speed') return;
-        
-        const card = target.closest('.actuator-card');
-        const id = card.dataset.actuatorId;
-        const icon = card.querySelector('.motor-icon');
-
-        // On met à jour la vitesse uniquement si le moteur est déjà en marche
-        if (icon.classList.contains('rotating')) {
-            const formData = new FormData();
-            formData.append('id', id);
-            formData.append('etat', '1'); // Le moteur est en marche
-            formData.append('vitesse', target.value);
-            sendRequest('<?= BASE_URL ?>/iot-dashboard/update-motor-state', formData)
-                .then(success => {
-                    if (success) {
-                        const speedValue = card.querySelector('.speed-value');
-                        if (speedValue) speedValue.textContent = `${target.value} RPM`;
-                    }
-                });
+        // --- GESTION DES SLIDERS MOTEUR (AU RELÂCHEMENT) ---
+        if (action === 'set-motor-speed') {
+            const speedDisplay = card.querySelector('.speed-display');
+            if(speedDisplay) speedDisplay.textContent = `${target.value} RPM`;
+            
+            const icon = card.querySelector('.motor-icon');
+            // On met à jour la vitesse uniquement si le moteur est déjà en marche
+            if (icon.classList.contains('rotating')) {
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('etat', '1'); // Le moteur est en marche
+                formData.append('vitesse', target.value);
+                sendRequest('<?= BASE_URL ?>/iot-dashboard/update-motor-state', formData)
+                    .then(success => {
+                        if (success) {
+                            const speedValue = card.querySelector('.speed-value');
+                            if (speedValue) speedValue.textContent = `${target.value} RPM`;
+                        }
+                    });
+            }
         }
     });
 

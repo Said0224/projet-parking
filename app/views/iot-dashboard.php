@@ -165,7 +165,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     </div>
 </div>
 
-<!-- ======================== MODAL DE CONFIGURATION OLED ======================== -->
+<!-- ======================== DÉBUT DE LA MODIFICATION DE LA MODALE ======================== -->
 <div id="oled-config-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -193,16 +193,17 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light close-modal-btn">Annuler</button>
-                <button type="submit" class="btn btn-primary">Mettre à jour l'affichage</button>
+                <button type="submit" class="btn btn-primary">Mettre à jour</button>
             </div>
         </form>
     </div>
 </div>
+<!-- ======================== FIN DE LA MODIFICATION DE LA MODALE ======================== -->
 
 <style>
 /* ... Styles déjà présents dans votre CSS global ... */
 
-/* Styles pour la modale et les notifications */
+/* ===== DÉBUT DES STYLES POUR LA MODALE UNIFIÉE ===== */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
@@ -242,6 +243,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 .modal-footer {
     padding: 1.5rem; background-color: #f7f7f7; display: flex; justify-content: flex-end; gap: 1rem;
 }
+/* ===== FIN DES STYLES POUR LA MODALE UNIFIÉE ===== */
 
 /* Styles pour les notifications */
 .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
@@ -337,7 +339,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const openBtn = document.getElementById('open-oled-modal-btn');
     const oledForm = document.getElementById('oled-config-form');
 
-    // S'assurer que les éléments existent avant d'ajouter des listeners
     if (modal && openBtn && oledForm) {
         const closeBtns = modal.querySelectorAll('.close-modal-btn');
 
@@ -347,19 +348,17 @@ document.addEventListener('DOMContentLoaded', function() {
         openBtn.addEventListener('click', openModal);
         closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            if (e.target.classList.contains('modal-overlay')) closeModal();
         });
 
         oledForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const submitButton = this.querySelector('button[type="submit"]');
-            // --- NOUVEAU : Sauvegarde du contenu du bouton ---
             const originalButtonHTML = submitButton.innerHTML;
 
             submitButton.disabled = true;
-            // --- MODIFIÉ : Le texte du spinner est plus cohérent ---
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...';
 
             fetch('<?= BASE_URL ?>/iot-dashboard/update-oled', {
                 method: 'POST',
@@ -370,7 +369,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification(data.message, data.success ? 'success' : 'danger');
                 if (data.success) {
                     closeModal();
-                    // --- MISE À JOUR DYNAMIQUE SANS RECHARGEMENT ---
                     updateOledDisplay(formData);
                 }
             })
@@ -378,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Erreur de connexion avec le serveur.', 'danger');
             })
             .finally(() => {
-                // --- NOUVEAU : Restauration du bouton ---
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonHTML;
             });

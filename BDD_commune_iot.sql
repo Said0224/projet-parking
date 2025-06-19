@@ -1,0 +1,1225 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.13 (Debian 15.13-1.pgdg120+1)
+-- Dumped by pg_dump version 17.5
+
+-- Started on 2025-06-19 07:39:06
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 221 (class 1259 OID 16509)
+-- Name: capteurgaz; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.capteurgaz (
+    id integer NOT NULL,
+    date date,
+    heure time without time zone,
+    valeur double precision
+);
+
+
+ALTER TABLE public.capteurgaz OWNER TO app_user;
+
+--
+-- TOC entry 220 (class 1259 OID 16508)
+-- Name: capteurgaz_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.capteurgaz_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.capteurgaz_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3429 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: capteurgaz_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.capteurgaz_id_seq OWNED BY public.capteurgaz.id;
+
+
+--
+-- TOC entry 217 (class 1259 OID 16495)
+-- Name: capteurlum; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.capteurlum (
+    id integer NOT NULL,
+    date date,
+    heure time without time zone,
+    valeur double precision
+);
+
+
+ALTER TABLE public.capteurlum OWNER TO app_user;
+
+--
+-- TOC entry 216 (class 1259 OID 16494)
+-- Name: capteurlum_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.capteurlum_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.capteurlum_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3430 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: capteurlum_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.capteurlum_id_seq OWNED BY public.capteurlum.id;
+
+
+--
+-- TOC entry 223 (class 1259 OID 16516)
+-- Name: capteurproximite; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.capteurproximite (
+    id integer NOT NULL,
+    place integer,
+    date date,
+    heure time without time zone,
+    valeur boolean
+);
+
+
+ALTER TABLE public.capteurproximite OWNER TO app_user;
+
+--
+-- TOC entry 222 (class 1259 OID 16515)
+-- Name: capteurproximite_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.capteurproximite_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.capteurproximite_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3431 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: capteurproximite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.capteurproximite_id_seq OWNED BY public.capteurproximite.id;
+
+
+--
+-- TOC entry 219 (class 1259 OID 16502)
+-- Name: capteurson; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.capteurson (
+    id integer NOT NULL,
+    date date,
+    heure time without time zone,
+    valeur double precision
+);
+
+
+ALTER TABLE public.capteurson OWNER TO app_user;
+
+--
+-- TOC entry 218 (class 1259 OID 16501)
+-- Name: capteurson_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.capteurson_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.capteurson_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3432 (class 0 OID 0)
+-- Dependencies: 218
+-- Name: capteurson_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.capteurson_id_seq OWNED BY public.capteurson.id;
+
+
+--
+-- TOC entry 215 (class 1259 OID 16488)
+-- Name: capteurtemp; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.capteurtemp (
+    id integer NOT NULL,
+    date date,
+    heure time without time zone,
+    valeur double precision
+);
+
+
+ALTER TABLE public.capteurtemp OWNER TO app_user;
+
+--
+-- TOC entry 214 (class 1259 OID 16487)
+-- Name: capteurtemp_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.capteurtemp_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.capteurtemp_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3433 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: capteurtemp_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.capteurtemp_id_seq OWNED BY public.capteurtemp.id;
+
+
+--
+-- TOC entry 227 (class 1259 OID 16530)
+-- Name: led; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.led (
+    id integer NOT NULL,
+    etat boolean,
+    couleur character varying(7) DEFAULT '#FFFFFF'::character varying,
+    intensite integer DEFAULT 100,
+    zone character varying(50),
+    last_command character varying(100),
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.led OWNER TO app_user;
+
+--
+-- TOC entry 226 (class 1259 OID 16529)
+-- Name: led_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.led_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.led_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3434 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: led_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.led_id_seq OWNED BY public.led.id;
+
+
+--
+-- TOC entry 225 (class 1259 OID 16523)
+-- Name: moteur; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.moteur (
+    id integer NOT NULL,
+    etat boolean,
+    vitesse integer DEFAULT 0,
+    zone character varying(50),
+    last_command character varying(100),
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.moteur OWNER TO app_user;
+
+--
+-- TOC entry 224 (class 1259 OID 16522)
+-- Name: moteur_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.moteur_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.moteur_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3435 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: moteur_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.moteur_id_seq OWNED BY public.moteur.id;
+
+
+--
+-- TOC entry 229 (class 1259 OID 16537)
+-- Name: oled; Type: TABLE; Schema: public; Owner: app_user
+--
+
+CREATE TABLE public.oled (
+    id integer NOT NULL,
+    display_screen integer,
+    prix_parking double precision,
+    prix_recharge double precision,
+    prix_per_hour double precision,
+    heure timestamp without time zone,
+    "user" character varying(100),
+    plaque_immatriculation character varying(20),
+    places_dispo integer,
+    bornes_dispo integer
+);
+
+
+ALTER TABLE public.oled OWNER TO app_user;
+
+--
+-- TOC entry 228 (class 1259 OID 16536)
+-- Name: oled_id_seq; Type: SEQUENCE; Schema: public; Owner: app_user
+--
+
+CREATE SEQUENCE public.oled_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.oled_id_seq OWNER TO app_user;
+
+--
+-- TOC entry 3436 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: oled_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: app_user
+--
+
+ALTER SEQUENCE public.oled_id_seq OWNED BY public.oled.id;
+
+
+--
+-- TOC entry 3239 (class 2604 OID 16512)
+-- Name: capteurgaz id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurgaz ALTER COLUMN id SET DEFAULT nextval('public.capteurgaz_id_seq'::regclass);
+
+
+--
+-- TOC entry 3237 (class 2604 OID 16498)
+-- Name: capteurlum id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurlum ALTER COLUMN id SET DEFAULT nextval('public.capteurlum_id_seq'::regclass);
+
+
+--
+-- TOC entry 3240 (class 2604 OID 16519)
+-- Name: capteurproximite id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurproximite ALTER COLUMN id SET DEFAULT nextval('public.capteurproximite_id_seq'::regclass);
+
+
+--
+-- TOC entry 3238 (class 2604 OID 16505)
+-- Name: capteurson id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurson ALTER COLUMN id SET DEFAULT nextval('public.capteurson_id_seq'::regclass);
+
+
+--
+-- TOC entry 3236 (class 2604 OID 16491)
+-- Name: capteurtemp id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurtemp ALTER COLUMN id SET DEFAULT nextval('public.capteurtemp_id_seq'::regclass);
+
+
+--
+-- TOC entry 3244 (class 2604 OID 16533)
+-- Name: led id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.led ALTER COLUMN id SET DEFAULT nextval('public.led_id_seq'::regclass);
+
+
+--
+-- TOC entry 3241 (class 2604 OID 16526)
+-- Name: moteur id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.moteur ALTER COLUMN id SET DEFAULT nextval('public.moteur_id_seq'::regclass);
+
+
+--
+-- TOC entry 3248 (class 2604 OID 16540)
+-- Name: oled id; Type: DEFAULT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.oled ALTER COLUMN id SET DEFAULT nextval('public.oled_id_seq'::regclass);
+
+
+--
+-- TOC entry 3414 (class 0 OID 16509)
+-- Dependencies: 221
+-- Data for Name: capteurgaz; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.capteurgaz (id, date, heure, valeur) FROM stdin;
+1	2025-06-13	01:41:00.236786	400
+2	2025-06-13	01:41:00.236786	520.8
+3	2025-06-13	17:12:00	325
+5	2025-06-15	12:50:23	380
+7	2025-06-17	11:47:43	1
+8	2025-06-17	11:48:11	183
+9	2025-06-17	11:48:13	172
+10	2025-06-17	11:48:15	199
+11	2025-06-17	11:48:17	191
+12	2025-06-17	11:48:19	755
+13	2025-06-17	11:48:21	963
+14	2025-06-17	11:48:23	1280
+15	2025-06-17	11:48:25	1419
+16	2025-06-17	11:48:28	1399
+17	2025-06-17	11:48:42	1408
+18	2025-06-17	11:48:44	1423
+19	2025-06-17	11:48:46	1563
+20	2025-06-17	09:54:02	380
+21	2025-06-17	14:44:08	0
+22	2025-06-17	14:44:12	47
+23	2025-06-17	14:44:14	0
+24	2025-06-17	14:44:20	223
+25	2025-06-17	14:44:22	418
+26	2025-06-17	14:44:24	467
+27	2025-06-17	14:44:26	618
+28	2025-06-17	14:44:29	832
+29	2025-06-17	14:44:31	915
+30	2025-06-17	14:44:33	1183
+31	2025-06-17	14:44:35	1207
+32	2025-06-17	14:44:39	1215
+33	2025-06-17	14:44:41	1158
+34	2025-06-17	14:44:43	1190
+35	2025-06-17	14:44:45	1152
+36	2025-06-17	14:44:47	1207
+37	2025-06-17	14:44:49	1156
+38	2025-06-17	14:44:52	1207
+39	2025-06-17	14:44:54	1175
+40	2025-06-17	14:44:56	1156
+41	2025-06-17	14:44:58	1171
+42	2025-06-17	14:45:00	1186
+43	2025-06-17	14:45:02	1215
+44	2025-06-17	14:45:04	1183
+45	2025-06-17	14:45:06	1175
+46	2025-06-17	14:45:08	1191
+47	2025-06-17	14:45:10	1156
+48	2025-06-17	14:45:12	1162
+49	2025-06-17	14:45:14	1199
+50	2025-06-17	14:45:16	1171
+51	2025-06-17	14:45:19	1184
+52	2025-06-17	14:45:21	1162
+53	2025-06-17	14:45:23	1207
+54	2025-06-17	14:45:25	1199
+55	2025-06-17	14:45:27	1207
+56	2025-06-17	14:45:29	1156
+57	2025-06-17	14:45:35	1215
+58	2025-06-17	14:45:37	1158
+59	2025-06-17	14:45:39	1207
+60	2025-06-17	14:45:41	1170
+61	2025-06-17	14:45:43	1156
+62	2025-06-17	14:45:45	1174
+63	2025-06-17	14:45:47	1215
+64	2025-06-17	12:52:47	380
+65	2025-06-17	16:49:26.144815	23
+66	2025-06-17	16:49:28.237863	14
+67	2025-06-17	16:49:30.295095	4
+68	2025-06-17	16:49:32.370416	15
+69	2025-06-17	16:49:34.419537	0
+70	2025-06-17	16:49:38.5129	47
+71	2025-06-17	16:49:40.635894	0
+72	2025-06-17	16:49:44.705653	6
+73	2025-06-17	16:49:46.80201	87
+74	2025-06-17	16:49:48.967301	471
+75	2025-06-17	16:49:51.01905	959
+76	2025-06-17	16:49:53.069148	1408
+77	2025-06-17	16:49:55.13745	1973
+78	2025-06-17	16:49:57.185525	2272
+79	2025-06-17	16:49:59.253583	2615
+80	2025-06-17	16:50:05.321545	2623
+81	2025-06-17	16:50:07.386592	2600
+82	2025-06-17	16:50:11.454455	2619
+83	2025-06-17	16:50:13.600984	2810
+84	2025-06-17	16:50:15.755215	2912
+85	2025-06-17	16:50:17.801816	2923
+86	2025-06-17	16:50:29.867539	2907
+87	2025-06-17	16:50:31.95908	2920
+88	2025-06-17	16:50:36.035459	2912
+89	2025-06-17	16:50:42.088889	2923
+90	2025-06-17	16:50:44.156639	2910
+91	2025-06-17	14:50:47	380
+92	2025-06-17	21:01:13.367922	0
+93	2025-06-17	21:01:48.452235	0
+94	2025-06-17	21:06:36.868324	47
+95	2025-06-17	21:06:37.846577	0
+96	2025-06-17	21:06:42.844608	47
+97	2025-06-17	21:06:43.915792	96
+98	2025-06-17	21:06:44.871356	416
+99	2025-06-17	21:06:45.861274	608
+100	2025-06-17	21:06:46.843511	1007
+101	2025-06-17	21:06:47.895971	914
+102	2025-06-17	21:06:48.849682	1088
+103	2025-06-17	21:06:49.854017	1044
+104	2025-06-17	21:06:50.934499	1086
+105	2025-06-17	21:06:51.914032	1103
+106	2025-06-17	21:06:52.887732	1050
+107	2025-06-17	21:06:54.869688	1079
+108	2025-06-17	21:06:55.944242	1103
+109	2025-06-17	21:06:56.910418	1048
+110	2025-06-17	21:06:57.862169	1111
+111	2025-06-17	21:06:58.934556	1044
+112	2025-06-17	21:06:59.893687	1056
+113	2025-06-17	21:07:00.876777	1103
+114	2025-06-17	21:07:01.927386	1044
+115	2025-06-17	21:07:02.899509	1056
+116	2025-06-17	21:07:03.941244	1111
+117	2025-06-17	21:07:04.892573	1071
+118	2025-06-17	21:07:05.92117	1056
+119	2025-06-17	21:07:06.899337	1079
+120	2025-06-17	21:07:08.954631	1044
+121	2025-06-17	21:07:09.908738	1079
+122	2025-06-17	21:07:10.957473	1103
+123	2025-06-17	21:07:11.908428	1056
+124	2025-06-17	21:07:12.969777	1044
+125	2025-06-17	21:07:13.939745	223
+126	2025-06-17	21:07:14.934213	14
+127	2025-06-17	21:07:38.922492	47
+128	2025-06-17	21:07:39.97425	0
+129	2025-06-17	21:07:40.922237	47
+130	2025-06-17	21:07:41.974652	15
+131	2025-06-17	21:07:43.935561	31
+132	2025-06-17	21:07:45.009229	0
+133	2025-06-17	21:07:45.982544	432
+134	2025-06-17	21:07:46.960262	848
+135	2025-06-17	21:07:47.985832	895
+136	2025-06-17	21:07:49.963254	840
+137	2025-06-17	21:07:50.931986	856
+138	2025-06-17	21:10:18.200087	840
+139	2025-06-17	21:10:20.179405	919
+140	2025-06-17	21:10:21.229887	528
+141	2025-06-17	21:10:22.179671	0
+142	2025-06-17	21:10:23.229535	31
+143	2025-06-17	21:10:24.193969	255
+144	2025-06-17	21:10:25.246064	688
+145	2025-06-17	21:10:26.220952	1712
+146	2025-06-17	21:10:27.254687	2199
+147	2025-06-17	21:10:28.205115	2658
+148	2025-06-17	21:10:34.196409	2202
+149	2025-06-17	21:10:35.191	1546
+150	2025-06-17	21:10:36.195263	1463
+151	2025-06-17	21:10:38.270191	1151
+152	2025-06-17	21:10:39.255289	1104
+153	2025-06-17	21:10:41.227559	919
+154	2025-06-17	21:10:43.241292	871
+155	2025-06-17	21:10:44.211397	911
+156	2025-06-17	21:10:45.263094	895
+157	2025-06-17	21:10:48.236937	864
+158	2025-06-17	21:12:44.606238	848
+159	2025-06-17	21:12:48.649921	895
+160	2025-06-17	21:12:50.812745	854
+161	2025-06-17	21:12:52.865983	919
+162	2025-06-17	21:12:54.947755	871
+163	2025-06-17	21:12:57.014413	623
+164	2025-06-17	21:12:59.064909	0
+165	2025-06-17	21:13:01.197734	15
+166	2025-06-17	21:13:03.264992	0
+167	2025-06-17	21:13:23.33662	15
+168	2025-06-17	21:13:25.396684	47
+169	2025-06-17	21:13:27.554672	20
+170	2025-06-17	21:13:29.605463	1263
+171	2025-06-17	21:13:31.714147	1999
+172	2025-06-17	21:13:33.780843	3264
+173	2025-06-17	21:13:35.847678	3964
+174	2025-06-17	21:13:37.971955	4095
+175	2025-06-17	21:15:01.933204	47
+176	2025-06-17	21:15:02.588901	0
+177	2025-06-17	21:15:03.64215	23
+178	2025-06-17	21:15:04.692059	0
+179	2025-06-17	21:15:05.760452	31
+180	2025-06-17	21:15:07.825913	0
+181	2025-06-17	21:15:09.877529	703
+182	2025-06-17	21:15:10.933726	991
+183	2025-06-17	21:15:11.984205	1519
+184	2025-06-17	21:15:12.613857	1482
+185	2025-06-17	21:15:13.663913	1607
+186	2025-06-17	21:15:14.73304	1572
+187	2025-06-17	21:15:15.807882	1599
+188	2025-06-17	21:15:17.882102	1262
+189	2025-06-17	21:15:18.975449	176
+190	2025-06-17	21:15:20.092385	0
+191	2025-06-17	21:15:47.937048	264
+192	2025-06-17	21:15:48.988499	910
+193	2025-06-17	21:15:50.055711	943
+194	2025-06-17	21:15:51.113825	898
+195	2025-06-17	21:15:52.162959	959
+196	2025-06-17	21:15:54.254485	896
+197	2025-06-17	21:15:55.321394	959
+198	2025-06-17	21:15:56.404955	943
+199	2025-06-17	21:15:57.472831	906
+200	2025-06-17	21:15:58.521107	916
+201	2025-06-17	21:15:59.5886	927
+202	2025-06-17	21:16:01.657136	950
+203	2025-06-17	21:16:02.720891	1152
+204	2025-06-17	21:16:03.894027	1403
+205	2025-06-17	21:16:05.038175	1392
+206	2025-06-17	21:16:06.100406	1415
+207	2025-06-17	21:16:07.152074	1455
+208	2025-06-17	21:16:09.221795	1408
+209	2025-06-17	21:16:10.287815	1455
+210	2025-06-17	21:16:11.335854	1344
+211	2025-06-17	21:16:12.386922	0
+212	2025-06-17	21:16:13.723808	31
+213	2025-06-17	21:16:14.786687	0
+214	2025-06-17	21:16:15.836579	15
+215	2025-06-17	21:16:16.903841	47
+216	2025-06-17	21:16:18.97332	15
+217	2025-06-17	21:16:20.025464	31
+218	2025-06-17	21:16:21.112506	0
+219	2025-06-17	21:16:23.180831	47
+220	2025-06-17	21:16:24.319996	0
+221	2025-06-17	21:19:08.511941	11
+222	2025-06-17	21:19:11.605676	0
+223	2025-06-17	21:19:22.18764	672
+224	2025-06-17	21:19:23.774333	1030
+225	2025-06-17	21:19:25.478521	1394
+226	2025-06-17	21:19:27.022893	1567
+227	2025-06-17	21:19:28.572424	1542
+228	2025-06-17	21:19:30.224736	1567
+229	2025-06-17	21:19:31.806805	1583
+230	2025-06-17	21:19:33.372458	1536
+231	2025-06-17	21:19:37.926553	1575
+232	2025-06-17	21:19:39.50577	1538
+233	2025-06-17	21:19:41.098792	1562
+234	2025-06-17	21:19:42.656109	1546
+235	2025-06-17	21:19:44.206025	1536
+236	2025-06-17	21:19:47.258949	1583
+237	2025-06-17	21:19:48.829001	1567
+238	2025-06-17	21:19:50.379206	1552
+239	2025-06-17	21:19:51.927881	1575
+240	2025-06-17	21:19:54.998856	1536
+241	2025-06-17	21:19:56.652556	0
+242	2025-06-17	21:20:25.717558	47
+243	2025-06-17	21:20:27.255585	191
+244	2025-06-17	21:20:28.840102	128
+245	2025-06-17	21:20:30.402467	191
+246	2025-06-17	21:20:31.991016	128
+247	2025-06-17	21:20:35.045169	783
+248	2025-06-17	21:20:38.113673	815
+249	2025-06-17	21:20:39.744266	1322
+250	2025-06-17	21:20:41.410212	1351
+251	2025-06-17	21:20:42.961131	1324
+252	2025-06-17	21:20:47.517118	1424
+253	2025-06-17	21:20:49.08692	1600
+254	2025-06-17	21:20:53.663286	1611
+255	2025-06-17	21:20:55.244015	1623
+256	2025-06-17	21:20:56.859179	1600
+257	2025-06-17	21:20:58.410512	1623
+258	2025-06-17	21:20:59.978145	1590
+259	2025-06-17	21:21:01.599553	1615
+260	2025-06-17	21:21:03.169063	1375
+261	2025-06-17	21:21:04.735141	855
+262	2025-06-17	21:21:06.343084	31
+263	2025-06-17	21:21:09.403675	0
+264	2025-06-17	21:21:18.49777	15
+265	2025-06-17	21:21:20.050199	0
+266	2025-06-17	21:21:21.624309	47
+267	2025-06-17	21:21:26.192335	1235
+268	2025-06-17	21:21:27.800068	2592
+269	2025-06-17	21:21:29.425249	3872
+270	2025-06-17	21:21:30.991278	4095
+271	2025-06-17	21:22:08.603627	3765
+272	2025-06-17	21:22:10.165007	3682
+273	2025-06-17	21:22:11.730752	3416
+274	2025-06-17	21:22:13.280156	3189
+275	2025-06-17	21:22:14.847583	2762
+276	2025-06-17	21:22:19.417596	2731
+277	2025-06-17	21:22:20.970585	2568
+278	2025-06-17	21:22:22.520704	2502
+279	2025-06-17	21:22:24.087194	2447
+280	2025-06-17	21:22:25.637788	2336
+281	2025-06-17	21:22:27.200525	2324
+282	2025-06-17	21:22:30.266353	2335
+283	2025-06-17	21:22:31.831074	2324
+284	2025-06-17	21:22:34.896611	2335
+285	2025-06-17	21:22:36.461282	1904
+286	2025-06-17	21:22:38.027184	256
+287	2025-06-17	21:22:39.620442	0
+288	2025-06-17	21:24:22.589567	47
+289	2025-06-17	21:24:24.191836	0
+290	2025-06-17	21:24:25.77126	31
+291	2025-06-17	21:24:27.321936	447
+292	2025-06-17	21:24:28.871046	395
+293	2025-06-17	21:24:30.418836	431
+294	2025-06-17	21:24:31.968846	447
+295	2025-06-17	21:24:33.548066	422
+296	2025-06-17	21:24:35.094881	492
+297	2025-06-17	21:24:36.645734	480
+298	2025-06-17	21:24:38.229752	831
+299	2025-06-17	21:24:39.794772	818
+300	2025-06-17	21:24:41.393487	1279
+301	2025-06-17	21:24:43.281475	1298
+302	2025-06-17	21:24:44.86295	1483
+303	2025-06-17	21:24:47.923242	1456
+304	2025-06-17	21:24:49.469381	1762
+305	2025-06-17	21:24:51.060619	2039
+306	2025-06-17	21:24:55.631681	2008
+307	2025-06-17	21:24:57.195931	2031
+308	2025-06-17	21:25:00.280664	2008
+309	2025-06-17	21:25:01.832719	2031
+310	2025-06-17	21:25:03.401023	1714
+311	2025-06-17	21:25:04.951053	1579
+312	2025-06-17	21:25:06.516976	615
+313	2025-06-17	21:25:08.127106	31
+314	2025-06-17	21:25:09.692236	0
+315	2025-06-17	21:27:59.029519	15
+316	2025-06-17	21:28:00.606587	0
+317	2025-06-17	21:28:02.174308	23
+318	2025-06-17	21:28:03.740453	0
+319	2025-06-17	21:28:06.785017	47
+320	2025-06-17	21:28:08.331936	239
+321	2025-06-17	21:28:09.88183	287
+322	2025-06-17	21:28:11.430377	512
+323	2025-06-17	21:28:12.983198	768
+324	2025-06-17	21:28:16.091887	815
+325	2025-06-17	21:28:17.640105	791
+326	2025-06-17	21:28:19.205192	831
+327	2025-06-17	21:28:23.838916	782
+328	2025-06-17	21:28:25.405301	768
+329	2025-06-17	21:28:28.476429	975
+330	2025-06-17	21:28:30.030698	1531
+331	2025-06-17	21:28:31.621391	1520
+332	2025-06-17	21:28:33.188643	1559
+333	2025-06-17	21:28:34.801244	1522
+334	2025-06-17	21:28:36.347049	1807
+335	2025-06-17	21:28:37.970886	1791
+336	2025-06-17	21:28:39.56393	1935
+337	2025-06-17	21:28:41.228922	2082
+338	2025-06-17	21:31:48.884424	0
+339	2025-06-17	21:31:53.538482	31
+340	2025-06-17	21:31:55.159762	0
+341	2025-06-17	21:32:02.717664	31
+342	2025-06-17	21:32:04.265143	47
+343	2025-06-17	21:32:05.815894	0
+344	2025-06-17	21:32:07.364128	247
+345	2025-06-17	21:32:08.914235	748
+346	2025-06-17	21:32:10.465914	903
+347	2025-06-17	21:32:12.083609	1327
+348	2025-06-17	21:32:13.715627	1684
+349	2025-06-17	21:32:15.308429	1792
+350	2025-06-17	21:32:16.947717	2176
+351	2025-06-17	21:32:18.541483	2190
+352	2025-06-17	21:32:21.611159	2312
+353	2025-06-17	21:32:26.168988	2492
+354	2025-06-17	21:32:27.714674	2476
+355	2025-06-17	21:32:29.264933	2494
+356	2025-06-17	21:32:32.317273	2480
+357	2025-06-17	21:32:33.865135	2468
+358	2025-06-17	21:32:35.497245	2132
+359	2025-06-17	21:32:38.60082	1855
+360	2025-06-17	21:32:40.146231	1748
+361	2025-06-17	21:32:41.713731	1664
+362	2025-06-17	21:32:43.346745	1522
+363	2025-06-17	21:32:44.894582	1328
+364	2025-06-17	21:32:46.462472	1375
+365	2025-06-17	21:32:48.038038	1351
+366	2025-06-17	21:32:49.588431	1320
+367	2025-06-17	21:32:51.154857	1359
+368	2025-06-17	21:32:54.229928	1322
+369	2025-06-17	21:32:55.779639	1350
+370	2025-06-17	21:32:57.455145	1087
+371	2025-06-17	21:33:00.615902	1067
+372	2025-06-17	21:33:02.180966	1023
+373	2025-06-17	21:33:03.762158	983
+374	2025-06-17	21:33:06.906305	895
+375	2025-06-17	21:33:08.546509	786
+376	2025-06-17	21:33:10.111479	648
+377	2025-06-17	21:33:11.753662	432
+378	2025-06-17	21:33:13.304291	383
+379	2025-06-17	21:33:14.903002	175
+380	2025-06-17	21:33:16.553902	47
+381	2025-06-17	21:33:18.105586	0
+382	2025-06-17	21:33:19.753901	31
+383	2025-06-17	21:34:09.417873	0
+384	2025-06-17	21:34:18.499833	84
+385	2025-06-17	21:34:20.048077	112
+386	2025-06-17	21:34:21.613926	503
+387	2025-06-17	21:34:23.164744	783
+388	2025-06-17	21:34:24.755687	916
+389	2025-06-17	21:34:26.323106	975
+390	2025-06-17	21:34:27.875282	1040
+391	2025-06-17	21:34:29.547444	1071
+392	2025-06-17	21:34:31.099338	1232
+393	2025-06-17	21:34:32.649339	1252
+394	2025-06-17	21:34:34.205654	1279
+395	2025-06-17	21:34:35.756253	1236
+396	2025-06-17	21:34:38.82428	1424
+397	2025-06-17	21:34:40.373873	1616
+398	2025-06-17	21:34:43.428103	1638
+399	2025-06-17	21:34:44.972435	1626
+400	2025-06-17	21:34:46.540317	1615
+401	2025-06-17	21:34:48.089469	1647
+402	2025-06-17	21:34:49.731507	1631
+403	2025-06-17	21:34:52.783385	1647
+404	2025-06-17	21:34:54.34711	1610
+405	2025-06-17	21:34:55.898609	1184
+406	2025-06-17	21:34:57.447187	1152
+407	2025-06-17	21:34:59.009273	1103
+408	2025-06-17	21:35:00.563821	1000
+409	2025-06-17	21:35:02.336677	980
+410	2025-06-17	21:35:03.905547	968
+411	2025-06-17	21:35:05.505526	930
+412	2025-06-17	21:35:07.071688	840
+413	2025-06-17	21:35:08.621453	575
+414	2025-06-17	21:35:10.171345	559
+415	2025-06-17	21:35:11.739073	524
+416	2025-06-17	21:35:13.32091	567
+417	2025-06-18	15:11:30.251934	227
+418	2025-06-18	15:11:40.934917	192
+419	2025-06-18	15:11:42.501916	335
+420	2025-06-18	15:11:44.036288	439
+421	2025-06-18	15:11:45.611891	0
+422	2025-06-18	15:11:59.161042	135
+423	2025-06-18	15:12:00.786667	307
+424	2025-06-18	15:12:03.825358	355
+425	2025-06-18	15:12:05.361061	439
+426	2025-06-18	15:12:06.913984	526
+427	2025-06-18	15:12:08.451826	495
+428	2025-06-18	15:12:09.993611	511
+429	2025-06-18	15:12:11.542848	526
+430	2025-06-18	15:12:14.599695	770
+431	2025-06-18	15:12:16.179913	1211
+432	2025-06-18	15:12:17.780354	1199
+433	2025-06-18	15:12:35.838145	1475
+434	2025-06-18	15:12:37.408951	1495
+435	2025-06-18	15:12:38.975015	1742
+436	2025-06-18	15:12:40.511303	1762
+437	2025-06-18	15:15:16.571414	0
+438	2025-06-18	15:16:26.575433	91
+439	2025-06-18	15:16:28.132389	355
+440	2025-06-18	15:16:29.780127	551
+441	2025-06-18	15:16:32.8334	567
+442	2025-06-18	15:16:34.388588	647
+443	2025-06-18	15:16:35.923414	815
+444	2025-06-18	15:16:58.526491	1014
+445	2025-06-18	15:17:01.852185	1111
+446	2025-06-18	15:17:03.388396	1393
+447	2025-06-18	15:17:09.444444	1475
+448	2025-06-18	15:17:10.995834	1670
+449	2025-06-18	15:17:24.539175	2007
+450	2025-06-18	15:17:44.151057	1994
+451	2025-06-18	15:17:54.706849	1974
+452	2025-06-18	15:17:56.242861	1907
+453	2025-06-18	15:17:57.779619	71
+454	2025-06-18	15:17:59.370274	0
+455	2025-06-18	15:25:36.416292	181
+456	2025-06-18	15:25:39.515026	455
+457	2025-06-18	15:25:44.074671	470
+458	2025-06-18	15:25:45.644608	718
+459	2025-06-18	15:25:47.182844	707
+460	2025-06-18	15:26:27.789203	719
+461	2025-06-18	15:26:29.434937	879
+462	2025-06-18	15:26:40.018149	1311
+463	2025-06-18	15:26:49.690914	1355
+464	2025-06-18	15:26:51.227323	1639
+465	2025-06-18	15:26:55.775845	1743
+466	2025-06-18	15:26:57.339739	1943
+467	2025-06-18	15:27:09.400961	1959
+468	2025-06-18	15:27:10.946708	2262
+469	2025-06-18	15:27:56.025983	2159
+470	2025-06-18	15:27:57.589448	799
+471	2025-06-18	15:27:59.175673	0
+472	2025-06-18	15:28:42.530716	647
+473	2025-06-18	15:28:43.578023	837
+474	2025-06-18	15:28:48.567623	1035
+475	2025-06-18	15:28:52.608543	599
+\.
+
+
+--
+-- TOC entry 3410 (class 0 OID 16495)
+-- Dependencies: 217
+-- Data for Name: capteurlum; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.capteurlum (id, date, heure, valeur) FROM stdin;
+1	2025-06-13	01:41:00.236786	320
+2	2025-06-13	01:41:00.236786	450.5
+\.
+
+
+--
+-- TOC entry 3416 (class 0 OID 16516)
+-- Dependencies: 223
+-- Data for Name: capteurproximite; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.capteurproximite (id, place, date, heure, valeur) FROM stdin;
+1	1	2025-06-13	01:41:00.236786	t
+4	4	2025-06-13	17:12:00	t
+3	3	2025-06-13	17:12:00	t
+2	2	2025-06-13	11:50:00	t
+\.
+
+
+--
+-- TOC entry 3412 (class 0 OID 16502)
+-- Dependencies: 219
+-- Data for Name: capteurson; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.capteurson (id, date, heure, valeur) FROM stdin;
+1	2025-06-13	01:41:00.236786	58.3
+2	2025-06-13	01:41:00.236786	60.2
+3	2025-06-13	17:12:00	80
+4	2025-06-13	17:12:00	88
+\.
+
+
+--
+-- TOC entry 3408 (class 0 OID 16488)
+-- Dependencies: 215
+-- Data for Name: capteurtemp; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.capteurtemp (id, date, heure, valeur) FROM stdin;
+1	2025-06-13	01:41:00.236786	22.5
+4	2025-06-13	17:12:00	21
+5	2025-06-16	11:42:00	19
+\.
+
+
+--
+-- TOC entry 3420 (class 0 OID 16530)
+-- Dependencies: 227
+-- Data for Name: led; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.led (id, etat, couleur, intensite, zone, last_command, "timestamp") FROM stdin;
+2	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+3	f	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+4	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+5	f	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+6	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+7	f	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+8	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+9	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+10	t	#FFFFFF	100	Zone1	\N	2025-06-17 15:53:38.684103
+1	t	#FF0000	100	Zone1	set_color	2025-06-17 15:55:02.458272
+11	f	#FFFFFF	100	\N	\N	2025-06-18 15:26:12.770153
+12	t	#FFFFFF	100	\N	\N	2025-06-18 15:26:14.096445
+\.
+
+
+--
+-- TOC entry 3418 (class 0 OID 16523)
+-- Dependencies: 225
+-- Data for Name: moteur; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.moteur (id, etat, vitesse, zone, last_command, "timestamp") FROM stdin;
+2	f	0	Zone1	\N	2025-06-17 15:53:38.53493
+11	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+12	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+13	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+14	f	0	Zone1	\N	2025-06-17 15:53:38.53493
+15	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+16	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+17	t	0	Zone1	\N	2025-06-17 15:53:38.53493
+1	t	75	Zone1	set_speed	2025-06-17 15:55:02.105916
+18	f	0	\N	\N	2025-06-17 19:06:34.333548
+19	t	0	\N	\N	2025-06-17 19:06:46.839099
+20	f	0	\N	\N	2025-06-17 19:06:47.881343
+21	t	0	\N	\N	2025-06-17 19:06:48.809497
+22	f	0	\N	\N	2025-06-17 19:07:13.891366
+23	t	0	\N	\N	2025-06-17 19:10:26.20551
+24	f	0	\N	\N	2025-06-17 19:10:41.191402
+25	t	0	\N	\N	2025-06-17 19:13:29.563244
+26	f	0	\N	\N	2025-06-17 19:15:01.898596
+27	t	0	\N	\N	2025-06-17 19:15:11.965304
+28	f	0	\N	\N	2025-06-17 19:15:18.929134
+29	t	0	\N	\N	2025-06-17 19:16:02.745198
+30	f	0	\N	\N	2025-06-17 19:16:12.338835
+31	t	0	\N	\N	2025-06-17 19:19:23.811121
+32	f	0	\N	\N	2025-06-17 19:19:56.633147
+33	t	0	\N	\N	2025-06-17 19:20:39.753164
+34	f	0	\N	\N	2025-06-17 19:21:04.695234
+35	t	0	\N	\N	2025-06-17 19:21:26.15131
+36	f	0	\N	\N	2025-06-17 19:22:37.971294
+37	t	0	\N	\N	2025-06-17 19:24:41.59839
+38	f	0	\N	\N	2025-06-17 19:25:06.475024
+39	t	0	\N	\N	2025-06-17 19:28:29.969044
+40	f	0	\N	\N	2025-06-17 19:31:48.867274
+41	t	0	\N	\N	2025-06-17 19:32:12.061273
+42	f	0	\N	\N	2025-06-17 19:33:03.713147
+43	t	0	\N	\N	2025-06-17 19:34:27.809162
+44	f	0	\N	\N	2025-06-17 19:35:00.670909
+45	t	0	\N	\N	2025-06-18 13:12:16.474126
+46	f	0	\N	\N	2025-06-18 13:15:16.876077
+47	t	0	\N	\N	2025-06-18 13:16:58.835437
+48	f	0	\N	\N	2025-06-18 13:17:58.077294
+49	t	0	\N	\N	2025-06-18 13:26:43.491063
+50	f	0	\N	\N	2025-06-18 13:27:57.880561
+51	t	0	\N	\N	2025-06-18 13:28:48.882143
+52	f	0	\N	\N	2025-06-18 13:28:52.900094
+53	t	0	\N	\N	2025-06-18 15:26:15.461927
+\.
+
+
+--
+-- TOC entry 3422 (class 0 OID 16537)
+-- Dependencies: 229
+-- Data for Name: oled; Type: TABLE DATA; Schema: public; Owner: app_user
+--
+
+COPY public.oled (id, display_screen, prix_parking, prix_recharge, prix_per_hour, heure, "user", plaque_immatriculation, places_dispo, bornes_dispo) FROM stdin;
+2	2	6	3	1.2	2025-06-13 01:41:00.236786	amiel	BB-456-CC	9	1
+4	3	5	3	2	2025-06-16 11:37:00.103487	marctvt@gmail.com	CK-413-WS	100	300
+8	1	15.5	2.5	1	2025-06-17 15:36:28	admin	TEST-123	10	3
+9	1	25	2.5	1	2025-06-17 15:39:39	admin	API-TEST	10	3
+10	1	30	2.5	1	2025-06-17 15:40:06	admin	TS-TEST	10	3
+1	1	5	2.5	1	2025-06-17 15:55:02.69454	Test OLED	AA-123-BB	12	3
+\.
+
+
+--
+-- TOC entry 3437 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: capteurgaz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.capteurgaz_id_seq', 475, true);
+
+
+--
+-- TOC entry 3438 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: capteurlum_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.capteurlum_id_seq', 2, true);
+
+
+--
+-- TOC entry 3439 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: capteurproximite_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.capteurproximite_id_seq', 5, true);
+
+
+--
+-- TOC entry 3440 (class 0 OID 0)
+-- Dependencies: 218
+-- Name: capteurson_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.capteurson_id_seq', 7, true);
+
+
+--
+-- TOC entry 3441 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: capteurtemp_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.capteurtemp_id_seq', 8, true);
+
+
+--
+-- TOC entry 3442 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: led_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.led_id_seq', 10, true);
+
+
+--
+-- TOC entry 3443 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: moteur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.moteur_id_seq', 52, true);
+
+
+--
+-- TOC entry 3444 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: oled_id_seq; Type: SEQUENCE SET; Schema: public; Owner: app_user
+--
+
+SELECT pg_catalog.setval('public.oled_id_seq', 10, true);
+
+
+--
+-- TOC entry 3256 (class 2606 OID 16514)
+-- Name: capteurgaz capteurgaz_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurgaz
+    ADD CONSTRAINT capteurgaz_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3252 (class 2606 OID 16500)
+-- Name: capteurlum capteurlum_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurlum
+    ADD CONSTRAINT capteurlum_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3258 (class 2606 OID 16521)
+-- Name: capteurproximite capteurproximite_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurproximite
+    ADD CONSTRAINT capteurproximite_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3254 (class 2606 OID 16507)
+-- Name: capteurson capteurson_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurson
+    ADD CONSTRAINT capteurson_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3250 (class 2606 OID 16493)
+-- Name: capteurtemp capteurtemp_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.capteurtemp
+    ADD CONSTRAINT capteurtemp_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3262 (class 2606 OID 16535)
+-- Name: led led_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.led
+    ADD CONSTRAINT led_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3260 (class 2606 OID 16528)
+-- Name: moteur moteur_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.moteur
+    ADD CONSTRAINT moteur_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3264 (class 2606 OID 16542)
+-- Name: oled oled_pkey; Type: CONSTRAINT; Schema: public; Owner: app_user
+--
+
+ALTER TABLE ONLY public.oled
+    ADD CONSTRAINT oled_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3428 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
+--
+
+GRANT ALL ON SCHEMA public TO app_user;
+
+
+--
+-- TOC entry 2071 (class 826 OID 16387)
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO app_user;
+
+
+--
+-- TOC entry 2070 (class 826 OID 16386)
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLES TO app_user;
+
+
+-- Completed on 2025-06-19 07:39:24
+
+--
+-- PostgreSQL database dump complete
+--
+
