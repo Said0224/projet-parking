@@ -1,131 +1,83 @@
-<?php 
-// Fichier : app/views/user/notifications.php
-require_once ROOT_PATH . '/app/views/partials/header.php'; 
-?>
+<?php
+// Fichier : app/models/Notification.php
 
-<div class="container">
-    <div class="page-header">
-        <h1><i class="fas fa-bell"></i> Mes Notifications</h1>
-    </div>
+require_once ROOT_PATH . '/config/database.php';
 
-    <!-- Section des Préférences -->
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-cog"></i> Préférences</h3>
-        </div>
-        <div class="card-body">
-            <div class="preference-item">
-                <div class="preference-info">
-                    <i class="fas fa-envelope-open-text"></i>
-                    <span>Recevoir les notifications importantes par e-mail</span>
-                </div>
-                <!-- ===================================== -->
-                <!-- NOUVELLE STRUCTURE POUR LE TOGGLE SWITCH -->
-                <!-- ===================================== -->
-                <div class="form-switch">
-                    <input type="checkbox" id="email-notifications" class="form-check-input" checked>
-                    <label for="email-notifications" class="form-check-label"></label>
-                </div>
-            </div>
-        </div>
-    </div>
+class Notification {
+    private $db;
 
-    <!-- Section des Notifications -->
-    <h2 class="notifications-title">Historique</h2>
-    <div class="notifications-list">
-        <!-- Notification Fictive -->
-        <div class="notification-item">
-            <div class="notification-icon">
-                <i class="fas fa-user-plus"></i>
-            </div>
-            <div class="notification-content">
-                <p class="notification-message">Bienvenue ! Votre compte a été créé avec succès.</p>
-                <span class="notification-date">19/06/2025 à 14:14</span>
-            </div>
-        </div>
-        <!-- Vous pourrez ajouter d'autres notifications ici -->
-    </div>
-</div>
+    public function __construct() {
+        // Utilise la connexion 'local' définie dans votre DatabaseManager
+        $this->db = DatabaseManager::getConnection('local');
+    }
 
-<style>
-/* Styles pour la mise en page des notifications */
-.preference-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
+    /**
+     * Crée une nouvelle notification pour un utilisateur.
+     */
+    public function createNotification($user_id, $type, $contenu) {
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO notifications (user_id, type, contenu) VALUES (?, ?, ?)"
+            );
+            return $stmt->execute([$user_id, $type, $contenu]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans Notification::createNotification : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Récupère toutes les notifications d'un utilisateur.
+     */
+    public function getNotifications($user_id) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY date DESC");
+            $stmt->execute([$user_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans Notification::getNotifications : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Marque toutes les notifications d'un utilisateur comme lues.
+     */
+    public function markAsRead($user_id) {
+        try {
+            $stmt = $this->db->prepare("UPDATE notifications SET est_lu = TRUE WHERE user_id = ? AND est_lu = FALSE");
+            return $stmt->execute([$user_id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans Notification::markAsRead : " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Récupère les préférences de notification par e-mail d'un utilisateur.
+     */
+    public function getMailPreference($user_id) {
+        try {
+            $stmt = $this->db->prepare("SELECT recevoir_mails FROM users WHERE id = ?");
+            $stmt->execute([$user_id]);
+            $result = $stmt->fetch();
+            return $result ? (bool)$result['recevoir_mails'] : true; // Par défaut à true
+        } catch (PDOException $e) {
+            error_log("Erreur dans Notification::getMailPreference : " . $e->getMessage());
+            return true;
+        }
+    }
+
+    /**
+     * Met à jour les préférences de notification par e-mail d'un utilisateur.
+     */
+    public function updateMailPreference($user_id, $preference) {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET recevoir_mails = ? WHERE id = ?");
+            return $stmt->execute([$preference, $user_id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans Notification::updateMailPreference : " . $e->getMessage());
+            return false;
+        }
+    }
 }
-
-.preference-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: #333;
-    font-weight: 500;
-}
-
-.preference-info i {
-    color: #3b82f6;
-    font-size: 1.5rem;
-    width: 30px;
-    text-align: center;
-}
-
-.notifications-title {
-    color: white;
-    font-size: 1.8rem;
-    margin-top: 3rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.notifications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.notification-item {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    border: 1px solid rgba(0,0,0,0.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-
-.notification-item:hover {
-    transform: translateY(-3px) scale(1.01);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-.notification-icon {
-    flex-shrink: 0;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #eef2ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: #3b82f6;
-}
-
-.notification-message {
-    margin: 0 0 0.25rem 0;
-    font-weight: 500;
-    color: #1f2937;
-}
-
-.notification-date {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-</style>
-
-<?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
