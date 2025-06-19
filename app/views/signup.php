@@ -104,7 +104,13 @@
                 >
                 <div class="password-match" id="passwordMatch"></div>
             </div>
-
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="cgu" name="cgu" required>
+                    J'accepte les <a href="<?= BASE_URL ?>/conditions" target="_blank">Conditions Générales d'Utilisation</a> *
+                    <span style="color: white;">*</span>
+                </label>
+            </div>
             <button type="submit" class="btn btn-primary btn-full">
                 <i class="fas fa-user-plus"></i>
                 Créer mon compte
@@ -114,6 +120,15 @@
         <div class="auth-footer">
             <p>Déjà un compte ? <a href="<?= BASE_URL ?>/login">Se connecter</a></p>
         </div>
+        <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const cguCheckbox = document.getElementById('cgu');
+            if (!cguCheckbox.checked) {
+                e.preventDefault();
+                alert("Vous devez accepter les conditions générales d'utilisation pour vous inscrire.");
+            }
+        });
+        </script>
     </div>
 </div>
 
