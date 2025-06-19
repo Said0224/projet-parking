@@ -5,7 +5,7 @@ class ParkingSpot {
     private $db;
     
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = DatabaseManager::getConnection('local');
     }
     
     public function findAllWithDetails() {

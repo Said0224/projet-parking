@@ -124,7 +124,6 @@
         gap: 2rem;
     }
 
-
     .form-text {
         display: block;
         margin-top: 0.5rem;
@@ -135,22 +134,6 @@
     .form-control:disabled {
         background-color: rgba(230, 230, 230, 0.7);
         cursor: not-allowed;
-    }
-
-    .danger-zone .card-header {
-        background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
-    }
-
-    .danger-zone p {
-        color: #495057;
-        margin-bottom: 1.5rem;
-        line-height: 1.7;
-
-    .form-text {
-        display: block; margin-top: 0.5rem; font-size: 0.875rem; color: #6c757d;
-    }
-    .form-control:disabled {
-        background-color: rgba(230, 230, 230, 0.7); cursor: not-allowed;
     }
     
     .danger-zone-trigger .card-header {
@@ -172,7 +155,9 @@
     }
 
     .danger-zone-trigger p {
-        color: #495057; margin-bottom: 1.5rem; line-height: 1.7;
+        color: #495057; 
+        margin-bottom: 1.5rem; 
+        line-height: 1.7;
     }
 
     /* Styles pour la modale */
@@ -229,14 +214,12 @@
     }
     .password-match.no-match {
         color: #721c24;
-
     }
 
     /* Responsive */
     @media (min-width: 992px) {
         .profile-layout {
             grid-template-columns: repeat(2, 1fr);
-
             grid-template-areas: "info security" "danger danger";
         }
         .profile-layout .card:nth-child(1) { grid-area: info; }

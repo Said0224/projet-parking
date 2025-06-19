@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboard3D = document.querySelector('.dashboard-main-3d');
     if (!dashboard3D) return;
 
-
-    // --- Gestion du menu des étages (inchangé) ---
+    // --- Gestion du menu des étages ---
     const floorPanel = document.getElementById('floor-switcher-panel');
     const toggleButton = document.getElementById('floor-switcher-toggle');
     const floorContainer = document.getElementById('floor-buttons-container');
@@ -14,24 +13,28 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             floorPanel.classList.toggle('active');
         });
+        // Close panel if clicking outside
+        document.addEventListener('click', (e) => {
+            if (!floorPanel.contains(e.target) && e.target !== toggleButton) {
+                floorPanel.classList.remove('active');
+            }
+        });
     }
-
 
     if (floorContainer && floors.length > 0) {
         floors.forEach(floor => {
             const floorNum = floor.dataset.floor;
             const btn = document.createElement('button');
             btn.className = 'btn btn-secondary';
-            btn.textContent = `Étage -${floorNum}`;
+            btn.textContent = `Étage ${floorNum}`;
             btn.dataset.floor = floorNum;
             btn.addEventListener('click', () => switchFloor(floorNum));
             floorContainer.appendChild(btn);
         });
-
         switchFloor(1); 
     }
     
-    // --- Correction de la logique Clic vs Drag (inchangé) ---
+    // --- Logique Clic vs Drag ---
     const perspectiveView = dashboard3D.querySelector('.parking-perspective');
     const parkingViewContainer = dashboard3D.querySelector('.parking-view-container');
     
@@ -40,42 +43,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialRotationZ = -30;
     const initialZoom = 0.6, minZoom = 0.5, maxZoom = 2.5;
     const zoomStep = 0.1;
-    
-    // NOUVEAU : Sensibilité pour le panoramique (translation)
     const panSensitivity = 1;
 
     // Variables d'état
     let currentRotationX = initialRotationX;
     let currentRotationZ = initialRotationZ;
     let currentZoom = initialZoom;
-
-    // NOUVEAU : Variables pour la translation
     let currentTranslateX = 0;
     let currentTranslateY = 0;
     
     let isMouseDown = false;
     let isDragging = false;
-    let previousMouseX = 0;
-    let previousMouseY = 0;
+    let startX = 0;
+    let startY = 0;
 
-    // --- Gestion du clic sur les places (inchangé) ---
+    // --- Gestion du clic sur les places ---
     dashboard3D.querySelectorAll('.parking-spot-3d').forEach(spot => {
-        spot.addEventListener('click', () => {
-            if (isDragging) {
-                return;
+        spot.addEventListener('mousedown', (e) => {
+            isDragging = false;
+        });
+        spot.addEventListener('mousemove', (e) => {
+            isDragging = true;
+        });
+        spot.addEventListener('mouseup', () => {
+            if (!isDragging) {
+                handleSpotClick(spot);
             }
-            handleSpotClick(spot);
         });
     });
 
-    // MODIFIÉ : La fonction `updateTransform` inclut maintenant la translation
     function updateTransform() {
         if (!perspectiveView) return;
-        // On ajoute la partie translate() à la transformation CSS
         perspectiveView.style.transform = `rotateX(${currentRotationX}deg) rotateZ(${currentRotationZ}deg) translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentZoom})`;
     }
     
-    // --- Contrôles de zoom (inchangé) ---
+    // --- Contrôles de zoom ---
     const zoomInBtn = document.getElementById('zoom-in-btn');
     const zoomOutBtn = document.getElementById('zoom-out-btn');
     if (zoomInBtn) zoomInBtn.addEventListener('click', () => {
@@ -87,14 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTransform();
     });
 
-    // MODIFIÉ : Le bouton Reset réinitialise aussi la translation
+    // --- Bouton Reset ---
     const resetViewBtn = document.getElementById('reset-view-btn');
     if (resetViewBtn) resetViewBtn.addEventListener('click', () => {
         perspectiveView.classList.add('view-transition');
         currentRotationX = initialRotationX;
         currentRotationZ = initialRotationZ;
         currentZoom = initialZoom;
-        // NOUVEAU : Réinitialisation de la translation
         currentTranslateX = 0;
         currentTranslateY = 0;
         updateTransform();
@@ -103,17 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 400);
     });
 
-    // --- Logique de déplacement (entièrement revue pour la translation) ---
+    // --- Logique de déplacement de la vue ---
     if (parkingViewContainer) {
         parkingViewContainer.addEventListener('contextmenu', e => e.preventDefault());
         parkingViewContainer.addEventListener('dragstart', e => e.preventDefault());
 
         parkingViewContainer.addEventListener('mousedown', (e) => {
-            e.preventDefault(); 
             isMouseDown = true;
-            isDragging = false;
-            previousMouseX = e.clientX;
-            previousMouseY = e.clientY;
+            startX = e.clientX - currentTranslateX;
+            startY = e.clientY - currentTranslateY;
             parkingViewContainer.style.cursor = 'grabbing';
         });
 
@@ -124,33 +123,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('mousemove', (e) => {
             if (!isMouseDown) return;
-
-            isDragging = true;
-
-            const deltaX = e.clientX - previousMouseX;
-            const deltaY = e.clientY - previousMouseY;
-
-            // MODIFIÉ : Au lieu de changer la rotation, on change la translation
-            currentTranslateX += deltaX * panSensitivity;
-            currentTranslateY += deltaY * panSensitivity;
-            
-            // On ne modifie plus la rotation ici !
-            // currentRotationZ += deltaX * rotationSensitivity;
-            // currentRotationX -= deltaY * rotationSensitivity;
-            // currentRotationX = Math.max(minRotationX, Math.min(maxRotationX, currentRotationX));
-
-            previousMouseX = e.clientX;
-            previousMouseY = e.clientY;
-
+            e.preventDefault();
+            currentTranslateX = e.clientX - startX;
+            currentTranslateY = e.clientY - startY;
             updateTransform();
         });
     }
 
+    // Mise à jour périodique des statuts
     setInterval(updateAllSpotsStatus, 15000);
 });
 
-
-// Le reste du fichier est inchangé
+// --- Fonctions globales ---
 
 function switchFloor(floorNum) {
     document.querySelectorAll('.parking-floor-3d').forEach(f => f.style.display = 'none');
@@ -168,7 +152,6 @@ function switchFloor(floorNum) {
     if (floorPanel) {
         floorPanel.classList.remove('active');
     }
-
 }
 
 function handleSpotClick(spotElement) {
@@ -199,9 +182,7 @@ async function displaySpotDetails(spotId) {
         let html = `<h3>Place ${details.spot_number}</h3>
             <div class="details-panel-section">
                 <h4><i class="fas fa-info-circle"></i> Informations</h4>
-
-                <div class="info-item"><span>Place</span> <span class="info-item"class="status status-${details.status}">${details.status}</span></div>`;
-
+                <div class="info-item"><span>Statut</span> <span class="status status-${details.status}">${details.status}</span></div>`;
 
         if (details.status === 'occupée' || details.status === 'réservée') {
             html += `<div class="info-item"><span><i class="fas fa-user"></i> Occupant</span> <span>${details.prenom ? details.prenom + ' ' + details.nom : 'Anonyme'}</span></div>
@@ -210,27 +191,24 @@ async function displaySpotDetails(spotId) {
         
         html += `<div class="info-item"><span><i class="fas fa-euro-sign"></i> Tarif</span> <span>${parseFloat(details.price_per_hour).toFixed(2)} €/h</span></div>
                  <div class="info-item"><span><i class="fas fa-charging-station"></i> Borne</span> <span>${details.has_charging_station ? 'Oui' : 'Non'}</span></div>
-            </div>
+            </div>`;
 
-            `;
-
+        // === BLOC D'ACTIONS CORRIGÉ ET FIABILISÉ ===
+        html += '<div class="details-panel-section"><h4><i class="fas fa-tasks"></i> Actions</h4>';
 
         if (details.status === 'disponible') {
-            html += `<button class="btn btn-primary btn-full" onclick="openReservationModal(${details.id}, '${details.spot_number}', ${details.price_per_hour})">Réserver</button>`;
+            html += `<button class="btn btn-primary btn-full" onclick="openReservationModal(${details.id}, '${details.spot_number}', ${details.price_per_hour})">Réserver cette place</button>`;
         } else if (details.status === 'réservée' && details.is_owner) {
-
-            html += `<form onsubmit="event.preventDefault(); document.querySelector('#reservation-row-${details.reservation_id} .cancel-reservation-form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}))">
-                        <button type="submit" class="btn btn-danger btn-full">Annuler ma réservation</button>
-                    </form>`;
+            // Bouton qui appelle directement la fonction JS d'annulation
+            html += `<button class="btn btn-danger btn-full" onclick="cancelReservation('${details.reservation_id}', '${BASE_URL}/user/cancel-reservation')">Annuler ma réservation</button>`;
         } else {
-
-            html += `<p style="text-align:center; opacity:0.7;">Aucune réservation disponible.</p>`;
-
+            html += `<p style="text-align:center; opacity:0.7;">Aucune action disponible.</p>`;
         }
         html += `</div>`;
         panel.innerHTML = html;
+
     } catch (error) {
-        panel.innerHTML = `<p class="alert alert-danger">${error.message || 'Erreur de chargement.'}</p>`;
+        panel.innerHTML = `<p class="alert alert-danger" style="margin:1rem; color: #721c24;">${error.message || 'Erreur de chargement.'}</p>`;
     }
 }
 

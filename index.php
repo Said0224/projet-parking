@@ -119,6 +119,27 @@ try {
             $controller = new IoTController();
             $controller->actionneurs();
             break;
+        
+        case '/iot-dashboard/update-oled':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->updateOled();
+            break;
+
+        case '/iot-dashboard/update-led-state':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->updateLedState();
+            break;
+
+        // =========================================================
+        // ============= NOUVELLE ROUTE POUR LES MOTEURS =============
+        // =========================================================
+        case '/iot-dashboard/update-motor-state':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->updateMotorState();
+            break;
 
         // ===== ROUTES ADMIN =====
         case '/admin':
@@ -169,6 +190,18 @@ try {
         $controller = new AdminController();
         $controller->getReservationsAjax();
         break;
+
+        case '/admin/api/parking-spots':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->getParkingSpotsAjax();
+            break;
+
+        case '/admin/api/users':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->getUsersAjax();
+            break;
 
 
         // ===== ROUTES UTILISATEUR =====
@@ -241,6 +274,6 @@ try {
     // On ferme la connexion à la base de données pour la libérer
     require_once ROOT_PATH . '/config/database.php';
 
-    Database::closeConnection();
+    DatabaseManager::closeConnection();
 }
 ?>

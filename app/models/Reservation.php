@@ -5,7 +5,7 @@ class Reservation {
     private $db;
     
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = DatabaseManager::getConnection('local');
     }
     
     public function createReservation($user_id, $spot_id, $start_time, $end_time) {

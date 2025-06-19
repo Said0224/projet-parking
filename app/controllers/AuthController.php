@@ -206,30 +206,38 @@ class AuthController {
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
+        
         $current_password = $_POST['current_password'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $new_password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
+        
         $errors = [];
         if (empty($current_password)) $errors[] = "L'ancien mot de passe est requis.";
-        if (empty($password)) $errors[] = "Le nouveau mot de passe est requis.";
-        elseif (strlen($password) < 6) $errors[] = "Le nouveau mot de passe doit contenir au moins 6 caractères.";
-        if ($password !== $confirm_password) $errors[] = "Les nouveaux mots de passe ne correspondent pas.";
+        if (empty($new_password)) $errors[] = "Le nouveau mot de passe est requis.";
+        elseif (strlen($new_password) < 6) $errors[] = "Le nouveau mot de passe doit contenir au moins 6 caractères.";
+        if ($new_password !== $confirm_password) $errors[] = "Les nouveaux mots de passe ne correspondent pas.";
+        
         if (!empty($errors)) {
             $_SESSION['profile_error'] = implode('<br>', $errors);
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
+        
         $userModel = new User();
-        $result = $userModel->changePassword($_SESSION['user_id'], $current_password, $password);
+        // On appelle la nouvelle méthode du modèle qui vérifie l'ancien mot de passe
+        $result = $userModel->changePassword($_SESSION['user_id'], $current_password, $new_password);
+        
         if ($result === true) {
             $_SESSION['profile_success'] = "Mot de passe modifié avec succès !";
         } else {
+            // On gère les différents cas d'erreur renvoyés par le modèle
             if ($result === 'wrong_password') {
                 $_SESSION['profile_error'] = "L'ancien mot de passe est incorrect.";
             } else {
                 $_SESSION['profile_error'] = "Erreur lors de la modification du mot de passe.";
             }
         }
+        
         header('Location: ' . BASE_URL . '/profile');
         exit;
     }

@@ -1,15 +1,17 @@
 <?php 
-// Vérification que l'utilisateur est admin
 if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
-    header('Location: /login');
+    header('Location: ' . BASE_URL . '/login');
     exit;
 }
 
 require_once ROOT_PATH . '/app/views/partials/header.php'; 
 ?>
 
+<!-- Conteneur pour les notifications AJAX -->
+<div id="ajax-notification" class="notification-container"></div>
+
 <div class="dashboard-container">
-    <!-- Header principal du dashboard -->
+    <!-- Header principal -->
     <div class="dashboard-header">
         <div class="header-content">
             <h1><i class="fas fa-car"></i> Dashboard Parking Intelligent</h1>
@@ -38,116 +40,94 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
         </div>
     </div>
 
-    <!-- Statistiques principales -->
+    <!-- Statistiques principales (dynamiques) -->
     <div class="stats-grid">
         <div class="stat-card disponible">
-            <div class="stat-number">1</div>
+            <div class="stat-number"><?= $data['spots_disponible'] ?? '0' ?></div>
             <div class="stat-label">Places Libres</div>
         </div>
-        
         <div class="stat-card occupée">
-            <div class="stat-number">2</div>
+            <div class="stat-number"><?= $data['spots_occupée'] ?? '0' ?></div>
             <div class="stat-label">Places Occupées</div>
         </div>
-        
         <div class="stat-card total">
-            <div class="stat-number">3</div>
+            <div class="stat-number"><?= $data['spots_total'] ?? '0' ?></div>
             <div class="stat-label">Total Places</div>
         </div>
-        
         <div class="stat-card leds">
-            <div class="stat-number">2</div>
+            <div class="stat-number"><?= $data['leds_actives'] ?? '0' ?></div>
             <div class="stat-label">LEDs Actives</div>
         </div>
     </div>
 
-    <!-- Navigation IoT -->
+    <!-- Navigation IoT (dynamique) -->
     <div class="iot-navigation">
         <div class="iot-nav-header">
             <h2><i class="fas fa-microchip"></i> Système IoT</h2>
             <p>Gestion des capteurs et actionneurs du parking intelligent</p>
         </div>
-        
         <div class="iot-nav-cards">
             <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="iot-nav-card capteurs-card">
-                <div class="nav-card-icon">
-                    <i class="fas fa-satellite-dish"></i>
-                </div>
+                <div class="nav-card-icon"><i class="fas fa-satellite-dish"></i></div>
                 <div class="nav-card-content">
                     <h3>Capteurs</h3>
                     <p>Surveillance et monitoring des capteurs de détection</p>
                     <div class="nav-card-stats">
-                        <span class="stat-item">
-                            <i class="fas fa-eye"></i> 3 Détecteurs
-                        </span>
-                        <span class="stat-item">
-                            <i class="fas fa-thermometer-half"></i> 1 Température
-                        </span>
+                        <span class="stat-item"><i class="fas fa-eye"></i> <?= count($data['parking_status'] ?? []) ?> Détecteurs</span>
+                        <span class="stat-item"><i class="fas fa-thermometer-half"></i> 1 Température</span>
                     </div>
                 </div>
-                <div class="nav-card-arrow">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
+                <div class="nav-card-arrow"><i class="fas fa-chevron-right"></i></div>
             </a>
-            
              <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="iot-nav-card actionneurs-card">
-                <div class="nav-card-icon">
-                    <i class="fas fa-cogs"></i>
-                </div>
+                <div class="nav-card-icon"><i class="fas fa-cogs"></i></div>
                 <div class="nav-card-content">
                     <h3>Actionneurs</h3>
                     <p>Contrôle des LEDs et systèmes de signalisation</p>
                     <div class="nav-card-stats">
-                        <span class="stat-item">
-                            <i class="fas fa-lightbulb"></i> 2 LEDs
-                        </span>
-                        <span class="stat-item">
-                            <i class="fas fa-charging-station"></i> 1 Borne
-                        </span>
+                        <span class="stat-item"><i class="fas fa-lightbulb"></i> <?= $data['total_actuators'] ?? '0' ?> LEDs</span>
+                        <span class="stat-item"><i class="fas fa-tv"></i> 1 Ecran OLED</span>
                     </div>
                 </div>
-                <div class="nav-card-arrow">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
+                <div class="nav-card-arrow"><i class="fas fa-chevron-right"></i></div>
             </a>
         </div>
     </div>
 
-    <!-- Section Affichage OLED -->
+    <!-- Section Affichage OLED (dynamique) -->
     <div class="oled-main-section">
         <div class="content-section oled-section">
             <div class="section-header">
                 <h3><i class="fas fa-tv"></i> Affichage OLED Principal</h3>
-                <button class="btn-add" onclick="configOLED()">
+                <button class="btn-add" id="open-oled-modal-btn">
                     <i class="fas fa-cog"></i> Configurer
                 </button>
             </div>
-            <div class="section-content">
+            <div class="section-content" id="oled-display-area">
+                <?php if (!empty($data['oled_data'])): 
+                    $oled = $data['oled_data'];
+                ?>
                 <div class="oled-main-content">
                     <div class="oled-info-grid">
-                        <div class="info-item">
+                        <div class="info-item" data-key="places_dispo">
                             <span class="info-label">Places disponibles:</span>
-                            <span class="info-value">8</span>
+                            <span class="info-value"><?= htmlspecialchars($oled['places_dispo'] ?? 'N/A') ?></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" data-key="bornes_dispo">
                             <span class="info-label">Bornes de recharge:</span>
-                            <span class="info-value">1</span>
+                            <span class="info-value"><?= htmlspecialchars($oled['bornes_dispo'] ?? 'N/A') ?></span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Prix parking:</span>
-                            <span class="info-value">6€</span>
+                        <div class="info-item" data-key="user">
+                            <span class="info-label">Utilisateur affiché:</span>
+                            <span class="info-value"><?= htmlspecialchars($oled['user'] ?: 'Aucun') ?></span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Prix recharge:</span>
-                            <span class="info-value">3€</span>
+                        <div class="info-item" data-key="plaque_immatriculation">
+                            <span class="info-label">Plaque affichée:</span>
+                            <span class="info-value"><?= htmlspecialchars($oled['plaque_immatriculation'] ?: 'Aucune') ?></span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Température:</span>
-                            <span class="info-value">22°C</span>
-                        </div>
-                        <div class="info-item">
+                        <div class="info-item" data-key="heure">
                             <span class="info-label">Dernière mise à jour:</span>
-                            <span class="info-value"><?= date('d/m/Y H:i:s') ?></span>
+                            <span class="info-value"><?= date('d/m/Y H:i:s', strtotime($oled['heure'])) ?></span>
                         </div>
                     </div>
                     
@@ -156,76 +136,66 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
                             <div class="oled-screen">
                                 <div class="oled-content">
                                     <h4>PARKING ISEP</h4>
-                                    <div class="oled-line">Places: 8/10</div>
-                                    <div class="oled-line">Bornes: 1 libre</div>
-                                    <div class="oled-line">Tarif: 6€/h</div>
-                                    <div class="oled-line">Recharge: 3€</div>
-                                    <div class="oled-line">Temp: 22°C</div>
-                                    <div class="oled-time"><?= date('H:i:s') ?></div>
+                                    <div class="oled-line" data-preview="places_dispo">Places: <?= htmlspecialchars($oled['places_dispo'] ?? '?') ?></div>
+                                    <div class="oled-line" data-preview="bornes_dispo">Bornes: <?= htmlspecialchars($oled['bornes_dispo'] ?? '?') ?> libres</div>
+                                    <div class="oled-line" data-preview="user">User: <?= htmlspecialchars($oled['user'] ?: '-') ?></div>
+                                    <div class="oled-line" data-preview="plaque_immatriculation">Plaque: <?= htmlspecialchars($oled['plaque_immatriculation'] ?: '-') ?></div>
+                                    <div class="oled-time" data-preview="heure"><?= date('H:i:s', strtotime($oled['heure'])) ?></div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="oled-controls">
-                            <button class="btn-control" onclick="updateOLED()">
-                                <i class="fas fa-sync"></i> Actualiser
-                            </button>
-                            <button class="btn-control" onclick="configOLED()">
-                                <i class="fas fa-cog"></i> Configurer
-                            </button>
-                        </div>
                     </div>
                 </div>
+                <?php else: ?>
+                <p class="text-center">Aucune donnée à afficher pour l'écran OLED.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
     <!-- Statut système -->
     <div class="system-status">
-        <div class="status-header">
-            <h3><i class="fas fa-heartbeat"></i> Statut du Système</h3>
-        </div>
+        <div class="status-header"><h3><i class="fas fa-heartbeat"></i> Statut du Système</h3></div>
         <div class="status-grid">
-            <div class="status-item">
-                <div class="status-icon status-online">
-                    <i class="fas fa-wifi"></i>
-                </div>
-                <div class="status-info">
-                    <h4>Connexion IoT</h4>
-                    <span class="status-text">En ligne</span>
-                </div>
-            </div>
-            
-            <div class="status-item">
-                <div class="status-icon status-online">
-                    <i class="fas fa-database"></i>
-                </div>
-                <div class="status-info">
-                    <h4>Base de données</h4>
-                    <span class="status-text">Connectée</span>
-                </div>
-            </div>
-            
-            <div class="status-item">
-                <div class="status-icon status-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="status-info">
-                    <h4>Maintenance</h4>
-                    <span class="status-text">1 capteur</span>
-                </div>
-            </div>
-            
-            <div class="status-item">
-                <div class="status-icon status-online">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="status-info">
-                    <h4>Sécurité</h4>
-                    <span class="status-text">Sécurisé</span>
-                </div>
-            </div>
+            <div class="status-item"><div class="status-icon status-online"><i class="fas fa-wifi"></i></div><div class="status-info"><h4>Connexion IoT</h4><span class="status-text">En ligne</span></div></div>
+            <div class="status-item"><div class="status-icon status-online"><i class="fas fa-database"></i></div><div class="status-info"><h4>Base de données</h4><span class="status-text">Connectée</span></div></div>
+            <div class="status-item"><div class="status-icon status-warning"><i class="fas fa-exclamation-triangle"></i></div><div class="status-info"><h4>Maintenance</h4><span class="status-text">1 capteur</span></div></div>
+            <div class="status-item"><div class="status-icon status-online"><i class="fas fa-shield-alt"></i></div><div class="status-info"><h4>Sécurité</h4><span class="status-text">Sécurisé</span></div></div>
         </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL DE CONFIGURATION OLED ======================== -->
+<div id="oled-config-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-cog"></i> Configurer l'affichage OLED</h3>
+            <button class="close-modal-btn">×</button>
+        </div>
+        <form id="oled-config-form">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="places_dispo" class="form-label">Places disponibles</label>
+                    <input type="number" id="places_dispo" name="places_dispo" class="form-control" value="<?= $data['oled_data']['places_dispo'] ?? 0 ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="bornes_dispo" class="form-label">Bornes disponibles</label>
+                    <input type="number" id="bornes_dispo" name="bornes_dispo" class="form-control" value="<?= $data['oled_data']['bornes_dispo'] ?? 0 ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="user" class="form-label">Nom d'utilisateur à afficher</label>
+                    <input type="text" id="user" name="user" class="form-control" placeholder="Optionnel" value="<?= htmlspecialchars($data['oled_data']['user'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label for="plaque" class="form-label">Plaque d'immatriculation</label>
+                    <input type="text" id="plaque" name="plaque" class="form-control" placeholder="Optionnel" value="<?= htmlspecialchars($data['oled_data']['plaque_immatriculation'] ?? '') ?>">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light close-modal-btn">Annuler</button>
+                <button type="submit" class="btn btn-primary">Mettre à jour l'affichage</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -781,40 +751,101 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 }
 </style>
 
+<!-- JAVASCRIPT pour la modal et l'AJAX -->
 <script>
-function updateOLED() {
-    // Simuler une mise à jour
-    const timeElement = document.querySelector('.oled-time');
-    if (timeElement) {
-        timeElement.textContent = new Date().toLocaleTimeString();
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('oled-config-modal');
+    const openBtn = document.getElementById('open-oled-modal-btn');
+    const oledForm = document.getElementById('oled-config-form');
+
+    // S'assurer que les éléments existent avant d'ajouter des listeners
+    if (modal && openBtn && oledForm) {
+        const closeBtns = modal.querySelectorAll('.close-modal-btn');
+
+        const openModal = () => modal.classList.add('show');
+        const closeModal = () => modal.classList.remove('show');
+
+        openBtn.addEventListener('click', openModal);
+        closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        oledForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...';
+
+            fetch('<?= BASE_URL ?>/iot-dashboard/update-oled', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showNotification(data.message, data.success ? 'success' : 'danger');
+                if (data.success) {
+                    closeModal();
+                    // --- MISE À JOUR DYNAMIQUE SANS RECHARGEMENT ---
+                    updateOledDisplay(formData);
+                }
+            })
+            .catch(err => {
+                showNotification('Erreur de connexion avec le serveur.', 'danger');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Mettre à jour l\'affichage';
+            });
+        });
     }
+});
+
+/**
+ * Met à jour l'affichage de l'OLED sur la page sans recharger.
+ * @param {FormData} formData Les nouvelles données du formulaire.
+ */
+function updateOledDisplay(formData) {
+    const displayArea = document.getElementById('oled-display-area');
+    if (!displayArea) return;
+
+    const newDate = new Date();
+    const formattedDate = newDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const formattedTime = newDate.toLocaleTimeString('fr-FR');
     
-    // Animation de mise à jour
-    const screen = document.querySelector('.oled-screen');
-    screen.style.boxShadow = '0 0 50px rgba(0, 255, 0, 0.8)';
+    // Met à jour la grille d'informations
+    displayArea.querySelector('[data-key="places_dispo"] .info-value').textContent = formData.get('places_dispo');
+    displayArea.querySelector('[data-key="bornes_dispo"] .info-value').textContent = formData.get('bornes_dispo');
+    displayArea.querySelector('[data-key="user"] .info-value').textContent = formData.get('user') || 'Aucun';
+    displayArea.querySelector('[data-key="plaque_immatriculation"] .info-value').textContent = formData.get('plaque') || 'Aucune';
+    displayArea.querySelector('[data-key="heure"] .info-value').textContent = `${formattedDate} ${formattedTime}`;
+    
+    // Met à jour la prévisualisation de l'écran OLED
+    const oledPreview = displayArea.querySelector('.oled-content');
+    if(oledPreview) {
+        oledPreview.querySelector('[data-preview="places_dispo"]').textContent = `Places: ${formData.get('places_dispo')}`;
+        oledPreview.querySelector('[data-preview="bornes_dispo"]').textContent = `Bornes: ${formData.get('bornes_dispo')} libres`;
+        oledPreview.querySelector('[data-preview="user"]').textContent = `User: ${formData.get('user') || '-'}`;
+        oledPreview.querySelector('[data-preview="plaque_immatriculation"]').textContent = `Plaque: ${formData.get('plaque') || '-'}`;
+        oledPreview.querySelector('[data-preview="heure"]').textContent = formattedTime;
+    }
+}
+
+// Fonction de notification (générique)
+function showNotification(message, type = 'success') {
+    const container = document.getElementById('ajax-notification');
+    if (!container) return;
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    container.appendChild(notification);
+    setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
-        screen.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
-    }, 1000);
-    
-    console.log('OLED mis à jour');
+        notification.classList.remove('show');
+        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 500);
+    }, 4000);
 }
-
-function configOLED() {
-    alert('Configuration de l\'affichage OLED');
-}
-
-// Mise à jour automatique de l'heure sur l'OLED
-setInterval(() => {
-    const timeElement = document.querySelector('.oled-time');
-    if (timeElement) {
-        timeElement.textContent = new Date().toLocaleTimeString();
-    }
-}, 1000);
-
-// Simulation de données en temps réel
-setInterval(() => {
-    console.log('Mise à jour des données IoT...');
-}, 10000);
 </script>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

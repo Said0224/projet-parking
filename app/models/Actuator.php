@@ -5,16 +5,14 @@ class Actuator {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance();
+        // Use the 'iot' connection
+        $this->db = DatabaseManager::getConnection('iot');
     }
 
-    /**
-     * Récupère l'état de toutes les LEDs
-     */
+    // --- LED Methods ---
     public function getAllLEDs() {
         try {
-            // Utilise le nom de table exact 'LED'
-            $stmt = $this->db->query("SELECT * FROM LED ORDER BY id ASC");
+            $stmt = $this->db->query("SELECT * FROM public.led ORDER BY id ASC");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Erreur dans getAllLEDs : " . $e->getMessage());
@@ -22,39 +20,20 @@ class Actuator {
         }
     }
 
-    /**
-     * Met à jour l'état d'une LED
-     */
-    public function updateLED($id, $etat) {
+    public function updateLEDState($id, $etat) {
         try {
-            $stmt = $this->db->prepare("UPDATE LED SET etat = ? WHERE id = ?");
+            $stmt = $this->db->prepare("UPDATE public.led SET etat = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");
             return $stmt->execute([$etat, $id]);
         } catch (PDOException $e) {
-            error_log("Erreur dans updateLED : " . $e->getMessage());
+            error_log("Erreur dans updateLEDState : " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Ajoute une nouvelle LED
-     */
-    public function addLED($etat) {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO LED (etat) VALUES (?)");
-            return $stmt->execute([$etat]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans addLED : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Récupère les données OLED pour l'affichage des informations de parking
-     */
+    // --- OLED Methods ---
     public function getOLEDData() {
         try {
-            // Utilise le nom de table exact 'OLED'
-            $stmt = $this->db->query("SELECT * FROM OLED ORDER BY id DESC LIMIT 1");
+            $stmt = $this->db->query("SELECT * FROM public.oled ORDER BY id DESC LIMIT 1");
             return $stmt->fetch();
         } catch (PDOException $e) {
             error_log("Erreur dans getOLEDData : " . $e->getMessage());
@@ -62,25 +41,56 @@ class Actuator {
         }
     }
 
-    /**
-     * Met à jour les informations OLED
-     */
     public function updateOLED($places_dispo, $bornes_dispo, $user = '', $plaque = '') {
         try {
-            // Attention: `user` est un mot-clé réservé en SQL, il faut l'entourer de backticks (`).
-            $stmt = $this->db->prepare("
-                UPDATE OLED SET 
+            $stmt = $this->db->prepare('
+                UPDATE public.oled SET 
                 places_dispo = ?, 
                 bornes_dispo = ?, 
                 heure = CURRENT_TIMESTAMP,
-                `user` = ?,
+                "user" = ?,
                 plaque_immatriculation = ?
                 WHERE id = 1
-            ");
+            ');
             return $stmt->execute([$places_dispo, $bornes_dispo, $user, $plaque]);
         } catch (PDOException $e) {
             error_log("Erreur dans updateOLED : " . $e->getMessage());
             return false;
         }
     }
+    
+    // ===== NOUVELLES MÉTHODES POUR LES MOTEURS =====
+    
+    /**
+     * Récupère tous les moteurs.
+     * @return array
+     */
+    public function getAllMotors() {
+        try {
+            $stmt = $this->db->query("SELECT * FROM public.moteur ORDER BY id ASC");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Erreur dans getAllMotors : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Met à jour l'état et la vitesse d'un moteur.
+     * @param int $id
+     * @param bool $etat
+     * @param int $vitesse
+     * @return bool
+     */
+    public function updateMotor($id, $etat, $vitesse) {
+        try {
+            $stmt = $this->db->prepare("UPDATE public.moteur SET etat = ?, vitesse = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");
+            return $stmt->execute([$etat, $vitesse, $id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans updateMotor : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    
 }
