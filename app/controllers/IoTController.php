@@ -130,6 +130,36 @@ class IoTController {
         exit;
     }
 
+     // --- AJOUT DE LA NOUVELLE MÉTHODE ---
+    /**
+     * Met à jour les détails d'une LED (état, couleur, intensité) via AJAX.
+     */
+    public function updateLedDetails() {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit(json_encode(['success' => false, 'message' => 'Méthode non autorisée.']));
+        }
+    
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $couleur = filter_input(INPUT_POST, 'couleur', FILTER_SANITIZE_STRING);
+        $intensite = filter_input(INPUT_POST, 'intensite', FILTER_VALIDATE_INT);
+    
+        if ($id === false || $etat === null || $couleur === false || $intensite === false) {
+            http_response_code(400);
+            exit(json_encode(['success' => false, 'message' => 'Données invalides.']));
+        }
+    
+        if ($this->actuatorModel->updateLedDetails($id, $etat, $couleur, $intensite)) {
+            echo json_encode(['success' => true, 'message' => 'LED mise à jour avec succès.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur serveur lors de la mise à jour.']);
+        }
+        exit;
+    }
+
     /**
      * Met à jour l'état d'un moteur via une requête AJAX.
      */
@@ -167,13 +197,17 @@ class IoTController {
     public function capteurs() {
         $page_title = "Gestion des Capteurs IoT";
         
+        // --- MODIFICATION : Récupérer toutes les données des capteurs ---
         $data = [
+            // Pour les capteurs de proximité, on récupère le dernier état de chaque place
             'parking_sensors' => $this->parkingSensorModel->getLatestParkingStatus(),
+            // Pour les capteurs environnementaux, on récupère la dernière valeur globale
             'temp_sensor'     => $this->parkingSensorModel->getLatestTempReading(),
             'gas_sensor'      => $this->parkingSensorModel->getLatestGasReading(),
             'light_sensor'    => $this->parkingSensorModel->getLatestLightReading(),
             'sound_sensor'    => $this->parkingSensorModel->getLatestSoundReading(),
         ];
+        // --- FIN MODIFICATION ---
 
         require_once ROOT_PATH . '/app/views/admin/iot-capteurs.php';
     }
@@ -184,13 +218,14 @@ class IoTController {
      public function actionneurs() {
         $page_title = "Gestion des Actionneurs IoT";
         
-        // Récupérer toutes les données nécessaires
+        // --- MODIFICATION : Récupérer toutes les données des actionneurs ---
         $data = [
             'leds' => $this->actuatorModel->getAllLEDs(),
             'motors' => $this->actuatorModel->getAllMotors(),
-            // Les données pour le buzzer et l'afficheur 7 segments seront gérées côté client
-            // car elles ne sont pas dans la BDD.
+            // Note: Le buzzer et l'afficheur 7 segments ne sont pas dans la BDD
+            // et resteront donc statiques dans la vue.
         ];
+        // --- FIN MODIFICATION ---
 
         // Charger la vue en lui passant les données
         require_once ROOT_PATH . '/app/views/admin/iot-actionneurs.php';

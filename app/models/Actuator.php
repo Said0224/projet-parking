@@ -20,6 +20,30 @@ class Actuator {
         }
     }
 
+    // --- MODIFICATION : Remplacement de updateLEDState par une méthode plus complète ---
+    /**
+     * Met à jour les détails d'une LED (état, couleur, intensité).
+     * @param int $id
+     * @param bool $etat
+     * @param string $couleur
+     * @param int $intensite
+     * @return bool
+     */
+    public function updateLedDetails($id, $etat, $couleur, $intensite) {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE public.led 
+                SET etat = ?, couleur = ?, intensite = ?, timestamp = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            ");
+            return $stmt->execute([$etat, $couleur, $intensite, $id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans updateLedDetails : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // L'ancienne méthode est conservée si elle est utilisée ailleurs, sinon elle peut être supprimée.
     public function updateLEDState($id, $etat) {
         try {
             $stmt = $this->db->prepare("UPDATE public.led SET etat = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");

@@ -135,6 +135,11 @@ try {
             $controller = new IoTController();
             $controller->updateLedState();
             break;
+        case '/iot-dashboard/update-led-details':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->updateLedDetails();
+            break;
 
         case '/iot-dashboard/update-motor-state':
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
