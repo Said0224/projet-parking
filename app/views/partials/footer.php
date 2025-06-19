@@ -34,17 +34,13 @@
         </div>
     </footer>
 
-    <!-- ============================================= -->
-    <!-- NOUVELLE BANNIÈRE DE COOKIES -->
-    <!-- ============================================= -->
+    <!-- BANNIÈRE DE CONSENTEMENT AUX COOKIES -->
     <div id="cookie-banner">
         <div class="cookie-content">
             <div class="cookie-text">
                 <i class="fas fa-cookie-bite"></i>
                 <p>
                     Nous utilisons des cookies pour améliorer votre expérience sur notre site. En acceptant, vous consentez à notre utilisation des cookies.
-                    <!-- Vous pourrez ajouter un lien vers une page de politique de confidentialité ici -->
-                    <!-- <a href="#">En savoir plus</a> -->
                 </p>
             </div>
             <div class="cookie-buttons">
@@ -64,18 +60,18 @@
     <script>
     // Script pour marquer le lien actif dans la navigation
     document.addEventListener('DOMContentLoaded', function() {
-        const currentPath = window.location.pathname.replace('<?= BASE_URL ?>', '') || '/';
+        const currentPath = window.location.pathname.replace(BASE_URL, '') || '/';
         const navLinks = document.querySelectorAll('.nav-link');
         
         navLinks.forEach(link => {
-            const href = link.getAttribute('href').replace('<?= BASE_URL ?>', '');
+            const href = link.getAttribute('href').replace(BASE_URL, '');
             if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
                 link.classList.add('active');
             }
         });
 
         // =============================================
-        // NOUVEAU SCRIPT DE GESTION DES COOKIES
+        // SCRIPT DE GESTION DES COOKIES
         // =============================================
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
@@ -86,9 +82,12 @@
             .split(';')
             .find(row => row.trim().startsWith('cookie_consent='));
 
-        // Si le cookie n'existe pas, on affiche la bannière
-        if (!consentCookie) {
-            // Un petit délai pour ne pas être trop agressif au chargement
+        // Ligne de débogage : vous pouvez la voir dans la console (F12)
+        console.log('Cookie de consentement trouvé :', consentCookie); 
+
+        // Si la bannière existe ET que le cookie n'existe pas, on affiche la bannière
+        if (banner && !consentCookie) {
+            console.log('Aucun cookie trouvé, affichage de la bannière.');
             setTimeout(() => {
                 banner.classList.add('show');
             }, 500);
@@ -98,11 +97,17 @@
             // Durée de vie du cookie : 1 an
             const maxAge = 60 * 60 * 24 * 365;
             document.cookie = `cookie_consent=${consent}; max-age=${maxAge}; path=/; SameSite=Lax`;
-            banner.classList.remove('show');
+            if (banner) {
+                banner.classList.remove('show');
+            }
         };
 
-        acceptBtn.addEventListener('click', () => handleConsent('accepted'));
-        declineBtn.addEventListener('click', () => handleConsent('declined'));
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', () => handleConsent('accepted'));
+        }
+        if (declineBtn) {
+            declineBtn.addEventListener('click', () => handleConsent('declined'));
+        }
     });
     </script>
 </body>
