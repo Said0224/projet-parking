@@ -72,11 +72,7 @@
 
         <div class="auth-footer">
             <p>Pas encore de compte ? <a href="<?= BASE_URL ?>/signup">Créer un compte</a></p>
-            <div class="demo-accounts">
-                <h4>Comptes de démonstration :</h4>
-                <p><strong>Admin :</strong> admin@isep.fr / admin123</p>
-                <p><strong>Utilisateur :</strong> test@isep.fr / test123</p>
-            </div>
+           
         </div>
     </div>
 </div>
@@ -217,24 +213,7 @@
     text-decoration: underline;
 }
 
-.demo-accounts {
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    margin-top: 1rem;
-}
 
-.demo-accounts h4 {
-    color: white;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.demo-accounts p {
-    font-size: 0.85rem;
-    margin: 0.25rem 0;
-    color: rgba(255, 255, 255, 0.8);
-}
 
 @media (max-width: 480px) {
     .auth-card {
