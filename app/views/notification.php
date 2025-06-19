@@ -1,148 +1,120 @@
-<!-- HTML structure -->
-<h2>Notifications</h2>
+<?php
+session_start();
+require_once '../models/Notification.php';
 
-<div class="notification-header">
-    <select id="notif-filter">
-        <option value="all">Toutes</option>
-        <option value="info">Infos</option>
-        <option value="alerte">Alertes</option>
-        <option value="erreur">Erreurs</option>
-    </select>
+$notification = new Notification();
+$user_id = $_SESSION['user_id'];
+$notifications = $notification->getNotifications($user_id);
+$userPref = $notification->getMailPreference($user_id);
+?>
 
-    <button id="mark-all-read">Tout marquer comme lu</button>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes notifications</title>
+    <style>
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
 
-    <label class="toggle-switch">
-        <input type="checkbox" id="email-toggle" <?= $emailNotif ? 'checked' : '' ?>>
-        <span class="slider"></span> Notifications par e-mail
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0;
+            right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+    </style>
+</head>
+<body>
+
+<?php
+if (isset($_SESSION['notif_success'])) {
+    echo "<div class='alert-success'>{$_SESSION['notif_success']}</div>";
+    unset($_SESSION['notif_success']);
+}
+if (isset($_SESSION['notif_error'])) {
+    echo "<div class='alert-error'>{$_SESSION['notif_error']}</div>";
+    unset($_SESSION['notif_error']);
+}
+?>
+
+<h2>Mes notifications</h2>
+
+<form method="post" action="../controllers/notificationController.php">
+    <label>
+        Recevoir les notifications par mail :
+        <label class="toggle-switch">
+            <input type="checkbox" name="notif_email" value="1" onchange="this.form.submit()" <?php if ($userPref) echo 'checked'; ?>>
+            <span class="slider"></span>
+        </label>
     </label>
-</div>
+    <input type="hidden" name="updateMailPref" value="1">
+</form>
 
-<div id="notification-list">
+<ul>
     <?php foreach ($notifications as $notif): ?>
-        <div class="notif <?= !$notif['is_read'] ? 'unread' : '' ?>">
-            <h4><?= htmlspecialchars($notif['titre']) ?></h4>
-            <p><?= nl2br(htmlspecialchars($notif['contenu'])) ?></p>
-            <span class="meta"><?= $notif['date'] ?> à <?= $notif['heure'] ?></span>
-        </div>
+        <li>
+            <?php echo htmlspecialchars($notif['contenu']); ?>
+            <form method="post" action="../controllers/notificationController.php" style="display:inline;">
+                <input type="hidden" name="notification_id" value="<?php echo $notif['id']; ?>">
+                <button type="submit" name="deleteNotification">Supprimer</button>
+            </form>
+
+            <?php if ($notif['type'] === 'reservation_payee'): ?>
+                <a href="../receipts/genererRecu.php?id_reservation=<?php echo $notif['reservation_id']; ?>" target="_blank">
+                    Télécharger le reçu
+                </a>
+            <?php endif; ?>
+        </li>
     <?php endforeach; ?>
-</div>
+</ul>
 
-<!-- JavaScript -->
-<script>
-document.getElementById('mark-all-read').addEventListener('click', function () {
-    fetch('/notification/mark-all-as-read', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.notif').forEach(n => n.classList.remove('unread'));
-            }
-        });
-});
-
-document.getElementById('notif-filter').addEventListener('change', function () {
-    const type = this.value;
-    if (type === 'all') {
-        location.reload();
-    } else {
-        fetch(`/notification/filter/${type}`)
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('notification-list');
-                container.innerHTML = '';
-                data.forEach(n => {
-                    container.innerHTML += `
-                        <div class="notif ${n.is_read ? '' : 'unread'}">
-                            <h4>${n.titre}</h4>
-                            <p>${n.contenu}</p>
-                            <span class="meta">${n.date} à ${n.heure}</span>
-                        </div>`;
-                });
-            });
-    }
-});
-
-document.getElementById('email-toggle').addEventListener('change', function () {
-    fetch('/notification/toggle-email', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `enabled=${this.checked}`
-    });
-});
-</script>
-
-
-<!-- CSS -->
-<style>
-.notif {
-    background: #fff;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 6px;
-    animation: slideIn 0.3s ease;
-}
-
-.notif.unread {
-    background-color: #f0f8ff;
-    border-left: 4px solid #007BFF;
-}
-
-.meta {
-    color: gray;
-    font-size: 12px;
-}
-
-/* Animation */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Toggle Switch */
-.toggle-switch {
-    display: inline-block;
-    margin-left: 20px;
-    position: relative;
-}
-
-.toggle-switch input {
-    display: none;
-}
-
-.toggle-switch .slider {
-    width: 50px;
-    height: 24px;
-    background: #ccc;
-    border-radius: 24px;
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.toggle-switch .slider::before {
-    content: '';
-    position: absolute;
-    left: 3px;
-    top: 3px;
-    width: 18px;
-    height: 18px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.3s;
-}
-
-.toggle-switch input:checked + .slider {
-    background: #28a745;
-}
-
-.toggle-switch input:checked + .slider::before {
-    transform: translateX(26px);
-}
-</style>
+</body>
+</html>
