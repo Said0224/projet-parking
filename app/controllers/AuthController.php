@@ -5,7 +5,10 @@ class AuthController {
     
     public function showLoginForm() {
         if (isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/user/dashboard');
+
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/dashboard');
+
             exit;
         }
         $page_title = "Connexion - Parking Intelligent";
@@ -16,6 +19,7 @@ class AuthController {
 
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -28,30 +32,50 @@ class AuthController {
         if (empty($password)) $errors[] = "Le mot de passe est requis.";
         if (!empty($errors)) {
             $_SESSION['login_error'] = implode('<br>', $errors);
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
+
+
+        
+
+        // Tentative d'authentification
         $userModel = new User();
         $user = $userModel->authenticate($email, $password);
-        if ($user) {
+
+         if ($user) {
+            // Connexion réussie
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_nom'] = $user['nom'];
             $_SESSION['user_prenom'] = $user['prenom'];
-            $_SESSION['login_time'] = time();
-            $_SESSION['is_admin'] = (bool)$user['is_admin'];
+
+            $_SESSION['login_time'] = time(); // NOUVEAU : Enregistrer le moment de la connexion
+
+            $_SESSION['is_admin'] = $user['is_admin'] ?? false;
+
+
+            // Gestion du "Se souvenir de moi"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
                 setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
             }
-            if ($_SESSION['is_admin']) {
+
+
+            // ===== REDIRECTION CORRIGÉE SELON LE STATUT =====
+            if ($user['is_admin']) {
                 header('Location: ' . BASE_URL . '/admin');
             } else {
                 header('Location: ' . BASE_URL . '/user/dashboard');
             }
+
             exit;
+        
         } else {
             $_SESSION['login_error'] = "Email ou mot de passe incorrect.";
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -59,7 +83,10 @@ class AuthController {
 
     public function showRegistrationForm() {
         if (isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/user/dashboard');
+
+            // REDIRECTION CORRIGÉE
+            header('Location: ' . BASE_URL . '/dashboard');
+
             exit;
         }
         $page_title = "Inscription - Parking Intelligent";
@@ -71,6 +98,7 @@ class AuthController {
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
@@ -89,16 +117,19 @@ class AuthController {
         if (empty($prenom)) $errors[] = "Le prénom est requis.";
         if (!empty($errors)) {
             $_SESSION['register_error'] = implode('<br>', $errors);
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
         $userModel = new User();
         if ($userModel->create($email, $password, $nom, $prenom)) {
             $_SESSION['register_success'] = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         } else {
             $_SESSION['register_error'] = "Erreur lors de la création du compte. L'email est peut-être déjà utilisé.";
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/signup');
             exit;
         }
@@ -109,12 +140,14 @@ class AuthController {
             setcookie('remember_token', '', time() - 3600, '/', '', false, true);
         }
         session_destroy();
+
         header('Location: ' . BASE_URL . '/');
         exit;
     }
 
     public static function requireAuth() {
         if (!isset($_SESSION['user_id'])) {
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
@@ -126,6 +159,7 @@ class AuthController {
         $userModel = new User();
         $user = $userModel->findById($_SESSION['user_id']);
         if (!$user) {
+
             header('Location: ' . BASE_URL . '/logout');
             exit;
         }
@@ -138,6 +172,7 @@ class AuthController {
     public function updateProfile() {
         self::requireAuth();
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
@@ -148,6 +183,7 @@ class AuthController {
         if (empty($prenom)) $errors[] = "Le prénom est requis.";
         if (!empty($errors)) {
             $_SESSION['profile_error'] = implode('<br>', $errors);
+            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/profile');
             exit;
         }
@@ -159,6 +195,7 @@ class AuthController {
         } else {
             $_SESSION['profile_error'] = "Erreur lors de la mise à jour du profil.";
         }
+
         header('Location: ' . BASE_URL . '/profile');
         exit;
     }
@@ -214,4 +251,5 @@ class AuthController {
             exit;
         }
     }
+
 }

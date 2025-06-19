@@ -48,17 +48,21 @@
             <div class="card-body">
                 <form method="POST" action="<?= BASE_URL ?>/profile/change-password">
                     <div class="form-group">
+
                         <label for="current_password" class="form-label">Ancien mot de passe</label>
                         <input type="password" id="current_password" name="current_password" class="form-control" required placeholder="Votre mot de passe actuel">
                     </div>
                     <div class="form-group">
+
                         <label for="password" class="form-label">Nouveau mot de passe</label>
                         <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="6 caractères minimum">
                     </div>
                     <div class="form-group">
+
                         <label for="confirm_password" class="form-label">Confirmer le nouveau mot de passe</label>
                         <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Répétez le nouveau mot de passe">
                         <div class="password-match" id="passwordMatchFeedback"></div>
+
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-key"></i> Changer le mot de passe
@@ -68,19 +72,24 @@
         </div>
 
         <!-- Section 3: Zone de danger -->
+
         <div class="card danger-zone-trigger">
+
             <div class="card-header">
                 <h3><i class="fas fa-exclamation-triangle"></i> Zone de Danger</h3>
             </div>
             <div class="card-body">
+
                 <p>Actions irréversibles concernant votre compte.</p>
                 <button type="button" id="open-delete-modal-btn" class="btn btn-danger">
                     <i class="fas fa-trash-alt"></i> Supprimer mon compte
                 </button>
+
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- MODALE DE CONFIRMATION DE SUPPRESSION (MODIFIÉE) -->
 <div id="delete-account-modal" class="modal-overlay">
@@ -106,6 +115,7 @@
 </div>
 
 
+
 <style>
     /* Styles spécifiques pour la page de profil */
     .profile-layout {
@@ -113,6 +123,29 @@
         grid-template-columns: 1fr;
         gap: 2rem;
     }
+
+
+    .form-text {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6c757d; /* Couleur de texte secondaire */
+    }
+
+    .form-control:disabled {
+        background-color: rgba(230, 230, 230, 0.7);
+        cursor: not-allowed;
+    }
+
+    .danger-zone .card-header {
+        background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+    }
+
+    .danger-zone p {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+
     .form-text {
         display: block; margin-top: 0.5rem; font-size: 0.875rem; color: #6c757d;
     }
@@ -196,12 +229,14 @@
     }
     .password-match.no-match {
         color: #721c24;
+
     }
 
     /* Responsive */
     @media (min-width: 992px) {
         .profile-layout {
             grid-template-columns: repeat(2, 1fr);
+
             grid-template-areas: "info security" "danger danger";
         }
         .profile-layout .card:nth-child(1) { grid-area: info; }
@@ -253,5 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

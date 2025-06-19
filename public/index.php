@@ -95,6 +95,7 @@ try {
             $controller->index();
             break;
             
+
         case '/iot-dashboard':
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
@@ -112,6 +113,7 @@ try {
             $controller = new IoTController();
             $controller->actionneurs();
             break;
+
 
         // ===== ROUTES ADMIN =====
         case '/admin':
@@ -156,11 +158,13 @@ try {
             $controller->updateParkingSpot();
             break;
 
+
         case '/admin/api/reservations':
             require_once ROOT_PATH . '/app/controllers/AdminController.php';
             $controller = new AdminController();
             $controller->getReservationsAjax();
             break;
+
 
         // ===== ROUTES UTILISATEUR =====
         case '/user/dashboard':
@@ -187,6 +191,7 @@ try {
             $controller->cancelReservation();
             break;
 
+
          case '/api/update-spot-status':
             require_once ROOT_PATH . '/app/controllers/ApiController.php';
             $controller = new ApiController();
@@ -210,6 +215,7 @@ try {
             $controller = new UserController();
             $controller->getAllSpotsStatus();
             break;
+
             
         default:
             http_response_code(404);
@@ -225,7 +231,9 @@ try {
 } catch (Exception $e) {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
+
 } finally {
     Database::closeConnection();
+
 }
 ?>
