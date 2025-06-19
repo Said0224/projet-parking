@@ -165,14 +165,14 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     </div>
 </div>
 
-<!-- ======================== DÉBUT DE LA MODIFICATION DE LA MODALE ======================== -->
+<!-- ======================== DÉBUT DE LA MODALE MODIFIÉE ======================== -->
 <div id="oled-config-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
             <h3><i class="fas fa-cog"></i> Configurer l'affichage OLED</h3>
             <button class="close-modal-btn">×</button>
         </div>
-        <form id="oled-config-form">
+        <form id="oled-config-form" style="overflow: auto;">
             <div class="modal-body">
                 <div class="form-group">
                     <label for="places_dispo" class="form-label">Places disponibles</label>
@@ -198,52 +198,159 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
         </form>
     </div>
 </div>
-<!-- ======================== FIN DE LA MODIFICATION DE LA MODALE ======================== -->
+<!-- ======================== FIN DE LA MODALE MODIFIÉE ======================== -->
 
 <style>
-/* ... Styles déjà présents dans votre CSS global ... */
+/* ... Styles déjà présents ... */
+/* =================================================================== */
+/* ============= STYLES UNIFIÉS POUR TOUTES LES MODALES ============= */
+/* =================================================================== */
 
-/* ===== DÉBUT DES STYLES POUR LA MODALE UNIFIÉE ===== */
+/* Le fond noir semi-transparent qui couvre toute la page */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
-    display: none;
-    align-items: center; justify-content: center; z-index: 1000;
+    display: none; /* Caché par défaut */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
+    padding: 1rem; /* Ajoute un espace pour que la modale ne touche jamais les bords de l'écran */
 }
+
+/* Classe ajoutée par JavaScript pour afficher la modale */
 .modal-overlay.show {
-    display: flex; opacity: 1;
+    display: flex;
+    opacity: 1;
 }
+
+/* Le conteneur blanc principal de la modale */
 .modal-content {
-    background: white; border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    width: 90%; max-width: 500px;
+    position: relative;
+    background-color: #fefefe;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    border-radius: 20px;
     overflow: hidden;
-    transform: translateY(20px);
-    transition: transform 0.3s ease-in-out;
+    animation: fadeIn 0.3s;
+    
+    /* Configuration du conteneur flexible vertical */
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* La modale ne dépassera jamais 90% de la hauteur de l'écran */
 }
-.modal-overlay.show .modal-content {
-    transform: translateY(0);
+
+/* Animation d'apparition */
+@keyframes fadeIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
+
+/* En-tête de la modale (partie colorée) */
 .modal-header {
     padding: 1.5rem;
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
     color: white;
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; /* Empêche l'en-tête de se réduire */
 }
-.modal-header h3 { margin: 0; font-size: 1.5rem; }
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Style spécifique pour la modale de suppression (danger) */
+#delete-account-modal .modal-header {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+}
+
+/* Bouton pour fermer la modale */
 .close-modal-btn {
-    background: none; border: none; font-size: 2rem; color: white; cursor: pointer; opacity: 0.8;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
     line-height: 1;
+    padding: 0;
 }
-.close-modal-btn:hover { opacity: 1; }
-.modal-body { padding: 2rem; }
+
+.close-modal-btn:hover {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Corps de la modale (contenu principal) */
+.modal-body {
+    padding: 2rem;
+    color: #333;
+    flex-grow: 1;       /* Permet au corps de prendre l'espace disponible */
+    overflow-y: auto;   /* Ajoute une barre de défilement si le contenu dépasse */
+    min-height: 0;      /* <<< LA CORRECTION CLÉ EST ICI */
+}
+
+.modal-body p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+/* Pied de page de la modale (avec les boutons d'action) */
 .modal-footer {
-    padding: 1.5rem; background-color: #f7f7f7; display: flex; justify-content: flex-end; gap: 1rem;
+    padding: 1.5rem;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid #e9ecef;
+    flex-shrink: 0; /* Empêche le pied de page de se réduire */
 }
-/* ===== FIN DES STYLES POUR LA MODALE UNIFIÉE ===== */
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000;
+    opacity: 0; transition: opacity 0.3s ease-in-out;
+}
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-content {
+    background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    width: 90%; max-width: 500px; overflow: hidden; transform: translateY(-20px); transition: transform 0.3s ease-in-out;
+}
+.modal-overlay.show .modal-content { transform: translateY(0); }
+.modal-header { padding: 1.5rem; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { margin: 0; font-size: 1.5rem; }
+.close-modal-btn { background: none; border: none; font-size: 2rem; color: white; cursor: pointer; opacity: 0.8; line-height: 1; display: inline-flex
+;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden; }
+.modal-body { padding: 2rem; }
+.modal-footer { padding: 1.5rem; background-color: #f7f7f7; display: flex; justify-content: flex-end; gap: 1rem; }
+
 
 /* Styles pour les notifications */
 .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
@@ -255,6 +362,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
 .notification-success { background: linear-gradient(135deg, #28a745, #20c997); }
 .notification-danger { background: linear-gradient(135deg, #dc3545, #fd7e14); }
 
+/* ... autres styles de la page ... */
 .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 .dashboard-header { text-align: center; margin-bottom: 2rem; }
 .header-content h1 { color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
@@ -342,8 +450,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modal && openBtn && oledForm) {
         const closeBtns = modal.querySelectorAll('.close-modal-btn');
 
-        const openModal = () => modal.classList.add('show');
-        const closeModal = () => modal.classList.remove('show');
+        const openModal = () => {
+            modal.classList.add('show');
+            lockBodyScroll(); // On bloque le scroll
+        };
+        const closeModal = () => {
+            modal.classList.remove('show');
+            unlockBodyScroll(); // On débloque le scroll
+        };
 
         openBtn.addEventListener('click', openModal);
         closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
