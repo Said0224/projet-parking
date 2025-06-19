@@ -341,15 +341,17 @@
 </style>
 
 <script>
-    // ========= DÉBUT DU BLOC JAVASCRIPT CORRIGÉ ET AMÉLIORÉ =========
-
     // --- GESTION DU MODAL DE RÉSERVATION ---
     function handleReservationSubmit(event) {
         event.preventDefault();
         const form = event.target;
         const formData = new FormData(form);
         const submitButton = form.querySelector('button[type="submit"]');
+        // --- NOUVEAU : Sauvegarde du contenu original ---
+        const originalButtonHTML = submitButton.innerHTML;
+
         submitButton.disabled = true; // Empêche double-clic
+        // --- MODIFIÉ : Affichage du spinner ---
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirmation...';
 
         fetch('<?= BASE_URL ?>/user/reserve', { method: 'POST', body: formData })
@@ -360,15 +362,15 @@
                     closeReservationModal();
                     // On rafraîchit la page après un court délai pour voir la réservation
                     setTimeout(() => window.location.reload(), 1500); 
-                } else {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Confirmer';
                 }
             })
             .catch(err => {
                 showNotification('Erreur réseau. Impossible de contacter le serveur.', 'danger');
+            })
+            // --- NOUVEAU : Le bloc finally s'exécute toujours, que la requête réussisse ou échoue ---
+            .finally(() => {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Confirmer';
+                submitButton.innerHTML = originalButtonHTML; // On restaure le bouton
             });
     }
 
@@ -434,10 +436,9 @@
         setTimeout(() => notification.classList.add('show'), 10);
         setTimeout(() => {
             notification.classList.remove('show');
-            setTimeout(() => container.removeChild(notification), 500);
+            setTimeout(() => { if (container && container.contains(notification)) { container.removeChild(notification); } }, 500);
         }, 4000);
     }
-    // ========= FIN DU BLOC JAVASCRIPT =========
 </script>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

@@ -6,9 +6,9 @@ class DatabaseManager {
      */
     private static $config = [
         'local' => [
-            'dsn'      => 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
-            'username' => 'root',
-            'password' => '',
+            'dsn'      => 'mysql:host=herogu.garageisep.com;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+            'username' => 'kCrBSMvT17_projet_par',
+            'password' => 'JVQ6LotVLJAHjH5r',
             'options'  => [
                 PDO::ATTR_PERSISTENT => false,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -84,7 +84,3 @@ class DatabaseManager {
         }
     }
 }
-
-// Rename the old class in your project if it causes conflicts.
-// For now, we assume this file replaces the old database.php entirely.
-// The old 'Database' class is now 'DatabaseManager'.

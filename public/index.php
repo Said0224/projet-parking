@@ -7,7 +7,10 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-define('ROOT_PATH', __DIR__);
+// --- MODIFICATION DE LA DEFINITION DE ROOT_PATH ---
+// Il faut remonter d'un niveau pour trouver le dossier principal
+define('ROOT_PATH', dirname(__DIR__)); 
+
 // La variable BASE_URL reste utile pour construire les liens dans les vues
 $script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 define('BASE_URL', rtrim($script_name, '/'));
@@ -233,7 +236,6 @@ try {
     echo "<pre>" . $e->getMessage() . "</pre>";
 
 } finally {
-    Database::closeConnection();
-
+    // === LIGNE CORRIGÉE ICI AUSSI ===
+    DatabaseManager::closeConnection();
 }
-?>
