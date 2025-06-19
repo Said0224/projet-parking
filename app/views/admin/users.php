@@ -295,7 +295,11 @@ document.addEventListener('DOMContentLoaded', function() {
     createUserForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonHTML = submitButton.innerHTML; // <--- On garde le contenu original
+
         submitButton.disabled = true;
+        // --- NOUVEAU : On affiche le spinner ---
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
 
         fetch(this.action, { method: 'POST', body: new FormData(this) })
             .then(res => res.json())
@@ -306,7 +310,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     fetchUsers(1); // Recharger la table pour voir le nouvel utilisateur
                 }
             }).catch(err => showNotification('Erreur de connexion.', 'danger'))
-            .finally(() => submitButton.disabled = false);
+            .finally(() => {
+                // --- NOUVEAU : On restaure le bouton dans tous les cas ---
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonHTML;
+            });
     });
     
     // Premier chargement des listeners

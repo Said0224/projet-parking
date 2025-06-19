@@ -775,8 +775,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const formData = new FormData(this);
             const submitButton = this.querySelector('button[type="submit"]');
+            // --- NOUVEAU : Sauvegarde du contenu du bouton ---
+            const originalButtonHTML = submitButton.innerHTML;
+
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...';
+            // --- MODIFIÉ : Le texte du spinner est plus cohérent ---
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
 
             fetch('<?= BASE_URL ?>/iot-dashboard/update-oled', {
                 method: 'POST',
@@ -795,8 +799,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Erreur de connexion avec le serveur.', 'danger');
             })
             .finally(() => {
+                // --- NOUVEAU : Restauration du bouton ---
                 submitButton.disabled = false;
-                submitButton.innerHTML = 'Mettre à jour l\'affichage';
+                submitButton.innerHTML = originalButtonHTML;
             });
         });
     }

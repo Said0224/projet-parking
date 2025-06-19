@@ -117,55 +117,6 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     </div>
 </div>
 
-<style>
-/* Styles existants de la page */
-.dashboard-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-.dashboard-header { text-align: center; margin-bottom: 2rem; }
-.header-content h1 { color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
-.header-content h1 i { color: #ffd700; margin-right: 1rem; }
-.header-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.1rem; margin: 0; }
-.dashboard-nav { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 15px; padding: 1rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255, 255, 255, 0.2); }
-.nav-tabs { display: flex; gap: 1rem; flex-wrap: wrap; }
-.nav-tab { color: rgba(255, 255, 255, 0.8); text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 10px; transition: all 0.3s ease; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
-.nav-tab:hover, .nav-tab.active { background: rgba(255, 255, 255, 0.2); color: white; transform: translateY(-2px); }
-.user-info { color: white; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
-.sensors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-.sensor-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; transition: all 0.3s ease; }
-.sensor-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
-.temperature-sensor { border-left: 4px solid #3b82f6; }
-.proximity-sensor { border-left: 4px solid #10b981; }
-.gas-sensor { border-left: 4px solid #ef4444; }
-.light-sensor { border-left: 4px solid #f59e0b; }
-.sound-sensor { border-left: 4px solid #8b5cf6; }
-.maintenance-sensor { border-left: 4px solid #6b7280; }
-.sensor-header { background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1)); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(59, 130, 246, 0.1); }
-.sensor-title { display: flex; align-items: center; gap: 0.75rem; }
-.sensor-title i { font-size: 1.25rem; }
-.temperature-sensor .sensor-title i { color: #3b82f6; }
-.proximity-sensor .sensor-title i { color: #10b981; }
-.gas-sensor .sensor-title i { color: #ef4444; }
-.light-sensor .sensor-title i { color: #f59e0b; }
-.sound-sensor .sensor-title i { color: #8b5cf6; }
-.sensor-title h3 { margin: 0; color: #1e293b; font-size: 1.125rem; font-weight: 600; }
-.sensor-status { padding: 0.5rem 1rem; border-radius: 25px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
-.status-active { background: #dcfce7; color: #166534; }
-.status-maintenance { background: #f3f4f6; color: #4b5563; }
-.sensor-body { padding: 1.5rem; }
-.sensor-value-display { text-align: center; margin-bottom: 1.5rem; padding: 1.5rem; background: #f8fafc; border-radius: 15px; }
-.current-value { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-.current-value .unit { font-size: 1.5rem; color: #64748b; margin-left: 0.5rem; }
-.presence-occupée .value { color: #ef4444; }
-.presence-free .value { color: #22c55e; }
-.maintenance-mode .value { color: #6b7280; font-size: 1.5rem; }
-.sensor-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-.info-item { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.75rem; background: #f8fafc; border-radius: 10px; }
-.info-item .label { color: #64748b; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; }
-.info-item .value { color: #1e293b; font-weight: 600; font-size: 0.875rem; }
-@media (max-width: 768px) {
-    .dashboard-nav { flex-direction: column; }
-    .sensors-grid { grid-template-columns: 1fr; }
-    .sensor-info-grid { grid-template-columns: 1fr; }
-}
-</style>
+<!-- SUPPRIMEZ TOUT LE BLOC <style> QUI SE TROUVAIT ICI -->
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

@@ -274,6 +274,8 @@ try {
     // On ferme la connexion à la base de données pour la libérer
     require_once ROOT_PATH . '/config/database.php';
 
+    // === LIGNE À MODIFIER ICI ===
+    // ANCIEN CODE : Database::closeConnection();
+    // NOUVEAU CODE :
     DatabaseManager::closeConnection();
 }
-?>

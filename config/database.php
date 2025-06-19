@@ -84,7 +84,3 @@ class DatabaseManager {
         }
     }
 }
-
-// Rename the old class in your project if it causes conflicts.
-// For now, we assume this file replaces the old database.php entirely.
-// The old 'Database' class is now 'DatabaseManager'.
