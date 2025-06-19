@@ -9,7 +9,9 @@ use PHPMailer\PHPMailer\SMTP;
 // Inclusion de l'autoloader de Composer (très important !)
 require_once ROOT_PATH . '/vendor/autoload.php';
 
-// Inclusion des modèles nécessaires
+// ==========================================================
+// == CORRECTION : AJOUT DES INCLUSIONS DE MODÈLES MANQUANTES ==
+// ==========================================================
 require_once ROOT_PATH . '/app/models/Notification.php';
 require_once ROOT_PATH . '/app/models/User.php';
 
@@ -85,26 +87,21 @@ class NotificationController {
         $mail = new PHPMailer(true);
 
         try {
-            // --- CONFIGURATION SMTP (À MODIFIER AVEC VOS VRAIS IDENTIFIANTS) ---
-            
-            // Active le debug pour voir les erreurs. Mettre à 0 en production.
-            $mail->SMTPDebug = 0; // Mettre à SMTP::DEBUG_SERVER pour voir le dialogue complet
-
+            // --- CONFIGURATION SMTP ---
+            $mail->SMTPDebug = 0; 
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // Ex: 'smtp.gmail.com' ou votre serveur
+            $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'appg9e@gmail.com'; // VOTRE ADRESSE EMAIL
-            $mail->Password   = 'sxwm ltbj jutq awog'; // VOTRE MOT DE PASSE D'APPLICATION (voir ci-dessous)
+            $mail->Username   = 'appg9e@gmail.com';
+            $mail->Password   = 'sxwm ltbj jutq awog';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
             
-            // --- FIN DE LA CONFIGURATION SMTP ---
-
-            // Destinataires
+            // --- Destinataires ---
             $mail->setFrom('appg9e@gmail.com', 'Parking Intelligent ISEP');
             $mail->addAddress($user_email);
 
-            // Contenu de l'e-mail
+            // --- Contenu de l'e-mail ---
             $mail->isHTML(true);
             $subject = $new_preference ? "Activation des notifications par e-mail" : "Désactivation des notifications par e-mail";
             $body = $new_preference 
@@ -119,9 +116,7 @@ class NotificationController {
             $_SESSION['notif_success'] = "Préférences mises à jour et e-mail de confirmation envoyé.";
 
         } catch (Exception $e) {
-            // En cas d'erreur, on stocke un message d'erreur plus détaillé
             $_SESSION['notif_error'] = "Le message n'a pas pu être envoyé. Erreur Mailer: {$mail->ErrorInfo}";
-            // Pour le debug, vous pouvez aussi logger l'erreur
             error_log("Erreur PHPMailer: " . $e->getMessage());
         }
     }

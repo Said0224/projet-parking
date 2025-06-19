@@ -36,6 +36,15 @@ try {
             $controller->faq();
             break;
 
+        // ==========================================================
+        // == AJOUT DE LA NOUVELLE ROUTE POUR LES CONDITIONS ==
+        // ==========================================================
+        case '/conditions':
+            require_once ROOT_PATH . '/app/controllers/conditionsController.php';
+            $controller = new conditionsController();
+            $controller->conditions();
+            break;
+
         case '/login':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -79,14 +88,12 @@ try {
             $controller->updateProfile();
             break;
 
-        // ===== ROUTE CORRIGÉE ET AJOUTÉE ICI =====
         case '/profile/change-password':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
             $controller->changePassword();
             break;
 
-        // ===== ROUTE AJOUTÉE POUR LA SUPPRESSION DE COMPTE =====
         case '/profile/delete-account':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -105,24 +112,16 @@ try {
             $controller->dashboard();
             break;
 
-        case '/iot-dashboard/capteurs': // Nouvelle route
-
+        case '/iot-dashboard/capteurs':
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
             $controller->capteurs();
             break;
 
-
-        case '/iot-dashboard/actionneurs': // Nouvelle route
-
+        case '/iot-dashboard/actionneurs':
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
             $controller->actionneurs();
-            break;
-        case '/iot-dashboard/update-oled':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->updateOled();
             break;
         
         case '/iot-dashboard/update-oled':
@@ -137,14 +136,12 @@ try {
             $controller->updateLedState();
             break;
 
-        // =========================================================
-        // ============= NOUVELLE ROUTE POUR LES MOTEURS =============
-        // =========================================================
         case '/iot-dashboard/update-motor-state':
             require_once ROOT_PATH . '/app/controllers/IoTController.php';
             $controller = new IoTController();
             $controller->updateMotorState();
             break;
+            
         case '/notifications':
             require_once ROOT_PATH . '/app/controllers/NotificationController.php';
             $controller = new NotificationController();
@@ -201,11 +198,10 @@ try {
             break;
 
         case '/admin/api/reservations':
-
-        require_once ROOT_PATH . '/app/controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->getReservationsAjax();
-        break;
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->getReservationsAjax();
+            break;
 
         case '/admin/api/parking-spots':
             require_once ROOT_PATH . '/app/controllers/AdminController.php';
@@ -285,13 +281,6 @@ try {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
 } finally {
-
-    // CE BLOC SERA TOUJOURS EXÉCUTÉ, À LA FIN DU SCRIPT
-    // On ferme la connexion à la base de données pour la libérer
     require_once ROOT_PATH . '/config/database.php';
-
-    // === LIGNE À MODIFIER ICI ===
-    // ANCIEN CODE : Database::closeConnection();
-    // NOUVEAU CODE :
     DatabaseManager::closeConnection();
 }

@@ -1,89 +1,157 @@
-<?php require_once ROOT_PATH . '/app/views/partials/header.php'; ?>
+<?php 
+require_once ROOT_PATH . '/app/views/partials/header.php'; 
+?>
 
-<div class="container">
+<div class="container notifications-page-container">
+    
+    <!-- En-tête de la page -->
     <div class="page-header">
         <h1><i class="fas fa-bell"></i> Mes Notifications</h1>
     </div>
 
-    <?php if (isset($_SESSION['notif_success'])): ?>
-        <div class="alert alert-success"><?= $_SESSION['notif_success'] ?></div>
-        <?php unset($_SESSION['notif_success']); ?>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['notif_error'])): ?>
-        <div class="alert alert-danger"><?= $_SESSION['notif_error'] ?></div>
-        <?php unset($_SESSION['notif_error']); ?>
-    <?php endif; ?>
-
-    <!-- Carte des préférences -->
-    <div class="card preferences-card">
-        <div class="card-header">
-            <h3><i class="fas fa-cog"></i> Préférences</h3>
-        </div>
-        <div class="card-body">
-            <form method="post" action="<?= BASE_URL ?>/notifications/update-preference">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="notif_email" id="emailPrefSwitch" 
-                           onchange="this.form.submit()" <?= $email_preference ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="emailPrefSwitch">Recevoir les notifications importantes par e-mail</label>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Liste des notifications -->
-    <div class="notifications-list">
-        <?php if (empty($notifications)): ?>
-            <div class="no-notifications">
-                <i class="fas fa-bell-slash"></i>
-                <p>Vous n'avez aucune notification pour le moment.</p>
+    <!-- Section des Préférences -->
+    <div class="notif-section">
+        <h2><i class="fas fa-cog"></i> Préférences</h2>
+        <div class="preference-card">
+            <div class="preference-info">
+                <i class="fas fa-envelope-open-text"></i>
+                <span>Recevoir les notifications importantes par e-mail</span>
             </div>
-        <?php else: ?>
-            <?php foreach ($notifications as $notif): ?>
-                <div class="notification-item <?= $notif['est_lu'] ? 'read' : 'unread' ?>">
-                    <div class="notification-icon">
-                        <?php
-                        switch ($notif['type']) {
-                            case 'reservation_success': echo '<i class="fas fa-calendar-check"></i>'; break;
-                            case 'reservation_cancelled': echo '<i class="fas fa-calendar-times"></i>'; break;
-                            case 'account_created': echo '<i class="fas fa-user-plus"></i>'; break;
-                            default: echo '<i class="fas fa-info-circle"></i>'; break;
-                        }
-                        ?>
-                    </div>
-                    <div class="notification-content">
-                        <p><?= htmlspecialchars($notif['contenu']) ?></p>
-                        <span class="notification-date"><?= date('d/m/Y \à H:i', strtotime($notif['date'])) ?></span>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
+            <div class="form-switch">
+                <input type="checkbox" id="email-notifications" class="form-check-input" checked>
+                <label for="email-notifications" class="form-check-label"></label>
+            </div>
+        </div>
     </div>
+
+    <!-- Section de l'Historique -->
+    <div class="notif-section">
+        <h2><i class="fas fa-history"></i> Historique</h2>
+        <div class="notifications-list">
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="notification-content">
+                    <p class="notification-message">Bienvenue ! Votre compte a été créé avec succès.</p>
+                    <span class="notification-date">19/06/2025 à 14:14</span>
+                </div>
+            </div>
+            <!-- Vous pourrez ajouter d'autres notifications ici -->
+        </div>
+    </div>
+
 </div>
 
 <style>
-.preferences-card { margin-bottom: 2rem; }
-.form-switch { align-items: center; }
-.form-check-label { margin-left: 1rem; color: #333; }
-.notifications-list { display: flex; flex-direction: column; gap: 1rem; }
-.notification-item {
-    background-color: white; padding: 1.5rem; border-radius: 15px;
-    display: flex; align-items: center; gap: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-left: 5px solid transparent;
+/* Styles spécifiques pour la page de notifications */
+.notifications-page-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.notif-section {
+    margin-bottom: 2.5rem;
+}
+
+.notif-section h2 {
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notif-section h2 i {
+    color: #ffd700;
+}
+
+.preference-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    /* AJOUT : Transition pour l'effet de survol */
     transition: all 0.3s ease;
 }
-.notification-item.unread { border-left-color: var(--primary); background-color: #f0f5ff; }
-.notification-item.read { opacity: 0.8; }
-.notification-icon {
-    font-size: 1.5rem; color: var(--primary);
-    width: 50px; height: 50px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background-color: rgba(30, 64, 175, 0.1); border-radius: 50%;
+
+/* AJOUT : Règle de survol pour la carte des préférences */
+.preference-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.15);
 }
-.notification-content p { margin: 0; font-weight: 500; color: #333; }
-.notification-date { font-size: 0.875rem; color: #6c757d; }
-.no-notifications { text-align: center; padding: 3rem; color: #6c757d; }
-.no-notifications i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+
+.preference-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    font-weight: 500;
+}
+
+.preference-info i {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    color: white;
+}
+
+/* AJOUT : Règle de survol pour les items de notification */
+.notification-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.notification-message {
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.notification-date {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
 </style>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
