@@ -4,18 +4,22 @@
 require_once ROOT_PATH . '/app/models/User.php';
 require_once ROOT_PATH . '/app/models/ParkingSpot.php';
 require_once ROOT_PATH . '/app/models/Reservation.php';
+require_once ROOT_PATH . '/app/models/Actuator.php'; // <-- AJOUT
 
 class AdminController {
     private $userModel;
     private $parkingSpotModel;
     private $reservationModel;
+    private $actuatorModel; // <-- AJOUT
     
     public function __construct() {
         $this->userModel = new User();
         $this->parkingSpotModel = new ParkingSpot();
         $this->reservationModel = new Reservation();
+        $this->actuatorModel = new Actuator(); // <-- AJOUT
     }
     
+    // ... (les autres méthodes comme index(), getReservationsAjax(), etc. ne changent pas) ...
     public function index() {
         if (!$this->isAdmin()) {
             header('Location: ' . BASE_URL . '/login');
@@ -78,15 +82,13 @@ class AdminController {
         }
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $users_per_page = 8; // Afficher 8 utilisateurs par page
+        $users_per_page = 8;
 
-        // Récupérer les filtres depuis l'URL (pour le chargement initial)
         $filters = [];
         if (isset($_GET['filter_role']) && $_GET['filter_role'] !== '') {
             $filters['is_admin'] = $_GET['filter_role'];
         }
 
-        // Utiliser les nouvelles méthodes du modèle
         $total_users = $this->userModel->getTotalUsersCount($filters);
         $total_pages = ceil($total_users / $users_per_page);
         $users = $this->userModel->getPaginatedUsers($page, $users_per_page, $filters);
@@ -95,7 +97,6 @@ class AdminController {
         require_once ROOT_PATH . '/app/views/admin/users.php';
     }
 
-    // ===== NOUVELLE MÉTHODE `getUsersAjax` CI-DESSOUS =====
     public function getUsersAjax() {
         if (!$this->isAdmin()) {
             http_response_code(403);
@@ -115,12 +116,10 @@ class AdminController {
         $total_pages = ceil($total_users / $users_per_page);
         $users = $this->userModel->getPaginatedUsers($page, $users_per_page, $filters);
 
-        // Charger la vue partielle qui contient uniquement la table et la pagination
         require ROOT_PATH . '/app/views/admin/partials/users_table.php';
         exit;
     }
     
-    // ===== MÉTHODE MODIFIÉE CI-DESSOUS =====
     public function manageParking() {
         if (!$this->isAdmin()) {
             header('Location: ' . BASE_URL . '/login');
@@ -128,9 +127,8 @@ class AdminController {
         }
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $spots_per_page = 6; // Afficher 6 places par page
+        $spots_per_page = 6;
 
-        // On construit le tableau des filtres à partir des potentiels paramètres GET
         $filters = [];
         if (!empty($_GET['filter_status'])) {
             $filters['status'] = $_GET['filter_status'];
@@ -139,20 +137,17 @@ class AdminController {
             $filters['has_charging_station'] = $_GET['filter_charging'];
         }
 
-        // On passe les filtres aux méthodes du modèle
         $total_spots = $this->parkingSpotModel->getTotalSpotsCount($filters);
         $total_pages = ceil($total_spots / $spots_per_page);
-
         $spots = $this->parkingSpotModel->getPaginatedSpots($page, $spots_per_page, $filters);
         
         $page_title = "Gestion du parking";
         require_once ROOT_PATH . '/app/views/admin/parking.php';
     }
 
-    // ===== NOUVELLE MÉTHODE CI-DESSOUS =====
     public function getParkingSpotsAjax() {
         if (!$this->isAdmin()) {
-            http_response_code(403); // Forbidden
+            http_response_code(403);
             echo "Accès refusé.";
             exit;
         }
@@ -172,7 +167,6 @@ class AdminController {
         $total_pages = ceil($total_spots / $spots_per_page);
         $spots = $this->parkingSpotModel->getPaginatedSpots($page, $spots_per_page, $filters);
 
-        // On charge la vue partielle qui contient uniquement la grille et la pagination
         require ROOT_PATH . '/app/views/admin/partials/parking_grid.php';
         exit;
     }
@@ -186,7 +180,7 @@ class AdminController {
         }
         
         $user_id = $_POST['user_id'];
-        $is_admin = isset($_POST['is_admin']) ? 1 : 0; // Utiliser 1 ou 0 pour le booléen
+        $is_admin = isset($_POST['is_admin']) ? 1 : 0;
         
         if ($this->userModel->updateUserAdminStatus($user_id, $is_admin)) {
             echo json_encode(['success' => true, 'message' => 'Rôle de l\'utilisateur mis à jour.']);
@@ -197,7 +191,6 @@ class AdminController {
         exit;
     }
     
-    // ===== MÉTHODE MODIFIÉE POUR AJAX =====
     public function deleteUser() {
         header('Content-Type: application/json');
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -216,7 +209,6 @@ class AdminController {
         exit;
     }
     
-    // ===== MÉTHODE MODIFIÉE POUR AJAX =====
     public function createUser() {
         header('Content-Type: application/json');
         if (!$this->isAdmin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -231,17 +223,16 @@ class AdminController {
         $prenom = $_POST['prenom'];
         $is_admin = isset($_POST['is_admin']) ? true : false;
         
-        // --- Validation basique ---
         if (empty($email) || empty($password) || empty($nom) || empty($prenom)) {
-            http_response_code(400); // Bad Request
+            http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Tous les champs sont requis.']);
             exit;
         }
         
         if ($this->userModel->createUser($email, $password, $nom, $prenom, $is_admin)) {
-            echo json_encode(['success' => true, 'message' => 'Utilisateur créé avec succès ! La liste va s\'actualiser.']);
+            echo json_encode(['success' => true, 'message' => 'Utilisateur créé ! La liste va s\'actualiser.']);
         } else {
-            http_response_code(409); // Conflict (e.g., email already exists)
+            http_response_code(409);
             echo json_encode(['success' => false, 'message' => 'Erreur : cet email est peut-être déjà utilisé.']);
         }
         exit;
@@ -268,21 +259,61 @@ class AdminController {
             'price_per_hour' => $_POST['price_per_hour'],
             'has_charging_station' => isset($_POST['has_charging_station']) ? 1 : 0
         ];
+        
+        $spot_number = $_POST['spot_number']; // On le récupère pour la logique LED
 
         if ($this->parkingSpotModel->updateSpot($spot_id, $data)) {
+            
+            // ======================================================
+            // == DÉBUT DE LA NOUVELLE LOGIQUE CORRIGÉE POUR LA LED ==
+            // ======================================================
+            if ($spot_number === '101') { // On applique la logique seulement si c'est la place connectée
+                $led_id = 1;
+                $new_spot_status = $data['status'];
+                
+                // 1. Lire l'état actuel de la LED pour ne pas écraser la luminosité
+                $currentLedState = $this->actuatorModel->getLedById($led_id);
+
+                if ($currentLedState) {
+                    // 2. Préserver l'état et la luminosité existants
+                    $led_etat = $currentLedState['etat'];
+                    $led_intensite = $currentLedState['intensite'];
+                    
+                    // 3. Déterminer la nouvelle couleur en fonction du statut de la place
+                    $led_couleur = '#00FF00'; // Vert par défaut pour 'disponible'
+                    switch ($new_spot_status) {
+                        case 'occupée':
+                        case 'maintenance':
+                            $led_couleur = '#FF0000'; // Rouge
+                            break;
+                        case 'réservée':
+                            $led_couleur = '#f59e0b'; // Orange/Jaune
+                            break;
+                    }
+
+                    // 4. Mettre à jour la LED avec la nouvelle couleur mais en gardant l'ancienne luminosité
+                    // On passe la commande en 'auto_status' pour signaler que c'est une mise à jour automatique
+                    $this->actuatorModel->updateLedDetails($led_id, $led_etat, $led_couleur, $led_intensite, 'auto_status');
+                }
+            }
+            // =====================================================
+            // ==  FIN DE LA NOUVELLE LOGIQUE CORRIGÉE POUR LA LED ==
+            // =====================================================
+
             echo json_encode([
                 'success' => true, 
-                'message' => 'Place ' . htmlspecialchars($_POST['spot_number'] ?? $spot_id) . ' mise à jour avec succès !'
+                'message' => 'Place ' . htmlspecialchars($spot_number) . ' mise à jour avec succès !'
             ]);
         } else {
             http_response_code(500);
             echo json_encode([
                 'success' => false, 
-                'message' => 'Erreur lors de la mise à jour de la place en base de données.'
+                'message' => 'Erreur lors de la mise à jour de la place.'
             ]);
         }
         exit;
     }
+
     
     private function isAdmin() {
         return isset($_SESSION['user_id']) && isset($_SESSION['is_admin']) && $_SESSION['is_admin'];

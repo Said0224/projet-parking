@@ -5,11 +5,27 @@ class Actuator {
     private $db;
 
     public function __construct() {
-        // Use the 'iot' connection
         $this->db = DatabaseManager::getConnection('iot');
     }
 
-    // --- LED Methods ---
+    // --- NOUVELLE MÉTHODE ---
+    /**
+     * Récupère les détails d'une LED par son ID.
+     * @param int $id
+     * @return array|false
+     */
+    public function getLedById($id) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM public.led WHERE id = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erreur dans getLedById : " . $e->getMessage());
+            return false;
+        }
+    }
+    // --- FIN NOUVELLE MÉTHODE ---
+
     public function getAllLEDs() {
         try {
             $stmt = $this->db->query("SELECT * FROM public.led ORDER BY id ASC");
@@ -20,41 +36,30 @@ class Actuator {
         }
     }
 
-    // --- MODIFICATION : Remplacement de updateLEDState par une méthode plus complète ---
     /**
-     * Met à jour les détails d'une LED (état, couleur, intensité).
+     * Met à jour les détails d'une LED (état, couleur, intensité, et commande).
      * @param int $id
      * @param bool $etat
      * @param string $couleur
      * @param int $intensite
+     * @param string $command La source de la commande ('manual_override', 'auto_status', etc.)
      * @return bool
      */
-    public function updateLedDetails($id, $etat, $couleur, $intensite) {
+    public function updateLedDetails($id, $etat, $couleur, $intensite, $command) {
         try {
             $stmt = $this->db->prepare("
                 UPDATE public.led 
-                SET etat = ?, couleur = ?, intensite = ?, timestamp = CURRENT_TIMESTAMP 
+                SET etat = ?, couleur = ?, intensite = ?, last_command = ?, timestamp = CURRENT_TIMESTAMP 
                 WHERE id = ?
             ");
-            return $stmt->execute([$etat, $couleur, $intensite, $id]);
+            return $stmt->execute([$etat, $couleur, $intensite, $command, $id]);
         } catch (PDOException $e) {
             error_log("Erreur dans updateLedDetails : " . $e->getMessage());
             return false;
         }
     }
-
-    // L'ancienne méthode est conservée si elle est utilisée ailleurs, sinon elle peut être supprimée.
-    public function updateLEDState($id, $etat) {
-        try {
-            $stmt = $this->db->prepare("UPDATE public.led SET etat = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");
-            return $stmt->execute([$etat, $id]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans updateLEDState : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    // --- OLED Methods ---
+    
+    // ... (Le reste du fichier reste identique) ...
     public function getOLEDData() {
         try {
             $stmt = $this->db->query("SELECT * FROM public.oled ORDER BY id DESC LIMIT 1");
@@ -83,12 +88,6 @@ class Actuator {
         }
     }
     
-    // ===== NOUVELLES MÉTHODES POUR LES MOTEURS =====
-    
-    /**
-     * Récupère tous les moteurs.
-     * @return array
-     */
     public function getAllMotors() {
         try {
             $stmt = $this->db->query("SELECT * FROM public.moteur ORDER BY id ASC");
@@ -99,13 +98,6 @@ class Actuator {
         }
     }
 
-    /**
-     * Met à jour l'état et la vitesse d'un moteur.
-     * @param int $id
-     * @param bool $etat
-     * @param int $vitesse
-     * @return bool
-     */
     public function updateMotor($id, $etat, $vitesse) {
         try {
             $stmt = $this->db->prepare("UPDATE public.moteur SET etat = ?, vitesse = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");

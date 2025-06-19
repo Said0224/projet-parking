@@ -1,13 +1,12 @@
 <?php 
 // Vérification que l'utilisateur est admin
 if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
-    header('Location: /login');
+    header('Location: ' . BASE_URL . '/login');
     exit;
 }
 
 require_once ROOT_PATH . '/app/views/partials/header.php'; 
 
-// --- DÉBUT MODIFICATION : Calculs dynamiques ---
 $leds_actives = 0;
 foreach ($data['leds'] as $led) {
     if ($led['etat']) $leds_actives++;
@@ -17,36 +16,20 @@ foreach ($data['motors'] as $motor) {
     if ($motor['etat']) $moteurs_actifs++;
 }
 $total_actifs = $leds_actives + $moteurs_actifs;
-// --- FIN MODIFICATION ---
 ?>
 
 <div class="dashboard-container">
-    <!-- Header principal -->
     <div class="dashboard-header">
         <div class="header-content">
-            <h1><i class="fas fa-satellite-dish"></i> Gestion des Capteurs IoT</h1>
-            <p>Surveillance et monitoring en temps réel des capteurs</p>
+            <h1><i class="fas fa-cogs"></i> Gestion des Actionneurs</h1>
+            <p>Contrôle et pilotage des équipements du parking intelligent</p>
         </div>
     </div>
-
-    <!-- Navigation -->
     <div class="dashboard-nav">
         <div class="nav-tabs">
-            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab">
-                <i class="fas fa-arrow-left"></i> Retour IoT
-            </a>
-            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab ">
-                <i class="fas fa-satellite-dish"></i> Capteurs
-            </a>
-            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab active">
-                <i class="fas fa-cogs"></i> Actionneurs
-            </a>
-            <a href="<?= BASE_URL ?>/logout" class="nav-tab">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
-        </div>
-        <div class="user-info">
-            <i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@isep.fr') ?>
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab"><i class="fas fa-arrow-left"></i> Retour IoT</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab"><i class="fas fa-satellite-dish"></i> Capteurs</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab active"><i class="fas fa-cogs"></i> Actionneurs</a>
         </div>
     </div>
 
@@ -60,33 +43,12 @@ $total_actifs = $leds_actives + $moteurs_actifs;
             <div class="stat-icon"><i class="fas fa-cog"></i></div>
             <div class="stat-info"><div class="stat-number"><?= $moteurs_actifs ?></div><div class="stat-label">Moteurs en Marche</div></div>
         </div>
-
-        
-        <div class="stat-card power-consumption">
-            <div class="stat-icon">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">85W</div>
-                <div class="stat-label">Consommation</div>
-            </div>
-        </div>
-        
-        <div class="stat-card automation">
-            <div class="stat-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">Auto</div>
-                <div class="stat-label">Mode Pilotage</div>
-            </div>
-        </div>
     </div>
 
      <!-- Grille des actionneurs -->
     <div class="actuators-grid">
         
-        <!-- --- DÉBUT MODIFICATION : Boucle et carte complète pour les LEDs --- -->
+        <!-- Boucle dynamique pour les LEDs -->
         <?php foreach($data['leds'] as $led): ?>
         <div class="actuator-card led-card led-card-dynamic" data-led-id="<?= $led['id'] ?>">
             <div class="actuator-header">
@@ -124,9 +86,8 @@ $total_actifs = $leds_actives + $moteurs_actifs;
             </div>
         </div>
         <?php endforeach; ?>
-        <!-- --- FIN MODIFICATION : LEDs --- -->
 
-        <!-- --- DÉBUT MODIFICATION : Boucle pour les Moteurs --- -->
+        <!-- Boucle dynamique pour les Moteurs -->
         <?php foreach($data['motors'] as $motor): ?>
         <div class="actuator-card motor-card">
             <div class="actuator-header">
@@ -152,10 +113,6 @@ $total_actifs = $leds_actives + $moteurs_actifs;
             </div>
         </div>
         <?php endforeach; ?>
-        <!-- --- FIN MODIFICATION : Moteurs --- -->
-        
-        <!-- Note: Les autres actionneurs (Buzzer, etc.) restent statiques car non présents dans la BDD IoT -->
-        <!-- ... (code statique pour Buzzer, Afficheur, OLED inchangé) ... -->
     </div>
 </div>
 
@@ -1114,36 +1071,23 @@ input[type="range"]:focus::-moz-range-thumb {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // ===================================
-    // GESTION DYNAMIQUE DES LEDS
-    // ===================================
     document.querySelectorAll('.led-card-dynamic').forEach(card => {
         const ledId = card.dataset.ledId;
         const colorButtons = card.querySelectorAll('.color-btn');
         const brightnessSlider = card.querySelector('.brightness-slider');
-        const brightnessDisplay = card.querySelector('.brightness-display');
-        const ledVisual = card.querySelector('.led-visual');
-        const ledStateText = card.querySelector('.led-state');
-        const ledBrightnessText = card.querySelector('.led-brightness');
-        const statusBadge = card.querySelector('.actuator-status');
         
-        // Fonction centralisée pour envoyer la mise à jour AJAX
         const updateLedOnServer = () => {
             const activeButton = card.querySelector('.color-btn.active');
             let is_on = true;
             let color = '#FFFFFF';
 
-            if (activeButton) {
-                if (activeButton.classList.contains('off')) {
-                    is_on = false;
-                } else {
-                    color = activeButton.dataset.color;
-                }
+            if (activeButton && activeButton.classList.contains('off')) {
+                is_on = false;
+            } else if (activeButton) {
+                color = activeButton.dataset.color;
             }
             
             const intensity = brightnessSlider.value;
-
             const formData = new FormData();
             formData.append('id', ledId);
             formData.append('etat', is_on ? 1 : 0);
@@ -1153,61 +1097,29 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('<?= BASE_URL ?>/iot-dashboard/update-led-details', { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.success) {
-                        alert("Erreur lors de la mise à jour de la LED.");
-                        // On pourrait implémenter une logique pour revenir à l'état précédent ici
-                    }
-                })
-                .catch(err => alert("Erreur de connexion."));
+                    if (!data.success) alert("Erreur de mise à jour.");
+                }).catch(err => alert("Erreur de connexion."));
         };
 
-        // Listeners pour les boutons de couleur
         colorButtons.forEach(button => {
             button.addEventListener('click', function() {
                 colorButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                
-                // Mise à jour visuelle immédiate
-                if (this.classList.contains('off')) {
-                    ledVisual.style.backgroundColor = '#f1f5f9';
-                    ledVisual.style.borderColor = '#e2e8f0';
-                    ledVisual.style.boxShadow = 'none';
-                    ledStateText.textContent = 'ÉTEINTE';
-                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> Éteinte';
-                    statusBadge.className = 'actuator-status status-off';
-                } else {
-                    const newColor = this.dataset.color;
-                    ledVisual.style.backgroundColor = newColor;
-                    ledVisual.style.borderColor = newColor;
-                    ledVisual.style.boxShadow = `0 0 20px ${newColor}`;
-                    ledStateText.textContent = 'ALLUMÉE';
-                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> Active';
-                    statusBadge.className = 'actuator-status status-active';
-                }
-
                 updateLedOnServer();
             });
         });
 
-        // Listener pour le slider de luminosité
-        brightnessSlider.addEventListener('input', () => {
-            brightnessDisplay.textContent = `${brightnessSlider.value}%`;
-            ledBrightnessText.textContent = `Luminosité: ${brightnessSlider.value}%`;
-        });
-        
         brightnessSlider.addEventListener('change', updateLedOnServer);
+        brightnessSlider.addEventListener('input', () => {
+            card.querySelector('.brightness-display').textContent = `${brightnessSlider.value}%`;
+        });
     });
 
-    // GESTION DYNAMIQUE DES MOTEURS
     document.querySelectorAll('.motor-update-form').forEach(form => {
         const motorId = form.dataset.id;
         const startBtn = form.querySelector('.start');
         const stopBtn = form.querySelector('.stop');
         const speedSlider = form.querySelector('.motor-speed');
-        const speedDisplay = form.querySelector('.speed-display');
-        const motorIcon = form.closest('.actuator-card').querySelector('.motor-icon');
-        const motorStatus = form.closest('.actuator-card').querySelector('.actuator-status');
-        const speedValueDisplay = form.closest('.actuator-card').querySelector('.motor-stats .value');
 
         const updateMotor = (etat, vitesse) => {
             const formData = new FormData();
@@ -1218,40 +1130,23 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('<?= BASE_URL ?>/iot-dashboard/update-motor-state', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    // Update UI
-                    speedDisplay.textContent = `${vitesse} RPM`;
-                    speedValueDisplay.textContent = `${vitesse} RPM`;
-                    motorStatus.innerHTML = etat ? '<i class="fas fa-circle"></i> En marche' : '<i class="fas fa-circle"></i> Arrêté';
-                    motorStatus.className = `actuator-status ${etat ? 'status-running' : 'status-off'}`;
-                    if (etat) motorIcon.classList.add('rotating');
-                    else motorIcon.classList.remove('rotating');
-                }
+                if (!data.success) alert('Erreur de mise à jour du moteur.');
             });
         };
-
+        
         speedSlider.addEventListener('input', () => {
-             speedDisplay.textContent = `${speedSlider.value} RPM`;
+             form.querySelector('.speed-display').textContent = `${speedSlider.value} RPM`;
         });
         
         speedSlider.addEventListener('change', () => {
-            const newSpeed = speedSlider.value;
-            const currentState = motorIcon.classList.contains('rotating');
-            updateMotor(currentState, newSpeed);
+            const isRunning = form.closest('.actuator-card').querySelector('.motor-icon').classList.contains('rotating');
+            updateMotor(isRunning, speedSlider.value);
         });
 
-        startBtn.addEventListener('click', () => {
-            updateMotor(true, speedSlider.value);
-        });
-
-        stopBtn.addEventListener('click', () => {
-            updateMotor(false, speedSlider.value);
-        });
+        startBtn.addEventListener('click', () => updateMotor(true, speedSlider.value));
+        stopBtn.addEventListener('click', () => updateMotor(false, speedSlider.value));
     });
-
 });
-// --- FIN MODIFICATION DU SCRIPT ---
 </script>
-
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
