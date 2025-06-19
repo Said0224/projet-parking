@@ -48,12 +48,17 @@
             <div class="card-body">
                 <form method="POST" action="<?= BASE_URL ?>/profile/change-password">
                     <div class="form-group">
+                        <label for="current_password" class="form-label">Ancien mot de passe</label>
+                        <input type="password" id="current_password" name="current_password" class="form-control" required placeholder="Votre mot de passe actuel">
+                    </div>
+                    <div class="form-group">
                         <label for="password" class="form-label">Nouveau mot de passe</label>
                         <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="6 caractères minimum">
                     </div>
                     <div class="form-group">
-                        <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Répétez le mot de passe">
+                        <label for="confirm_password" class="form-label">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Répétez le nouveau mot de passe">
+                        <div class="password-match" id="passwordMatchFeedback"></div>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-key"></i> Changer le mot de passe
@@ -62,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Section 3: Zone de danger (MODIFIÉE) -->
+        <!-- Section 3: Zone de danger -->
         <div class="card danger-zone-trigger">
             <div class="card-header">
                 <h3><i class="fas fa-exclamation-triangle"></i> Zone de Danger</h3>
@@ -77,7 +82,7 @@
     </div>
 </div>
 
-<!-- MODALE DE CONFIRMATION DE SUPPRESSION (NOUVEAU) -->
+<!-- MODALE DE CONFIRMATION DE SUPPRESSION (MODIFIÉE) -->
 <div id="delete-account-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -89,7 +94,8 @@
             <p><strong>Cette action est définitive et irréversible.</strong> Toutes vos données, y compris l'historique de vos réservations, seront effacées.</p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+            <!-- CHANGEMENT DE CLASSE ICI: de btn-secondary à btn-light -->
+            <button type="button" class="btn btn-light close-modal-btn">Annuler</button>
             <form method="POST" action="<?= BASE_URL ?>/profile/delete-account" style="display:inline;">
                 <button type="submit" class="btn btn-danger">
                     Oui, supprimer mon compte
@@ -114,33 +120,23 @@
         background-color: rgba(230, 230, 230, 0.7); cursor: not-allowed;
     }
     
-    /* === ANIMATION DE LA ZONE DE DANGER (NOUVEAU) === */
     .danger-zone-trigger .card-header {
-        /* On crée un dégradé plus complexe et plus large que l'élément */
         background: linear-gradient(135deg, 
             #b91c1c, 
             #dc2626, 
-            #ef4444, /* Une touche plus claire pour la "vague" */
+            #ef4444,
             #dc2626, 
             #b91c1c
         );
-        background-size: 300% 100%; /* Le dégradé fait 3x la largeur du bandeau */
+        background-size: 300% 100%;
         animation: wave-animation 4s ease-in-out infinite;
     }
 
-    /* On définit l'animation qui déplace la position du dégradé */
     @keyframes wave-animation {
-        0% {
-            background-position: 0% 50%;
-        }
-        50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
-        }
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
-    /* === FIN DE L'ANIMATION === */
 
     .danger-zone-trigger p {
         color: #495057; margin-bottom: 1.5rem; line-height: 1.7;
@@ -179,12 +175,27 @@
     .modal-header h2 { margin: 0; font-size: 1.5rem; }
     .close-modal-btn {
         background: none; border: none; font-size: 2rem; color: white; cursor: pointer; opacity: 0.8;
+        line-height: 1; 
     }
     .close-modal-btn:hover { opacity: 1; }
     .modal-body { padding: 2rem; }
     .modal-body p { margin-bottom: 1rem; color: #333; }
     .modal-footer {
         padding: 1.5rem; background-color: #f7f7f7; display: flex; justify-content: flex-end; gap: 1rem;
+    }
+    
+    .password-match {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        height: 20px;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+    .password-match.match {
+        color: #155724; 
+    }
+    .password-match.no-match {
+        color: #721c24;
     }
 
     /* Responsive */
@@ -205,26 +216,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const openModalBtn = document.getElementById('open-delete-modal-btn');
     const closeModalBtns = document.querySelectorAll('.close-modal-btn');
 
-    function openModal() {
-        modalOverlay.classList.add('show');
+    if (openModalBtn) {
+        openModalBtn.addEventListener('click', () => modalOverlay.classList.add('show'));
+    }
+    closeModalBtns.forEach(btn => btn.addEventListener('click', () => modalOverlay.classList.remove('show')));
+    if(modalOverlay) {
+        modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.classList.remove('show'); });
     }
 
-    function closeModal() {
-        modalOverlay.classList.remove('show');
-    }
+    const newPasswordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const feedbackDiv = document.getElementById('passwordMatchFeedback');
 
-    openModalBtn.addEventListener('click', openModal);
+    function checkPasswordMatch() {
+        const password = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
 
-    closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-
-    // Fermer en cliquant sur l'overlay
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            closeModal();
+        if (confirmPassword.length === 0 && password.length === 0) {
+            feedbackDiv.textContent = '';
+            feedbackDiv.className = 'password-match';
+            return;
         }
-    });
+
+        if (password === confirmPassword) {
+            feedbackDiv.textContent = '✓ Les mots de passe correspondent';
+            feedbackDiv.className = 'password-match match';
+        } else {
+            feedbackDiv.textContent = '✗ Les mots de passe ne correspondent pas';
+            feedbackDiv.className = 'password-match no-match';
+        }
+    }
+
+    if (newPasswordInput && confirmPasswordInput) {
+        newPasswordInput.addEventListener('input', checkPasswordMatch);
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    }
 });
 </script>
 

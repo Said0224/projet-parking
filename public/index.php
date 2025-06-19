@@ -8,15 +8,17 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 define('ROOT_PATH', __DIR__);
-define('BASE_URL', '/projet-parking');
+// La variable BASE_URL reste utile pour construire les liens dans les vues
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', rtrim($script_name, '/'));
 
-// Inclure la configuration de la base de données au début
-require_once ROOT_PATH . '/config/database.php';
-
-// Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
+// 1. Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
 $request_uri = '/' . trim($_GET['url'] ?? '', '/');
 
 try {
+    // Inclure la configuration de la base de données une seule fois au début
+    require_once ROOT_PATH . '/config/database.php';
+
     switch ($request_uri) {
 
         case '/':
@@ -25,6 +27,12 @@ try {
             $controller->index();
             break;
             
+        case '/faq':
+            require_once ROOT_PATH . '/app/controllers/HomeController.php';
+            $controller = new HomeController();
+            $controller->faq();
+            break;
+
         case '/login':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -67,12 +75,14 @@ try {
             $controller->updateProfile();
             break;
 
+        // ===== ROUTE CORRIGÉE ET AJOUTÉE ICI =====
         case '/profile/change-password':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
             $controller->changePassword();
             break;
 
+        // ===== ROUTE AJOUTÉE POUR LA SUPPRESSION DE COMPTE =====
         case '/profile/delete-account':
             require_once ROOT_PATH . '/app/controllers/AuthController.php';
             $controller = new AuthController();
@@ -85,7 +95,23 @@ try {
             $controller->index();
             break;
             
-    
+        case '/iot-dashboard':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->dashboard();
+            break;
+
+        case '/iot-dashboard/capteurs':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->capteurs();
+            break;
+
+        case '/iot-dashboard/actionneurs':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->actionneurs();
+            break;
 
         // ===== ROUTES ADMIN =====
         case '/admin':
@@ -130,6 +156,12 @@ try {
             $controller->updateParkingSpot();
             break;
 
+        case '/admin/api/reservations':
+            require_once ROOT_PATH . '/app/controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->getReservationsAjax();
+            break;
+
         // ===== ROUTES UTILISATEUR =====
         case '/user/dashboard':
             require_once ROOT_PATH . '/app/controllers/UserController.php';
@@ -154,6 +186,30 @@ try {
             $controller = new UserController();
             $controller->cancelReservation();
             break;
+
+         case '/api/update-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->updateSpotStatus();
+            break;
+
+        case '/api/get-spot-status':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotStatus();
+            break;
+
+        case '/api/get-spot-details':
+            require_once ROOT_PATH . '/app/controllers/ApiController.php';
+            $controller = new ApiController();
+            $controller->getSpotDetails();
+            break;
+            
+        case '/api/get-all-spots-status':
+            require_once ROOT_PATH . '/app/controllers/UserController.php';
+            $controller = new UserController();
+            $controller->getAllSpotsStatus();
+            break;
             
         default:
             http_response_code(404);
@@ -170,7 +226,6 @@ try {
     echo "<h1>Exception détectée :</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
 } finally {
-    // Ce bloc est maintenant sécurisé car config/database.php est chargé au début.
     Database::closeConnection();
 }
 ?>

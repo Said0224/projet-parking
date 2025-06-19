@@ -1,128 +1,137 @@
-<?php require_once ROOT_PATH . '/app/views/partials/header.php'; ?>
+<?php
+require_once ROOT_PATH . '/config/database.php';
 
-<!-- Ajouter le CSS admin -->
-<link rel="stylesheet" href="/css/admin-style.css">
+class User {
+    private $db;
 
-<div class="container">
-    <div class="page-header">
-        <h1><i class="fas fa-users"></i> Gestion des utilisateurs</h1>
-        <a href="<?= BASE_URL ?>/admin" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Retour au dashboard
-        </a>
-    </div>
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
 
-    <!-- Formulaire d'ajout d'utilisateur -->
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</h3>
-        </div>
-        <div class="card-body">
-            <form action="<?= BASE_URL ?>/admin/create-user" method="POST">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="email" class="form-label">Email *</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   placeholder="exemple@isep.fr" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="password" class="form-label">Mot de passe *</label>
-                            <input type="password" class="form-control" id="password" name="password" 
-                                   placeholder="Minimum 6 caractères" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="nom" class="form-label">Nom *</label>
-                            <input type="text" class="form-control" id="nom" name="nom" 
-                                   placeholder="Nom de famille" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="prenom" class="form-label">Prénom *</label>
-                            <input type="text" class="form-control" id="prenom" name="prenom" 
-                                   placeholder="Prénom" required>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
-                            <label class="form-check-label" for="is_admin">
-                                <strong>Droits d'administrateur</strong>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Créer l'utilisateur
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    public function create($email, $password, $nom = '', $prenom = '') {
+        try {
+            if ($this->findByEmail($email)) { return false; }
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("INSERT INTO users (email, password_hash, nom, prenom, is_admin, created_at, updated_at) VALUES (?, ?, ?, ?, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+            return $stmt->execute([$email, $password_hash, $nom, $prenom]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::create : " . $e->getMessage());
+            return false;
+        }
+    }
 
-    <!-- Liste des utilisateurs -->
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-list"></i> Liste des utilisateurs (<?= count($users) ?>)</h3>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Email</th>
-                            <th>Nom complet</th>
-                            <th>Statut</th>
-                            <th>Créé le</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td><strong>#<?= $user['id'] ?></strong></td>
-                            <td><?= htmlspecialchars($user['email']) ?></td>
-                            <td><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></td>
-                            <td>
-                                 <form action="<?= BASE_URL ?>/admin/update-user" method="POST" style="display: inline;">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <div class="form-switch">
-                                        <input class="form-check-input" type="checkbox" name="is_admin" 
-                                               <?= $user['is_admin'] ? 'checked' : '' ?>
-                                               onchange="this.form.submit()">
-                                        <label class="form-check-label">
-                                            <?= $user['is_admin'] ? '<strong style="color: #28a745;">Admin</strong>' : 'Utilisateur' ?>
-                                        </label>
-                                    </div>
-                                </form>
-                            </td>
-                            <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
-                            <td>
-                                <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                <form action="<?= BASE_URL ?>/admin/delete-user" method="POST" style="display: inline;" 
-                                      onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet utilisateur ?\n\nCette action est irréversible.')">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer l'utilisateur">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                                <?php else: ?>
-                                <span class="text-muted"><i class="fas fa-user-shield"></i> Vous</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+    public function findByEmail($email) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::findByEmail : " . $e->getMessage());
+            return false;
+        }
+    }
 
-<?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
+    public function findById($id) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::findById : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function authenticate($email, $password) {
+        try {
+            $user = $this->findByEmail($email);
+            if ($user && password_verify($password, $user['password_hash'])) {
+                $this->updateLastLogin($user['id']);
+                return $user;
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Erreur dans User::authenticate : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function updateLastLogin($userId) {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::updateLastLogin : " . $e->getMessage());
+        }
+    }
+
+    public function updateProfile($userId, $nom, $prenom) {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET nom = ?, prenom = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            return $stmt->execute([$nom, $prenom, $userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::updateProfile : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function changePassword($userId, $currentPassword, $newPassword) {
+        try {
+            $user = $this->findById($userId);
+            if (!$user) { return false; }
+            if (!password_verify($currentPassword, $user['password_hash'])) {
+                return 'wrong_password';
+            }
+            $password_hash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            return $stmt->execute([$password_hash, $userId]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::changePassword : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getAllUsers() {
+        try {
+            $stmt = $this->db->query("SELECT id, email, nom, prenom, is_admin, created_at, updated_at FROM users ORDER BY created_at DESC");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::getAllUsers : " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function updateUserAdminStatus($user_id, $is_admin) {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET is_admin = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            return $stmt->execute([$is_admin, $user_id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::updateUserAdminStatus : " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function deleteUser($user_id) {
+        try {
+            $stmt1 = $this->db->prepare("DELETE FROM reservations WHERE user_id = ?");
+            $stmt1->execute([$user_id]);
+            $stmt2 = $this->db->prepare("DELETE FROM users WHERE id = ?");
+            return $stmt2->execute([$user_id]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::deleteUser : " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function createUser($email, $password, $nom, $prenom, $is_admin = false) {
+        try {
+            if ($this->findByEmail($email)) { return false; }
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("INSERT INTO users (email, password_hash, nom, prenom, is_admin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+            return $stmt->execute([$email, $password_hash, $nom, $prenom, $is_admin]);
+        } catch (PDOException $e) {
+            error_log("Erreur dans User::createUser : " . $e->getMessage());
+            return false;
+        }
+    }
+}
