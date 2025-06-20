@@ -1,64 +1,110 @@
 <?php
 
-// === CONNEXION 1: Base de données PostgreSQL (Primaire) ===
-define('DB_SENSORS_HOST', 'app.garageisep.com');
-define('DB_SENSORS_PORT', '5409');
-define('DB_SENSORS_NAME', 'app_db');
-define('DB_SENSORS_USER', 'app_user');
-define('DB_SENSORS_PASS', 'appg9');
+class DatabaseManager {
+    /**
+     * @var array Holds the configuration for all database connections.
+     * 'dsn'      => 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+            'username' => 'kCrBSMvT17_projet_par',
+            'password' => 'JVQ6LotVLJAHjH5r',
+            'options'  => [
+     * 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+     */
+    private static $config = [
+        'local' => [
 
-// === CONNEXION 2: Base de données MariaDB (Capteurs et Utilisateurs) ===
-define('DB_PRIMARY_HOST', 'herogu.garageisep.com');
-define('DB_PRIMARY_NAME', 'IxMd95C0YL_projet_par');
-define('DB_PRIMARY_USER', 'kCrBSMvT17_projet_par');
-define('DB_PRIMARY_PASS', 'JVQ6LotVLJAHjH5r');
+            'dsn'      => 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+            'username' => 'kCrBSMvT17_projet_par',
+            'password' => 'JVQ6LotVLJAHjH5r',
+            'options'  => [
+                PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+    
 
 
-// Options PDO communes
-$options = [
-    PDO::ATTR_PERSISTENT => true,
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
 
-// Classe Database adaptée pour gérer plusieurs connexions
-class Database {
-    // On va stocker les instances de connexion dans un tableau
-    private static $instances = [];
-
-    private function __construct() {}
-    private function __clone() {}
+        
+        /*
+        'local' => [
+            'dsn'      => 'mysql:host=herogu.garageisep.com;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+            'username' => 'kCrBSMvT17_projet_par',
+            'password' => 'JVQ6LotVLJAHjH5r',
+>>>>>>> 83a4fd9a904848bd49d76bef468f9f605b7c048d
+            'options'  => [
+                PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+                */
+        ],
+        'iot' => [
+            'dsn'      => 'pgsql:host=app.garageisep.com;port=5409;dbname=app_db',
+            'username' => 'app_user',
+            'password' => 'appg9',
+            'options'  => [
+                PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]
+        ]
+    ];
 
     /**
-     * Récupère une instance de connexion PDO.
-     * @param string $key La clé de la connexion à utiliser ('primary' ou 'sensors')
-     * @return PDO L'instance de PDO
+     * @var array Holds the active PDO connection instances.
      */
-    public static function getInstance($key = 'primary') {
-        // Si l'instance pour cette clé n'a pas encore été créée...
-        if (!isset(self::$instances[$key])) {
+    private static $connections = [];
+
+    // The constructor is private to prevent direct creation of object.
+    private function __construct() {}
+
+    /**
+     * Gets a database connection instance.
+     *
+     * @param string $name The name of the connection (e.g., 'local' or 'iot').
+     * @return PDO The PDO connection instance.
+     */
+    public static function getConnection($name = 'local') {
+        // If the connection has not been made yet, create it.
+        if (!isset(self::$connections[$name])) {
+            if (!isset(self::$config[$name])) {
+                die("Erreur: La configuration de la base de données '{$name}' n'existe pas.");
+            }
+
+            $config = self::$config[$name];
+            
             try {
-                                switch ($key) {
-                    case 'sensors': // L'ancienne base PostgreSQL
-                        // DSN pour PostgreSQL
-                        $dsn = "pgsql:host=" . DB_SENSORS_HOST . ";port=" . DB_SENSORS_PORT . ";dbname=" . DB_SENSORS_NAME;
-                        self::$instances[$key] = new PDO($dsn, DB_SENSORS_USER, DB_SENSORS_PASS, $GLOBALS['options']);
-                        break;
-                    
-                    case 'primary': // Votre nouvelle base MariaDB
-                    default:
-                        // DSN pour MariaDB/MySQL
-                        $dsn = "mysql:host=" . DB_PRIMARY_HOST . ";dbname=" . DB_PRIMARY_NAME . ";charset=utf8mb4";
-                        self::$instances[$key] = new PDO($dsn, DB_PRIMARY_USER, DB_PRIMARY_PASS, $GLOBALS['options']);
-                        break;
-                }
+                // Create a new PDO instance and store it.
+                self::$connections[$name] = new PDO(
+                    $config['dsn'],
+                    $config['username'],
+                    $config['password'],
+                    $config['options']
+                );
             } catch (PDOException $e) {
-                error_log("Erreur de connexion à la base de données '$key' : " . $e->getMessage());
-                die("Erreur de connexion à la base de données. Veuillez réessayer plus tard.");
+                error_log("Erreur de connexion à la base de données '{$name}': " . $e->getMessage());
+                die("Impossible de se connecter à la base de données '{$name}'.");
             }
         }
-        // On retourne l'instance demandée
-        return self::$instances[$key];
+
+        // Return the existing connection.
+        return self::$connections[$name];
+    }
+
+    /**
+     * Closes a specific connection or all connections if no name is given.
+     *
+     * @param string|null $name The name of the connection to close.
+     */
+    public static function closeConnection($name = null) {
+        if ($name) {
+            self::$connections[$name] = null;
+            unset(self::$connections[$name]);
+        } else {
+            // Close all connections
+            self::$connections = [];
+        }
     }
 }
