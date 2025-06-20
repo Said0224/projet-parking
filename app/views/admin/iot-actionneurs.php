@@ -90,10 +90,13 @@ $total_actifs = $leds_actives + $moteurs_actifs;
         <!-- Boucle dynamique pour les Moteurs -->
         <?php foreach($data['motors'] as $motor): ?>
         <div class="actuator-card motor-card">
-            <div class="actuator-header">
-                <div class="actuator-title"><i class="fas fa-cog"></i><h3>Moteur #<?= htmlspecialchars($motor['id']) ?> (Zone: <?= htmlspecialchars($motor['zone'] ?? 'N/A') ?>)</h3></div>
-                <div class="actuator-status <?= $motor['etat'] ? 'status-running' : 'status-off' ?>"><i class="fas fa-circle"></i> <?= $motor['etat'] ? 'En marche' : 'Arrêté' ?></div>
-            </div>
+            <?php static $motorCount = 0; ?>
+            <?php if ($motorCount < 3): $motorCount++; ?>
+                        <div class="actuator-header">
+                            <div class="actuator-title"><i class="fas fa-cog"></i><h3>Moteur #<?= htmlspecialchars($motor['id']) ?> (Zone: <?= htmlspecialchars($motor['zone'] ?? 'N/A') ?>)</h3></div>
+                            <div class="actuator-status <?= $motor['etat'] ? 'status-running' : 'status-off' ?>"><i class="fas fa-circle"></i> <?= $motor['etat'] ? 'En marche' : 'Arrêté' ?></div>
+                        </div>
+            <?php else: continue; endif; ?>
             <div class="actuator-body">
                 <div class="motor-visual">
                     <div class="motor-icon <?= $motor['etat'] ? 'rotating' : '' ?>"><i class="fas fa-cog"></i></div>
