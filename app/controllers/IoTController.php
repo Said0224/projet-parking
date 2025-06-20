@@ -101,11 +101,13 @@ class IoTController {
         }
     
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT);
+        // CORRECTION : On vérifie si $etat est un entier (0 ou 1), même si c'est 0.
+        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
         $couleur = $_POST['couleur'] ?? '#FFFFFF';
         $intensite = filter_input(INPUT_POST, 'intensite', FILTER_VALIDATE_INT);
     
-        if ($id === false || $etat === null || $intensite === false || !preg_match('/^#[a-fA-F0-9]{6}$/', $couleur)) {
+        // CORRECTION : La condition est plus robuste.
+        if ($id === false || $etat === false || $etat === null || $intensite === false || $intensite === null || !preg_match('/^#[a-fA-F0-9]{6}$/', $couleur)) {
             http_response_code(400);
             exit(json_encode(['success' => false, 'message' => 'Données invalides.']));
         }
@@ -117,7 +119,8 @@ class IoTController {
             echo json_encode(['success' => true, 'message' => 'LED mise à jour avec succès.']);
         } else {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur serveur lors de la mise à jour.']);
+            // CORRECTION : On utilise un message plus précis
+            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour de la LED en base de données.']);
         }
         exit;
     }
@@ -131,10 +134,12 @@ class IoTController {
         }
         
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT);
+        // CORRECTION : On vérifie si $etat est un entier (0 ou 1), même si c'est 0.
+        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
         $vitesse = filter_input(INPUT_POST, 'vitesse', FILTER_VALIDATE_INT);
 
-        if ($id === false || $etat === null || $vitesse === false) {
+        // CORRECTION : La condition est plus robuste.
+        if ($id === false || $etat === false || $etat === null || $vitesse === false || $vitesse === null) {
             http_response_code(400); 
             echo json_encode(['success' => false, 'message' => 'Données invalides.']);
             exit;
@@ -144,7 +149,8 @@ class IoTController {
             echo json_encode(['success' => true, 'message' => 'État du moteur mis à jour.']);
         } else {
             http_response_code(500); 
-            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour du moteur.']);
+            // CORRECTION : Message plus précis
+            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour du moteur en base de données.']);
         }
         exit;
     }

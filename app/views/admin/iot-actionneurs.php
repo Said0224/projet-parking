@@ -106,8 +106,14 @@ $total_actifs = $leds_actives + $moteurs_actifs;
                         <span class="speed-display"><?= htmlspecialchars($motor['vitesse']) ?> RPM</span>
                     </div>
                     <div class="control-buttons" style="margin-top: 1rem;">
-                        <button type="button" class="control-btn start"><i class="fas fa-play"></i> Démarrer</button>
-                        <button type="button" class="control-btn stop"><i class="fas fa-stop"></i> Arrêter</button>
+                        <!-- ================== DÉBUT MODIFICATION PHP/HTML ================== -->
+                        <button type="button" class="control-btn start <?= $motor['etat'] ? 'active' : '' ?>">
+                            <i class="fas fa-play"></i> Démarrer
+                        </button>
+                        <button type="button" class="control-btn stop <?= !$motor['etat'] ? 'active' : '' ?>">
+                            <i class="fas fa-stop"></i> Arrêter
+                        </button>
+                        <!-- =================== FIN MODIFICATION PHP/HTML =================== -->
                     </div>
                 </form>
             </div>
@@ -1007,6 +1013,18 @@ input[type="range"]:focus::-moz-range-thumb {
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
 }
 
+.control-btn.start.active {
+    background: #22c55e; /* Vert */
+    color: white;
+    border-color: #16a34a;
+}
+
+.control-btn.stop.active {
+    background: #ef4444; /* Rouge */
+    color: white;
+    border-color: #dc2626;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .actuators-stats {
@@ -1071,6 +1089,7 @@ input[type="range"]:focus::-moz-range-thumb {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ... (code pour les LEDs inchangé) ...
     document.querySelectorAll('.led-card-dynamic').forEach(card => {
         const ledId = card.dataset.ledId;
         const colorButtons = card.querySelectorAll('.color-btn');
@@ -1115,13 +1134,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // ================== DÉBUT MODIFICATION JAVASCRIPT ==================
     document.querySelectorAll('.motor-update-form').forEach(form => {
         const motorId = form.dataset.id;
         const startBtn = form.querySelector('.start');
         const stopBtn = form.querySelector('.stop');
         const speedSlider = form.querySelector('.motor-speed');
 
-        const updateMotor = (etat, vitesse) => {
+        const updateMotor = (etat, vitesse, formElement) => {
             const formData = new FormData();
             formData.append('id', motorId);
             formData.append('etat', etat ? 1 : 0);
@@ -1130,7 +1150,30 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('<?= BASE_URL ?>/iot-dashboard/update-motor-state', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if (!data.success) alert('Erreur de mise à jour du moteur.');
+                if (data.success) {
+                    // Mettre à jour l'interface utilisateur
+                    const card = formElement.closest('.actuator-card');
+                    const motorIcon = card.querySelector('.motor-icon');
+                    const statusBadge = card.querySelector('.actuator-status');
+                    const startButton = formElement.querySelector('.start');
+                    const stopButton = formElement.querySelector('.stop');
+
+                    if (etat) { // Si le moteur démarre
+                        motorIcon.classList.add('rotating');
+                        statusBadge.innerHTML = '<i class="fas fa-circle"></i> En marche';
+                        statusBadge.className = 'actuator-status status-running';
+                        startButton.classList.add('active');
+                        stopButton.classList.remove('active');
+                    } else { // Si le moteur s'arrête
+                        motorIcon.classList.remove('rotating');
+                        statusBadge.innerHTML = '<i class="fas fa-circle"></i> Arrêté';
+                        statusBadge.className = 'actuator-status status-off';
+                        startButton.classList.remove('active');
+                        stopButton.classList.add('active');
+                    }
+                } else {
+                    alert('Erreur de mise à jour du moteur.');
+                }
             });
         };
         
@@ -1140,12 +1183,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         speedSlider.addEventListener('change', () => {
             const isRunning = form.closest('.actuator-card').querySelector('.motor-icon').classList.contains('rotating');
-            updateMotor(isRunning, speedSlider.value);
+            updateMotor(isRunning, speedSlider.value, form);
         });
 
-        startBtn.addEventListener('click', () => updateMotor(true, speedSlider.value));
-        stopBtn.addEventListener('click', () => updateMotor(false, speedSlider.value));
+        startBtn.addEventListener('click', () => updateMotor(true, speedSlider.value, form));
+        stopBtn.addEventListener('click', () => updateMotor(false, speedSlider.value, form));
     });
+    // =================== FIN MODIFICATION JAVASCRIPT ===================
 });
 </script>
 
