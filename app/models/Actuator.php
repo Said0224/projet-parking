@@ -52,7 +52,13 @@ class Actuator {
                 SET etat = ?, couleur = ?, intensite = ?, last_command = ?, timestamp = CURRENT_TIMESTAMP 
                 WHERE id = ?
             ");
-            return $stmt->execute([$etat, $couleur, $intensite, $command, $id]);
+            // CORRECTION : On ajoute le type explicite pour le booléen
+            $stmt->bindValue(1, $etat, PDO::PARAM_BOOL);
+            $stmt->bindValue(2, $couleur, PDO::PARAM_STR);
+            $stmt->bindValue(3, $intensite, PDO::PARAM_INT);
+            $stmt->bindValue(4, $command, PDO::PARAM_STR);
+            $stmt->bindValue(5, $id, PDO::PARAM_INT);
+            return $stmt->execute();
         } catch (PDOException $e) {
             error_log("Erreur dans updateLedDetails : " . $e->getMessage());
             return false;
@@ -101,7 +107,11 @@ class Actuator {
     public function updateMotor($id, $etat, $vitesse) {
         try {
             $stmt = $this->db->prepare("UPDATE public.moteur SET etat = ?, vitesse = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");
-            return $stmt->execute([$etat, $vitesse, $id]);
+            // CORRECTION : On ajoute le type explicite pour le booléen
+            $stmt->bindValue(1, $etat, PDO::PARAM_BOOL);
+            $stmt->bindValue(2, $vitesse, PDO::PARAM_INT);
+            $stmt->bindValue(3, $id, PDO::PARAM_INT);
+            return $stmt->execute();
         } catch (PDOException $e) {
             error_log("Erreur dans updateMotor : " . $e->getMessage());
             return false;

@@ -101,11 +101,13 @@ class IoTController {
         }
     
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT);
+        // CORRECTION : On vérifie si $etat est un entier (0 ou 1), même si c'est 0.
+        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
         $couleur = $_POST['couleur'] ?? '#FFFFFF';
         $intensite = filter_input(INPUT_POST, 'intensite', FILTER_VALIDATE_INT);
     
-        if ($id === false || $etat === null || $intensite === false || !preg_match('/^#[a-fA-F0-9]{6}$/', $couleur)) {
+        // CORRECTION : La condition est plus robuste.
+        if ($id === false || $etat === false || $etat === null || $intensite === false || $intensite === null || !preg_match('/^#[a-fA-F0-9]{6}$/', $couleur)) {
             http_response_code(400);
             exit(json_encode(['success' => false, 'message' => 'Données invalides.']));
         }
@@ -117,7 +119,8 @@ class IoTController {
             echo json_encode(['success' => true, 'message' => 'LED mise à jour avec succès.']);
         } else {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur serveur lors de la mise à jour.']);
+            // CORRECTION : On utilise un message plus précis
+            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour de la LED en base de données.']);
         }
         exit;
     }
@@ -131,10 +134,12 @@ class IoTController {
         }
         
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT);
+        // CORRECTION : On vérifie si $etat est un entier (0 ou 1), même si c'est 0.
+        $etat = filter_input(INPUT_POST, 'etat', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
         $vitesse = filter_input(INPUT_POST, 'vitesse', FILTER_VALIDATE_INT);
 
-        if ($id === false || $etat === null || $vitesse === false) {
+        // CORRECTION : La condition est plus robuste.
+        if ($id === false || $etat === false || $etat === null || $vitesse === false || $vitesse === null) {
             http_response_code(400); 
             echo json_encode(['success' => false, 'message' => 'Données invalides.']);
             exit;
@@ -144,20 +149,53 @@ class IoTController {
             echo json_encode(['success' => true, 'message' => 'État du moteur mis à jour.']);
         } else {
             http_response_code(500); 
-            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour du moteur.']);
+            // CORRECTION : Message plus précis
+            echo json_encode(['success' => false, 'message' => 'Erreur de mise à jour du moteur en base de données.']);
         }
+        exit;
+    }
+
+    public function getSensorDataAjax() {
+        header('Content-Type: application/json');
+        
+        $data = [
+            'temp' => $this->parkingSensorModel->getHistoricalReadings('capteurtemp', 20),
+            'gas' => $this->parkingSensorModel->getHistoricalReadings('capteurgaz', 20),
+            'light' => $this->parkingSensorModel->getHistoricalReadings('capteurlum', 20),
+            'sound' => $this->parkingSensorModel->getHistoricalReadings('capteurson', 20),
+            // Pour le graph, on prend l'historique de la place 1. C'est ici que ça se joue.
+            // Si la table est purgée et qu'on update juste id=1, l'historique sera limité.
+            // C'est la conséquence du choix de ne pas insérer.
+            'proximity' => $this->parkingSensorModel->getProximityHistoryForPlace(1, 20),
+        ];
+
+        // On va chercher la dernière valeur de chaque pour affichage
+        $data['latest'] = [
+            'temp' => $this->parkingSensorModel->getLatestTempReading(),
+            'gas' => $this->parkingSensorModel->getLatestGasReading(),
+            'light' => $this->parkingSensorModel->getLatestLightReading(),
+            'sound' => $this->parkingSensorModel->getLatestSoundReading(),
+            // On utilise la nouvelle fonction pour la valeur actuelle
+            'proximity' => $this->parkingSensorModel->getProximityReadingById(1),
+        ];
+        
+        echo json_encode(['success' => true, 'data' => $data]);
         exit;
     }
 
     public function capteurs() {
         $page_title = "Gestion des Capteurs IoT";
+
+        // Récupérer les données pour l'affichage initial de la page
         $data = [
-            'parking_sensors' => $this->parkingSensorModel->getLatestParkingStatus(),
-            'temp_sensor'     => $this->parkingSensorModel->getLatestTempReading(),
-            'gas_sensor'      => $this->parkingSensorModel->getLatestGasReading(),
-            'light_sensor'    => $this->parkingSensorModel->getLatestLightReading(),
-            'sound_sensor'    => $this->parkingSensorModel->getLatestSoundReading(),
+            'temp'      => ['latest' => $this->parkingSensorModel->getLatestTempReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurtemp', 20)],
+            'gas'       => ['latest' => $this->parkingSensorModel->getLatestGasReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurgaz', 20)],
+            'light'     => ['latest' => $this->parkingSensorModel->getLatestLightReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurlum', 20)],
+            'sound'     => ['latest' => $this->parkingSensorModel->getLatestSoundReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurson', 20)],
+            // On utilise la nouvelle fonction ici aussi pour l'affichage initial
+            'proximity' => ['latest' => $this->parkingSensorModel->getProximityReadingById(1), 'history' => $this->parkingSensorModel->getProximityHistoryForPlace(1, 20)]
         ];
+        
         require_once ROOT_PATH . '/app/views/admin/iot-capteurs.php';
     }
 
