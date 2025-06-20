@@ -12,7 +12,7 @@ class DatabaseManager {
     private static $config = [
         'local' => [
 
-            'dsn'      => 'mysql:host=127.0.0.1;dbname=parking_db;charset=utf8mb4',
+            'dsn'      => 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
             'username' => 'root',
             'password' => '',
             'options'  => [
