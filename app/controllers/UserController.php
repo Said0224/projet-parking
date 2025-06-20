@@ -13,26 +13,32 @@ class UserController {
     
     public function dashboard() {
         if (!isset($_SESSION['user_id'])) {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
-
             exit;
         }
         
-        $availableSpots = $this->parkingSpotModel->getAvailableSpots();
+        // On récupère toutes les places avec leurs détails pour la vue 3D
+        $allSpots = $this->parkingSpotModel->findAllWithDetails();
+        
+        // On organise les places par étage pour les passer à la vue
+        $spotsByEtage = [];
+        if (!empty($allSpots)) {
+            foreach ($allSpots as $spot) {
+                $spotsByEtage[$spot['etage']][] = $spot;
+            }
+        }
+        
+        // On récupère les réservations de l'utilisateur pour le tableau du bas
         $userReservations = $this->reservationModel->getUserReservations($_SESSION['user_id']);
         
         $page_title = "Mon Dashboard";
+        // On passe les variables à la vue
         require_once ROOT_PATH . '/app/views/user/dashboard.php';
     }
     
     public function parking() {
         if (!isset($_SESSION['user_id'])) {
-
-            // REDIRECTION CORRIGÉE
             header('Location: ' . BASE_URL . '/login');
-
             exit;
         }
         
@@ -63,9 +69,17 @@ class UserController {
         }
 
         if ($this->reservationModel->createReservation($user_id, $spot_id, $start_time, $end_time)) {
+            // ---- DEBUT AJOUT ----
+            require_once ROOT_PATH . '/app/models/Notification.php';
+            $notificationModel = new Notification();
+            $spotDetails = $this->parkingSpotModel->getSpotById($spot_id);
+            $message = "Votre réservation pour la place " . $spotDetails['spot_number'] . " a été confirmée.";
+            $notificationModel->createNotification($user_id, 'reservation_success', $message);
+            // ---- FIN AJOUT ----
+
             echo json_encode(['success' => true, 'message' => 'Réservation effectuée avec succès !']);
         } else {
-            http_response_code(409); // 409 Conflict: la ressource ne peut être créée (déjà prise)
+            http_response_code(409); // 409 Conflict
             echo json_encode(['success' => false, 'message' => "Erreur lors de la réservation. La place n'est peut-être plus disponible pour ce créneau."]);
         }
         exit;
@@ -84,6 +98,13 @@ class UserController {
         $user_id = $_SESSION['user_id'];
         
         if ($this->reservationModel->cancelReservation($reservation_id, $user_id)) {
+            // ---- DEBUT AJOUT ----
+            require_once ROOT_PATH . '/app/models/Notification.php';
+            $notificationModel = new Notification();
+            $message = "Votre réservation (ID: {$reservation_id}) a bien été annulée.";
+            $notificationModel->createNotification($user_id, 'reservation_cancelled', $message);
+            // ---- FIN AJOUT ----
+
             echo json_encode(['success' => true, 'message' => 'Réservation annulée avec succès !']);
         } else {
             http_response_code(500);
@@ -95,7 +116,6 @@ class UserController {
     public function getAllSpotsStatus() {
         header('Content-Type: application/json');
 
-        // On peut ajouter une vérification de session si on veut que l'API soit privée
         if (!isset($_SESSION['user_id'])) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Accès non autorisé.']);
@@ -103,7 +123,7 @@ class UserController {
         }
         
         try {
-            $spots = $this->parkingSpotModel->getAllSpots();
+            $spots = $this->parkingSpotModel->findAllWithDetails();
             echo json_encode(['success' => true, 'spots' => $spots]);
         } catch (Exception $e) {
             http_response_code(500);
@@ -112,6 +132,4 @@ class UserController {
         exit;
     }
 }
-
 ?>
-

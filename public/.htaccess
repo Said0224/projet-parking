@@ -1,7 +1,21 @@
+# Activer le moteur de réécriture d'URL
+RewriteEngine On
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
-</IfModule>
+
+# Définit le chemin de base pour la réécriture.
+# Crucial pour que les redirections fonctionnent dans un sous-dossier.
+RewriteBase /projet-parking/
+
+# Condition 1: Ne pas réécrire si la requête est pour un fichier qui existe
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Condition 2: Ne pas réécrire si la requête est pour un dossier qui existe
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Règle de réécriture :
+# Rediriger toutes les autres requêtes vers index.php
+# en passant l'URL demandée dans le paramètre 'url'.
+# [QSA] : Ajoute les paramètres de requête existants (ex: ?page=2)
+# [L] : Indique que c'est la dernière règle à appliquer.
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+

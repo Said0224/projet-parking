@@ -5,7 +5,7 @@ class User {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = DatabaseManager::getConnection('local');
     }
 
     /**
@@ -112,20 +112,34 @@ class User {
     }
 
     /**
-     * Changer le mot de passe
+     * Changer le mot de passe (MÉTHODE CORRIGÉE ET SÉCURISÉE)
+     * @return bool|string True en cas de succès, 'wrong_password' si l'ancien mdp est incorrect, false en cas d'erreur.
      */
-    public function changePassword($userId, $newPassword) {
+    public function changePassword($userId, $currentPassword, $newPassword) {
         try {
-            $password_hash = password_hash($newPassword, PASSWORD_DEFAULT);
+            // 1. Récupérer l'utilisateur pour obtenir son hash de mot de passe actuel
+            $user = $this->findById($userId);
+            if (!$user) {
+                return false; // Utilisateur non trouvé
+            }
+
+            // 2. Vérifier si l'ancien mot de passe fourni est correct
+            if (!password_verify($currentPassword, $user['password_hash'])) {
+                return 'wrong_password'; // L'ancien mot de passe est incorrect
+            }
+
+            // 3. Si l'ancien mot de passe est bon, hacher le nouveau et mettre à jour la BDD
+            $new_password_hash = password_hash($newPassword, PASSWORD_DEFAULT);
             $stmt = $this->db->prepare("
                 UPDATE users 
                 SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
                 WHERE id = ?
             ");
-            return $stmt->execute([$password_hash, $userId]);
+            return $stmt->execute([$new_password_hash, $userId]);
+
         } catch (PDOException $e) {
             error_log("Erreur dans User::changePassword : " . $e->getMessage());
-            return false;
+            return false; // Erreur SQL ou autre
         }
     }
 
@@ -147,19 +161,62 @@ class User {
     }
 
     /**
-     * Supprimer un utilisateur
+     * Récupère les utilisateurs de manière paginée et filtrée.
+     * @param int $page La page actuelle.
+     * @param int $limit Le nombre d'utilisateurs par page.
+     * @param array $filters Les filtres (ex: ['is_admin' => 1]).
+     * @return array La liste des utilisateurs.
      */
-    public function delete($userId) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
-            return $stmt->execute([$userId]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans User::delete : " . $e->getMessage());
-            return false;
+    public function getPaginatedUsers($page = 1, $limit = 10, $filters = []) {
+        $offset = ($page - 1) * $limit;
+
+        $sql = "SELECT id, email, nom, prenom, is_admin, created_at, updated_at FROM users";
+        
+        $where = [];
+        $params = [];
+
+        if (isset($filters['is_admin']) && $filters['is_admin'] !== '') {
+            $where[] = "is_admin = ?";
+            $params[] = $filters['is_admin'];
         }
+
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+
+        $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // NOUVELLES MÉTHODES POUR L'ADMINISTRATION
+    /**
+     * Compte le nombre total d'utilisateurs en fonction des filtres.
+     * @param array $filters Les filtres à appliquer.
+     * @return int Le nombre total d'utilisateurs.
+     */
+    public function getTotalUsersCount($filters = []) {
+        $sql = "SELECT COUNT(id) FROM users";
+        
+        $where = [];
+        $params = [];
+
+        if (isset($filters['is_admin']) && $filters['is_admin'] !== '') {
+            $where[] = "is_admin = ?";
+            $params[] = $filters['is_admin'];
+        }
+
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
     
     /**
      * Mettre à jour le statut admin d'un utilisateur
@@ -214,4 +271,3 @@ class User {
         }
     }
 }
-?>

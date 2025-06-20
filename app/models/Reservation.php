@@ -5,12 +5,12 @@ class Reservation {
     private $db;
     
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = DatabaseManager::getConnection('local');
     }
     
     public function createReservation($user_id, $spot_id, $start_time, $end_time) {
         // Vérifier si la place est disponible
-        if (!$this->isSpotAvailable($spot_id, $start_time, $end_time)) {
+        if (!$this->isSpotdisponible($spot_id, $start_time, $end_time)) {
             return false;
         }
         
@@ -42,7 +42,7 @@ class Reservation {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    public function isSpotAvailable($spot_id, $start_time, $end_time) {
+    public function isSpotdisponible($spot_id, $start_time, $end_time) {
         $query = "SELECT COUNT(*) FROM reservations 
                   WHERE spot_id = ? 
                   AND status = 'active' 
@@ -57,7 +57,7 @@ class Reservation {
     }
     
     public function cancelReservation($id, $user_id) {
-        $query = "UPDATE reservations SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP 
+        $query = "UPDATE reservations SET status = 'annulée', updated_at = CURRENT_TIMESTAMP 
                   WHERE id = ? AND user_id = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$id, $user_id]);

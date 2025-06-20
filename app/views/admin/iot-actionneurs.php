@@ -1,517 +1,124 @@
 <?php 
 // Vérification que l'utilisateur est admin
 if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
-    header('Location: /login');
+    header('Location: ' . BASE_URL . '/login');
     exit;
 }
 
 require_once ROOT_PATH . '/app/views/partials/header.php'; 
+
+$leds_actives = 0;
+foreach ($data['leds'] as $led) {
+    if ($led['etat']) $leds_actives++;
+}
+$moteurs_actifs = 0;
+foreach ($data['motors'] as $motor) {
+    if ($motor['etat']) $moteurs_actifs++;
+}
+$total_actifs = $leds_actives + $moteurs_actifs;
 ?>
 
 <div class="dashboard-container">
-    <!-- Header principal -->
     <div class="dashboard-header">
         <div class="header-content">
-            <h1><i class="fas fa-cogs"></i> Gestion des Actionneurs IoT</h1>
-            <p>Contrôle et pilotage des équipements du système IoT</p>
+            <h1><i class="fas fa-cogs"></i> Gestion des Actionneurs</h1>
+            <p>Contrôle et pilotage des équipements du parking intelligent</p>
         </div>
     </div>
-
-    <!-- Navigation -->
     <div class="dashboard-nav">
         <div class="nav-tabs">
-            <a href="/iot-dashboard" class="nav-tab">
-                <i class="fas fa-arrow-left"></i> Retour IoT
-            </a>
-            <a href="/admin/iot-capteurs" class="nav-tab">
-                <i class="fas fa-satellite-dish"></i> Capteurs
-            </a>
-            <a href="/admin/iot-actionneurs" class="nav-tab active">
-                <i class="fas fa-cogs"></i> Actionneurs
-            </a>
-            <a href="/logout" class="nav-tab">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
-        </div>
-        <div class="user-info">
-            <i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@isep.fr') ?>
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab"><i class="fas fa-arrow-left"></i> Retour IoT</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab"><i class="fas fa-satellite-dish"></i> Capteurs</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab active"><i class="fas fa-cogs"></i> Actionneurs</a>
         </div>
     </div>
 
     <!-- Statistiques actionneurs -->
     <div class="actuators-stats">
         <div class="stat-card active-actuators">
-            <div class="stat-icon">
-                <i class="fas fa-power-off"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Actionneurs Actifs</div>
-            </div>
+            <div class="stat-icon"><i class="fas fa-power-off"></i></div>
+            <div class="stat-info"><div class="stat-number"><?= $total_actifs ?></div><div class="stat-label">Actionneurs Actifs</div></div>
         </div>
-        
         <div class="stat-card motors-running">
-            <div class="stat-icon">
-                <i class="fas fa-cog"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">2</div>
-                <div class="stat-label">Moteurs en Marche</div>
-            </div>
-        </div>
-        
-        <div class="stat-card power-consumption">
-            <div class="stat-icon">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">85W</div>
-                <div class="stat-label">Consommation</div>
-            </div>
-        </div>
-        
-        <div class="stat-card automation">
-            <div class="stat-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">Auto</div>
-                <div class="stat-label">Mode Pilotage</div>
-            </div>
+            <div class="stat-icon"><i class="fas fa-cog"></i></div>
+            <div class="stat-info"><div class="stat-number"><?= $moteurs_actifs ?></div><div class="stat-label">Moteurs en Marche</div></div>
         </div>
     </div>
 
-    <!-- Grille des actionneurs -->
+     <!-- Grille des actionneurs -->
     <div class="actuators-grid">
-        <!-- Buzzer -->
-        <div class="actuator-card buzzer-card">
-            <div class="actuator-header">
-                <div class="actuator-title">
-                    <i class="fas fa-volume-up"></i>
-                    <h3>Buzzer d'Alerte</h3>
-                </div>
-                <div class="actuator-status status-off">
-                    <i class="fas fa-circle"></i> Éteint
-                </div>
-            </div>
-            
-            <div class="actuator-body">
-                <div class="buzzer-controls">
-                    <div class="sound-visual">
-                        <div class="buzzer-icon">
-                            <i class="fas fa-volume-up"></i>
-                        </div>
-                        <div class="sound-waves"></div>
-                    </div>
-                    
-                    <div class="control-buttons">
-                        <button class="control-btn" onclick="toggleBuzzer('BUZZ_001', this)">
-                            <i class="fas fa-play"></i> Activer
-                        </button>
-                        <button class="control-btn" onclick="testBuzzer('BUZZ_001')">
-                            <i class="fas fa-music"></i> Test
-                        </button>
-                    </div>
-                    
-                    <div class="frequency-control">
-                        <label>Fréquence:</label>
-                        <input type="range" min="100" max="5000" value="1000" 
-                               onchange="setFrequency('BUZZ_001', this.value)">
-                        <span id="freq-BUZZ_001">1000 Hz</span>
-                    </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">BUZZ_001</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Type:</span>
-                            <span class="value">Piézoélectrique</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Puissance:</span>
-                            <span class="value">3W</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Plage:</span>
-                            <span class="value">100-5000 Hz</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Afficheur 7 segments -->
-        <div class="actuator-card display-card">
-            <div class="actuator-header">
-                <div class="actuator-title">
-                    <i class="fas fa-digital-tachograph"></i>
-                    <h3>Afficheur 7 Segments</h3>
-                </div>
-                <div class="actuator-status status-active">
-                    <i class="fas fa-circle"></i> Actif
-                </div>
-            </div>
-            
-            <div class="actuator-body">
-                <div class="display-preview">
-                    <div class="seven-segment-display">
-                        <div class="digit" id="digit1">8</div>
-                        <div class="digit" id="digit2">8</div>
-                        <div class="digit" id="digit3">.</div>
-                        <div class="digit" id="digit4">8</div>
-                    </div>
-                    <div class="display-label">Valeur affichée: 88.8</div>
-                </div>
-                
-                <div class="display-controls">
-                    <div class="input-group">
-                        <label>Valeur à afficher:</label>
-                        <input type="number" step="0.1" value="88.8" 
-                               onchange="updateDisplay('DISP_001', this.value)">
-                    </div>
-                    
-                    <div class="brightness-control">
-                        <label>Luminosité:</label>
-                        <input type="range" min="0" max="100" value="80" 
-                               onchange="setDisplayBrightness('DISP_001', this.value)">
-                        <span id="brightness-DISP_001">80%</span>
-                    </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">DISP_001</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Digits:</span>
-                            <span class="value">4 + point</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Couleur:</span>
-                            <span class="value">Rouge</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Consommation:</span>
-                            <span class="value">12W</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LEDs -->
-        <div class="actuator-card led-card">
+        
+        <!-- Boucle dynamique pour les LEDs -->
+        <?php foreach($data['leds'] as $led): ?>
+        <div class="actuator-card led-card led-card-dynamic" data-led-id="<?= $led['id'] ?>">
             <div class="actuator-header">
                 <div class="actuator-title">
                     <i class="fas fa-lightbulb"></i>
-                    <h3>LEDs de Signalisation</h3>
+                    <h3>LED #<?= htmlspecialchars($led['id']) ?> (Zone: <?= htmlspecialchars($led['zone'] ?? 'N/A') ?>)</h3>
                 </div>
-                <div class="actuator-status status-active">
-                    <i class="fas fa-circle"></i> Actif
+                <div class="actuator-status <?= $led['etat'] ? 'status-active' : 'status-off' ?>">
+                    <i class="fas fa-circle"></i> <?= $led['etat'] ? 'Active' : 'Éteinte' ?>
                 </div>
             </div>
             
             <div class="actuator-body">
-                <div class="leds-preview">
-                    <div class="led-strip">
-                        <div class="led-item led-red active" data-color="red"></div>
-                        <div class="led-item led-green" data-color="green"></div>
-                        <div class="led-item led-blue" data-color="blue"></div>
-                        <div class="led-item led-yellow active" data-color="yellow"></div>
+                <div class="led-preview">
+                    <div class="led-visual" style="background-color: <?= $led['etat'] ? htmlspecialchars($led['couleur']) : '#f1f5f9'; ?>; border-color: <?= $led['etat'] ? htmlspecialchars($led['couleur']) : '#e2e8f0'; ?>; box-shadow: <?= $led['etat'] ? '0 0 20px ' . htmlspecialchars($led['couleur']) : 'none' ?>;"></div>
+                    <div class="led-info">
+                        <span class="led-state"><?= $led['etat'] ? 'ALLUMÉE' : 'ÉTEINTE' ?></span>
+                        <span class="led-brightness">Luminosité: <?= htmlspecialchars($led['intensite']) ?>%</span>
                     </div>
-                    <div class="led-status">2 LEDs actives</div>
                 </div>
                 
                 <div class="led-controls">
                     <div class="color-controls">
-                        <button class="color-btn red active" onclick="toggleLED('LED_001', 'red', this)">
-                            <i class="fas fa-circle"></i> Rouge
-                        </button>
-                        <button class="color-btn green" onclick="toggleLED('LED_001', 'green', this)">
-                            <i class="fas fa-circle"></i> Vert
-                        </button>
-                        <button class="color-btn blue" onclick="toggleLED('LED_001', 'blue', this)">
-                            <i class="fas fa-circle"></i> Bleu
-                        </button>
-                        <button class="color-btn yellow active" onclick="toggleLED('LED_001', 'yellow', this)">
-                            <i class="fas fa-circle"></i> Jaune
-                        </button>
+                        <button class="color-btn red <?= $led['couleur'] == '#FF0000' ? 'active' : '' ?>" data-color="#FF0000"><i class="fas fa-circle"></i> Rouge</button>
+                        <button class="color-btn green <?= $led['couleur'] == '#00FF00' ? 'active' : '' ?>" data-color="#00FF00"><i class="fas fa-circle"></i> Vert</button>
+                        <button class="color-btn off <?= !$led['etat'] ? 'active' : '' ?>"><i class="fas fa-power-off"></i> Éteint</button>
                     </div>
                     
-                    <div class="pattern-controls">
-                        <button class="pattern-btn" onclick="setPattern('LED_001', 'static')">Fixe</button>
-                        <button class="pattern-btn" onclick="setPattern('LED_001', 'blink')">Clignotant</button>
-                        <button class="pattern-btn" onclick="setPattern('LED_001', 'fade')">Fondu</button>
-                    </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">LED_001</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Nombre:</span>
-                            <span class="value">4 LEDs</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Type:</span>
-                            <span class="value">RGB + Jaune</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Consommation:</span>
-                            <span class="value">8W</span>
-                        </div>
+                    <div class="brightness-control">
+                        <label>Luminosité:</label>
+                        <input type="range" class="brightness-slider" min="0" max="100" value="<?= htmlspecialchars($led['intensite']) ?>">
+                        <span class="brightness-display"><?= htmlspecialchars($led['intensite']) ?>%</span>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endforeach; ?>
 
-        <!-- Moteur 1 -->
+        <!-- Boucle dynamique pour les Moteurs -->
+        <?php foreach($data['motors'] as $motor): ?>
         <div class="actuator-card motor-card">
             <div class="actuator-header">
-                <div class="actuator-title">
-                    <i class="fas fa-cog"></i>
-                    <h3>Moteur Principal</h3>
-                </div>
-                <div class="actuator-status status-running">
-                    <i class="fas fa-circle"></i> En marche
-                </div>
+                <div class="actuator-title"><i class="fas fa-cog"></i><h3>Moteur #<?= htmlspecialchars($motor['id']) ?> (Zone: <?= htmlspecialchars($motor['zone'] ?? 'N/A') ?>)</h3></div>
+                <div class="actuator-status <?= $motor['etat'] ? 'status-running' : 'status-off' ?>"><i class="fas fa-circle"></i> <?= $motor['etat'] ? 'En marche' : 'Arrêté' ?></div>
             </div>
-            
             <div class="actuator-body">
                 <div class="motor-visual">
-                    <div class="motor-icon rotating">
-                        <i class="fas fa-cog"></i>
-                    </div>
-                    <div class="motor-stats">
-                        <div class="stat">
-                            <span class="label">Vitesse:</span>
-                            <span class="value" id="speed-MOT_001">1200 RPM</span>
-                        </div>
-                        <div class="stat">
-                            <span class="label">Direction:</span>
-                            <span class="value">Horaire</span>
-                        </div>
-                    </div>
+                    <div class="motor-icon <?= $motor['etat'] ? 'rotating' : '' ?>"><i class="fas fa-cog"></i></div>
+                    <div class="motor-stats"><div class="stat"><span class="label">Vitesse:</span><span class="value"><?= htmlspecialchars($motor['vitesse']) ?> RPM</span></div></div>
                 </div>
-                
-                <div class="motor-controls">
-                    <div class="control-buttons">
-                        <button class="control-btn start" onclick="startMotor('MOT_001')">
-                            <i class="fas fa-play"></i> Démarrer
-                        </button>
-                        <button class="control-btn stop" onclick="stopMotor('MOT_001')">
-                            <i class="fas fa-stop"></i> Arrêter
-                        </button>
-                        <button class="control-btn reverse" onclick="reverseMotor('MOT_001')">
-                            <i class="fas fa-undo"></i> Inverser
-                        </button>
-                    </div>
-                    
+                <form class="motor-update-form" data-id="<?= $motor['id'] ?>">
                     <div class="speed-control">
                         <label>Vitesse:</label>
-                        <input type="range" min="0" max="2000" value="1200" 
-                               onchange="setMotorSpeed('MOT_001', this.value)">
-                        <span id="speed-display-MOT_001">1200 RPM</span>
+                        <input type="range" class="motor-speed" min="0" max="2000" value="<?= htmlspecialchars($motor['vitesse']) ?>">
+                        <span class="speed-display"><?= htmlspecialchars($motor['vitesse']) ?> RPM</span>
                     </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">MOT_001</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Type:</span>
-                            <span class="value">DC 12V</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Puissance:</span>
-                            <span class="value">25W</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Couple:</span>
-                            <span class="value">0.5 Nm</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Afficheur OLED -->
-        <div class="actuator-card oled-card">
-            <div class="actuator-header">
-                <div class="actuator-title">
-                    <i class="fas fa-tv"></i>
-                    <h3>Afficheur OLED</h3>
-                </div>
-                <div class="actuator-status status-active">
-                    <i class="fas fa-circle"></i> Actif
-                </div>
-            </div>
-            
-            <div class="actuator-body">
-                <div class="oled-preview">
-                    <div class="oled-screen">
-                        <div class="oled-content">
-                            <div class="oled-line">Système IoT</div>
-                            <div class="oled-line">Temp: 22.3°C</div>
-                            <div class="oled-line">Hum: 65%</div>
-                            <div class="oled-line">Status: OK</div>
-                        </div>
-                    </div>
-                    <div class="oled-info">128x64 pixels</div>
-                </div>
-                
-                <div class="oled-controls">
-                    <div class="text-input">
-                        <label>Texte à afficher:</label>
-                        <textarea rows="4" placeholder="Entrez le texte..." 
-                                  onchange="updateOLED('OLED_001', this.value)">Système IoT
-Temp: 22.3°C
-Hum: 65%
-Status: OK</textarea>
-                    </div>
-                    
-                    <div class="display-options">
-                        <button class="option-btn" onclick="clearOLED('OLED_001')">
-                            <i class="fas fa-eraser"></i> Effacer
-                        </button>
-                        <button class="option-btn" onclick="invertOLED('OLED_001')">
-                            <i class="fas fa-adjust"></i> Inverser
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">OLED_001</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Résolution:</span>
-                            <span class="value">128x64</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Interface:</span>
-                            <span class="value">I2C</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Consommation:</span>
-                            <span class="value">0.5W</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Moteur 2 -->
-        <div class="actuator-card motor-card">
-            <div class="actuator-header">
-                <div class="actuator-title">
-                    <i class="fas fa-cog"></i>
-                    <h3>Moteur Secondaire</h3>
-                </div>
-                <div class="actuator-status status-off">
-                    <i class="fas fa-circle"></i> Arrêté
-                </div>
-            </div>
-            
-            <div class="actuator-body">
-                <div class="motor-visual">
-                    <div class="motor-icon">
-                        <i class="fas fa-cog"></i>
-                    </div>
-                    <div class="motor-stats">
-                        <div class="stat">
-                            <span class="label">Vitesse:</span>
-                            <span class="value" id="speed-MOT_002">0 RPM</span>
-                        </div>
-                        <div class="stat">
-                            <span class="label">Direction:</span>
-                            <span class="value">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="motor-controls">
-                    <div class="control-buttons">
-                        <button class="control-btn start" onclick="startMotor('MOT_002')">
+                    <div class="control-buttons" style="margin-top: 1rem;">
+                        <!-- ================== DÉBUT MODIFICATION PHP/HTML ================== -->
+                        <button type="button" class="control-btn start <?= $motor['etat'] ? 'active' : '' ?>">
                             <i class="fas fa-play"></i> Démarrer
                         </button>
-                        <button class="control-btn stop" onclick="stopMotor('MOT_002')">
+                        <button type="button" class="control-btn stop <?= !$motor['etat'] ? 'active' : '' ?>">
                             <i class="fas fa-stop"></i> Arrêter
                         </button>
-                        <button class="control-btn reverse" onclick="reverseMotor('MOT_002')">
-                            <i class="fas fa-undo"></i> Inverser
-                        </button>
+                        <!-- =================== FIN MODIFICATION PHP/HTML =================== -->
                     </div>
-                    
-                    <div class="speed-control">
-                        <label>Vitesse:</label>
-                        <input type="range" min="0" max="1500" value="0" 
-                               onchange="setMotorSpeed('MOT_002', this.value)">
-                        <span id="speed-display-MOT_002">0 RPM</span>
-                    </div>
-                </div>
-                
-                <div class="actuator-info">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="label">ID:</span>
-                            <span class="value">MOT_002</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Type:</span>
-                            <span class="value">Servo 9V</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Puissance:</span>
-                            <span class="value">15W</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">Angle:</span>
-                            <span class="value">180°</span>
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
-    </div>
-
-    <!-- Actions globales -->
-    <div class="global-actions">
-        <div class="actions-header">
-            <h3><i class="fas fa-tools"></i> Actions Globales</h3>
-        </div>
-        <div class="actions-grid">
-            <button class="action-btn" onclick="addNewActuator()">
-                <i class="fas fa-plus"></i>
-                <span>Ajouter un Actionneur</span>
-            </button>
-            <button class="action-btn" onclick="automationMode()">
-                <i class="fas fa-robot"></i>
-                <span>Mode Automatique</span>
-            </button>
-            <button class="action-btn" onclick="scheduleActions()">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Programmer Actions</span>
-            </button>
-            <button class="action-btn" onclick="exportLogs()">
-                <i class="fas fa-file-export"></i>
-                <span>Exporter Logs</span>
-            </button>
-        </div>
+        <?php endforeach; ?>
     </div>
 </div>
 
@@ -1406,6 +1013,18 @@ input[type="range"]:focus::-moz-range-thumb {
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
 }
 
+.control-btn.start.active {
+    background: #22c55e; /* Vert */
+    color: white;
+    border-color: #16a34a;
+}
+
+.control-btn.stop.active {
+    background: #ef4444; /* Rouge */
+    color: white;
+    border-color: #dc2626;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .actuators-stats {
@@ -1469,197 +1088,109 @@ input[type="range"]:focus::-moz-range-thumb {
 </style>
 
 <script>
-// Fonctions pour le buzzer
-function toggleBuzzer(buzzerId, button) {
-    const soundWaves = document.querySelector('.sound-waves');
-    const status = document.querySelector('.buzzer-card .actuator-status');
-    
-    if (button.innerHTML.includes('Activer')) {
-        button.innerHTML = '<i class="fas fa-stop"></i> Désactiver';
-        soundWaves.classList.add('active');
-        status.innerHTML = '<i class="fas fa-circle"></i> Actif';
-        status.className = 'actuator-status status-active';
-        console.log('Buzzer ' + buzzerId + ' activé');
-    } else {
-        button.innerHTML = '<i class="fas fa-play"></i> Activer';
-        soundWaves.classList.remove('active');
-        status.innerHTML = '<i class="fas fa-circle"></i> Éteint';
-        status.className = 'actuator-status status-off';
-        console.log('Buzzer ' + buzzerId + ' désactivé');
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // ... (code pour les LEDs inchangé) ...
+    document.querySelectorAll('.led-card-dynamic').forEach(card => {
+        const ledId = card.dataset.ledId;
+        const colorButtons = card.querySelectorAll('.color-btn');
+        const brightnessSlider = card.querySelector('.brightness-slider');
+        
+        const updateLedOnServer = () => {
+            const activeButton = card.querySelector('.color-btn.active');
+            let is_on = true;
+            let color = '#FFFFFF';
 
-function testBuzzer(buzzerId) {
-    const soundWaves = document.querySelector('.sound-waves');
-    soundWaves.classList.add('active');
-    setTimeout(() => {
-        soundWaves.classList.remove('active');
-    }, 2000);
-    alert('Test du buzzer ' + buzzerId);
-}
+            if (activeButton && activeButton.classList.contains('off')) {
+                is_on = false;
+            } else if (activeButton) {
+                color = activeButton.dataset.color;
+            }
+            
+            const intensity = brightnessSlider.value;
+            const formData = new FormData();
+            formData.append('id', ledId);
+            formData.append('etat', is_on ? 1 : 0);
+            formData.append('couleur', color);
+            formData.append('intensite', intensity);
+            
+            fetch('<?= BASE_URL ?>/iot-dashboard/update-led-details', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) alert("Erreur de mise à jour.");
+                }).catch(err => alert("Erreur de connexion."));
+        };
 
-function setFrequency(buzzerId, value) {
-    const freqSpan = document.getElementById(`freq-${buzzerId}`);
-    if (freqSpan) {
-        freqSpan.textContent = value + ' Hz';
-    }
-    console.log(`Fréquence ${buzzerId}: ${value} Hz`);
-}
+        colorButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                updateLedOnServer();
+            });
+        });
 
-// Fonctions pour l'afficheur 7 segments
-function updateDisplay(displayId, value) {
-    const digits = value.toString().padStart(4, '0').split('');
-    for (let i = 0; i < 4; i++) {
-        const digit = document.getElementById(`digit${i + 1}`);
-        if (digit) {
-            digit.textContent = digits[i] || '0';
-        }
-    }
-    console.log(`Afficheur ${displayId}: ${value}`);
-}
-
-function setDisplayBrightness(displayId, value) {
-    const brightnessSpan = document.getElementById(`brightness-${displayId}`);
-    if (brightnessSpan) {
-        brightnessSpan.textContent = value + '%';
-    }
-    console.log(`Luminosité ${displayId}: ${value}%`);
-}
-
-// Fonctions pour les LEDs
-function toggleLED(ledId, color, button) {
-    const ledItem = document.querySelector(`.led-item[data-color="${color}"]`);
-    const colorButtons = button.parentElement.querySelectorAll('.color-btn');
-    
-    // Toggle active state
-    if (button.classList.contains('active')) {
-        button.classList.remove('active');
-        ledItem.classList.remove('active');
-    } else {
-        button.classList.add('active');
-        ledItem.classList.add('active');
-    }
-    
-    // Update status
-    const activeCount = document.querySelectorAll('.led-item.active').length;
-    const ledStatus = document.querySelector('.led-status');
-    ledStatus.textContent = `${activeCount} LEDs actives`;
-    
-    console.log(`LED ${color} ${button.classList.contains('active') ? 'activée' : 'désactivée'}`);
-}
-
-function setPattern(ledId, pattern) {
-    alert(`Pattern ${pattern} appliqué aux LEDs ${ledId}`);
-}
-
-// Fonctions pour les moteurs
-function startMotor(motorId) {
-    const motorIcon = document.querySelector(`#speed-${motorId}`).closest('.actuator-card').querySelector('.motor-icon');
-    const status = document.querySelector(`#speed-${motorId}`).closest('.actuator-card').querySelector('.actuator-status');
-    
-    motorIcon.classList.add('rotating');
-    status.innerHTML = '<i class="fas fa-circle"></i> En marche';
-    status.className = 'actuator-status status-running';
-    
-    // Update speed display
-    const speedValue = document.querySelector(`#speed-display-${motorId}`).textContent;
-    document.getElementById(`speed-${motorId}`).textContent = speedValue;
-    
-    console.log('Moteur ' + motorId + ' démarré');
-}
-
-function stopMotor(motorId) {
-    const motorIcon = document.querySelector(`#speed-${motorId}`).closest('.actuator-card').querySelector('.motor-icon');
-    const status = document.querySelector(`#speed-${motorId}`).closest('.actuator-card').querySelector('.actuator-status');
-    
-    motorIcon.classList.remove('rotating');
-    status.innerHTML = '<i class="fas fa-circle"></i> Arrêté';
-    status.className = 'actuator-status status-off';
-    
-    document.getElementById(`speed-${motorId}`).textContent = '0 RPM';
-    
-    console.log('Moteur ' + motorId + ' arrêté');
-}
-
-function reverseMotor(motorId) {
-    alert('Inversion du sens de rotation pour ' + motorId);
-}
-
-function setMotorSpeed(motorId, value) {
-    const speedSpan = document.getElementById(`speed-display-${motorId}`);
-    const speedValue = document.getElementById(`speed-${motorId}`);
-    
-    if (speedSpan) {
-        speedSpan.textContent = value + ' RPM';
-    }
-    if (speedValue) {
-        speedValue.textContent = value + ' RPM';
-    }
-    
-    console.log(`Vitesse ${motorId}: ${value} RPM`);
-}
-
-// Fonctions pour l'OLED
-function updateOLED(oledId, text) {
-    const oledContent = document.querySelector('.oled-content');
-    if (oledContent) {
-        const lines = text.split('\n').slice(0, 4); // Max 4 lignes
-        oledContent.innerHTML = lines.map(line => `<div class="oled-line">${line}</div>`).join('');
-    }
-    console.log(`OLED ${oledId} mis à jour`);
-}
-
-function clearOLED(oledId) {
-    const oledContent = document.querySelector('.oled-content');
-    if (oledContent) {
-        oledContent.innerHTML = '';
-    }
-    console.log(`OLED ${oledId} effacé`);
-}
-
-function invertOLED(oledId) {
-    const oledScreen = document.querySelector('.oled-screen');
-    if (oledScreen.style.background === 'rgb(0, 255, 0)') {
-        oledScreen.style.background = '#000';
-        oledScreen.style.color = '#00ff00';
-    } else {
-        oledScreen.style.background = '#00ff00';
-        oledScreen.style.color = '#000';
-    }
-    console.log(`OLED ${oledId} inversé`);
-}
-
-// Actions globales
-function addNewActuator() {
-    alert('Ajout d\'un nouvel actionneur');
-}
-
-function automationMode() {
-    alert('Activation du mode automatique');
-}
-
-function scheduleActions() {
-    alert('Programmation des actions');
-}
-
-function exportLogs() {
-    alert('Export des logs des actionneurs');
-}
-
-// Simulation de mise à jour des données en temps réel
-setInterval(() => {
-    // Mise à jour des consommations
-    const powerElements = document.querySelectorAll('.info-item .value');
-    powerElements.forEach(element => {
-        if (element.textContent.includes('W')) {
-            const baseValue = parseInt(element.textContent);
-            const variation = Math.floor(Math.random() * 5) - 2;
-            element.textContent = Math.max(0, baseValue + variation) + 'W';
-        }
+        brightnessSlider.addEventListener('change', updateLedOnServer);
+        brightnessSlider.addEventListener('input', () => {
+            card.querySelector('.brightness-display').textContent = `${brightnessSlider.value}%`;
+        });
     });
-    
-    console.log('Mise à jour des données des actionneurs...');
-}, 10000);
+
+    // ================== DÉBUT MODIFICATION JAVASCRIPT ==================
+    document.querySelectorAll('.motor-update-form').forEach(form => {
+        const motorId = form.dataset.id;
+        const startBtn = form.querySelector('.start');
+        const stopBtn = form.querySelector('.stop');
+        const speedSlider = form.querySelector('.motor-speed');
+
+        const updateMotor = (etat, vitesse, formElement) => {
+            const formData = new FormData();
+            formData.append('id', motorId);
+            formData.append('etat', etat ? 1 : 0);
+            formData.append('vitesse', vitesse);
+
+            fetch('<?= BASE_URL ?>/iot-dashboard/update-motor-state', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Mettre à jour l'interface utilisateur
+                    const card = formElement.closest('.actuator-card');
+                    const motorIcon = card.querySelector('.motor-icon');
+                    const statusBadge = card.querySelector('.actuator-status');
+                    const startButton = formElement.querySelector('.start');
+                    const stopButton = formElement.querySelector('.stop');
+
+                    if (etat) { // Si le moteur démarre
+                        motorIcon.classList.add('rotating');
+                        statusBadge.innerHTML = '<i class="fas fa-circle"></i> En marche';
+                        statusBadge.className = 'actuator-status status-running';
+                        startButton.classList.add('active');
+                        stopButton.classList.remove('active');
+                    } else { // Si le moteur s'arrête
+                        motorIcon.classList.remove('rotating');
+                        statusBadge.innerHTML = '<i class="fas fa-circle"></i> Arrêté';
+                        statusBadge.className = 'actuator-status status-off';
+                        startButton.classList.remove('active');
+                        stopButton.classList.add('active');
+                    }
+                } else {
+                    alert('Erreur de mise à jour du moteur.');
+                }
+            });
+        };
+        
+        speedSlider.addEventListener('input', () => {
+             form.querySelector('.speed-display').textContent = `${speedSlider.value} RPM`;
+        });
+        
+        speedSlider.addEventListener('change', () => {
+            const isRunning = form.closest('.actuator-card').querySelector('.motor-icon').classList.contains('rotating');
+            updateMotor(isRunning, speedSlider.value, form);
+        });
+
+        startBtn.addEventListener('click', () => updateMotor(true, speedSlider.value, form));
+        stopBtn.addEventListener('click', () => updateMotor(false, speedSlider.value, form));
+    });
+    // =================== FIN MODIFICATION JAVASCRIPT ===================
+});
 </script>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>

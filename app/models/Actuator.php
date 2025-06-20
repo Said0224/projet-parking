@@ -5,16 +5,30 @@ class Actuator {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = DatabaseManager::getConnection('iot');
     }
 
+    // --- NOUVELLE MÉTHODE ---
     /**
-     * Récupère l'état de toutes les LEDs
+     * Récupère les détails d'une LED par son ID.
+     * @param int $id
+     * @return array|false
      */
+    public function getLedById($id) {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM public.led WHERE id = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erreur dans getLedById : " . $e->getMessage());
+            return false;
+        }
+    }
+    // --- FIN NOUVELLE MÉTHODE ---
+
     public function getAllLEDs() {
         try {
-            // Utilise le nom de table exact 'LED'
-            $stmt = $this->db->query("SELECT * FROM LED ORDER BY id ASC");
+            $stmt = $this->db->query("SELECT * FROM public.led ORDER BY id ASC");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Erreur dans getAllLEDs : " . $e->getMessage());
@@ -23,38 +37,38 @@ class Actuator {
     }
 
     /**
-     * Met à jour l'état d'une LED
+     * Met à jour les détails d'une LED (état, couleur, intensité, et commande).
+     * @param int $id
+     * @param bool $etat
+     * @param string $couleur
+     * @param int $intensite
+     * @param string $command La source de la commande ('manual_override', 'auto_status', etc.)
+     * @return bool
      */
-    public function updateLED($id, $etat) {
+    public function updateLedDetails($id, $etat, $couleur, $intensite, $command) {
         try {
-            $stmt = $this->db->prepare("UPDATE LED SET etat = ? WHERE id = ?");
-            return $stmt->execute([$etat, $id]);
+            $stmt = $this->db->prepare("
+                UPDATE public.led 
+                SET etat = ?, couleur = ?, intensite = ?, last_command = ?, timestamp = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            ");
+            // CORRECTION : On ajoute le type explicite pour le booléen
+            $stmt->bindValue(1, $etat, PDO::PARAM_BOOL);
+            $stmt->bindValue(2, $couleur, PDO::PARAM_STR);
+            $stmt->bindValue(3, $intensite, PDO::PARAM_INT);
+            $stmt->bindValue(4, $command, PDO::PARAM_STR);
+            $stmt->bindValue(5, $id, PDO::PARAM_INT);
+            return $stmt->execute();
         } catch (PDOException $e) {
-            error_log("Erreur dans updateLED : " . $e->getMessage());
+            error_log("Erreur dans updateLedDetails : " . $e->getMessage());
             return false;
         }
     }
-
-    /**
-     * Ajoute une nouvelle LED
-     */
-    public function addLED($etat) {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO LED (etat) VALUES (?)");
-            return $stmt->execute([$etat]);
-        } catch (PDOException $e) {
-            error_log("Erreur dans addLED : " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Récupère les données OLED pour l'affichage des informations de parking
-     */
+    
+    // ... (Le reste du fichier reste identique) ...
     public function getOLEDData() {
         try {
-            // Utilise le nom de table exact 'OLED'
-            $stmt = $this->db->query("SELECT * FROM OLED ORDER BY id DESC LIMIT 1");
+            $stmt = $this->db->query("SELECT * FROM public.oled ORDER BY id DESC LIMIT 1");
             return $stmt->fetch();
         } catch (PDOException $e) {
             error_log("Erreur dans getOLEDData : " . $e->getMessage());
@@ -62,24 +76,44 @@ class Actuator {
         }
     }
 
-    /**
-     * Met à jour les informations OLED
-     */
     public function updateOLED($places_dispo, $bornes_dispo, $user = '', $plaque = '') {
         try {
-            // Attention: `user` est un mot-clé réservé en SQL, il faut l'entourer de backticks (`).
-            $stmt = $this->db->prepare("
-                UPDATE OLED SET 
+            $stmt = $this->db->prepare('
+                UPDATE public.oled SET 
                 places_dispo = ?, 
                 bornes_dispo = ?, 
                 heure = CURRENT_TIMESTAMP,
-                `user` = ?,
+                "user" = ?,
                 plaque_immatriculation = ?
                 WHERE id = 1
-            ");
+            ');
             return $stmt->execute([$places_dispo, $bornes_dispo, $user, $plaque]);
         } catch (PDOException $e) {
             error_log("Erreur dans updateOLED : " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function getAllMotors() {
+        try {
+            $stmt = $this->db->query("SELECT * FROM public.moteur ORDER BY id ASC");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Erreur dans getAllMotors : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function updateMotor($id, $etat, $vitesse) {
+        try {
+            $stmt = $this->db->prepare("UPDATE public.moteur SET etat = ?, vitesse = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?");
+            // CORRECTION : On ajoute le type explicite pour le booléen
+            $stmt->bindValue(1, $etat, PDO::PARAM_BOOL);
+            $stmt->bindValue(2, $vitesse, PDO::PARAM_INT);
+            $stmt->bindValue(3, $id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Erreur dans updateMotor : " . $e->getMessage());
             return false;
         }
     }

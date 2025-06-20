@@ -151,7 +151,7 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
             
             <div class="sensor-body">
                 <div class="sensor-value-display">
-                    <div class="current-value presence-occupied">
+                    <div class="current-value presence-occupée">
                         <span class="value">OCCUPÉE</span>
                     </div>
                     <div class="value-trend">
@@ -598,7 +598,7 @@ body {
     color: #64748b;
 }
 
-.presence-occupied .value { color: #ef4444; }
+.presence-occupée .value { color: #ef4444; }
 .presence-free .value { color: #22c55e; }
 .maintenance-mode .value { color: #f59e0b; }
 
