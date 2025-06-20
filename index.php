@@ -1,286 +1,151 @@
 <?php
-// Affichage des erreurs pour le développement
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+session_start();
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+// Configuration des chemins
+define('ROOT_PATH', __DIR__);
+define('BASE_URL', 'http://localhost/projet-parking');
+
+// Inclusion de la configuration de la base de données
+require_once ROOT_PATH . '/config/database.php';
+
+// Fonction d'autoload simple
+function autoload($className) {
+    $paths = [
+        ROOT_PATH . '/app/controllers/' . $className . '.php',
+        ROOT_PATH . '/app/models/' . $className . '.php'
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            return;
+        }
+    }
 }
 
-define('ROOT_PATH', __DIR__);
-// La variable BASE_URL reste utile pour construire les liens dans les vues
-$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-define('BASE_URL', rtrim($script_name, '/'));
+spl_autoload_register('autoload');
 
+// Récupération de l'URL
+$url = $_GET['url'] ?? '';
+$url = rtrim($url, '/');
+$urlSegments = explode('/', $url);
 
-// 1. Récupérer l'URL propre depuis le paramètre GET envoyé par .htaccess
-$request_uri = '/' . trim($_GET['url'] ?? '', '/');
+// Routage
+$controller = 'HomeController';
+$method = 'index';
 
-try {
-    // Inclure la configuration de la base de données une seule fois au début
-    require_once ROOT_PATH . '/config/database.php';
-
-
-    switch ($request_uri) {
-
-        case '/':
-            require_once ROOT_PATH . '/app/controllers/HomeController.php';
-            $controller = new HomeController();
-            $controller->index();
+if (!empty($urlSegments[0])) {
+    switch ($urlSegments[0]) {
+        case 'login':
+            $controller = 'AuthController';
+            $method = isset($urlSegments[1]) && $urlSegments[1] === 'process' ? 'processLogin' : 'login';
             break;
             
-
-        case '/faq':
-            require_once ROOT_PATH . '/app/controllers/HomeController.php';
-            $controller = new HomeController();
-            $controller->faq();
-            break;
-
-        // ==========================================================
-        // == AJOUT DE LA NOUVELLE ROUTE POUR LES CONDITIONS ==
-        // ==========================================================
-        case '/conditions':
-            require_once ROOT_PATH . '/app/controllers/conditionsController.php';
-            $controller = new conditionsController();
-            $controller->conditions();
-            break;
-
-        case '/login':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->showLoginForm();
+        case 'signup':
+            $controller = 'AuthController';
+            $method = isset($urlSegments[1]) && $urlSegments[1] === 'process' ? 'processSignup' : 'signup';
             break;
             
-        case '/login/process':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->login();
+        case 'logout':
+            $controller = 'AuthController';
+            $method = 'logout';
             break;
             
-        case '/logout':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->logout();
-            break;
-
-        
-        case '/signup':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->showRegistrationForm();
+        case 'dashboard':
+            $controller = 'DashboardController';
             break;
             
-        case '/signup/process':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->register();
+        case 'admin':
+            $controller = 'AdminController';
             break;
             
-        case '/profile':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->profile();
+        case 'user':
+            $controller = 'UserController';
+            $method = isset($urlSegments[1]) ? $urlSegments[1] : 'dashboard';
             break;
             
-        case '/profile/update':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->updateProfile();
-            break;
-
-        case '/profile/change-password':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->changePassword();
-            break;
-
-        case '/profile/delete-account':
-            require_once ROOT_PATH . '/app/controllers/AuthController.php';
-            $controller = new AuthController();
-            $controller->deleteAccount();
-            break;
-            
-        case '/dashboard':
-            require_once ROOT_PATH . '/app/controllers/DashboardController.php';
-            $controller = new DashboardController();
-            $controller->index();
+        case 'api':
+            $controller = 'ApiController';
+            if (isset($urlSegments[1])) {
+                switch ($urlSegments[1]) {
+                    case 'update-spot-status':
+                        $method = 'updateSpotStatus';
+                        break;
+                    case 'get-spot-status':
+                        $method = 'getSpotStatus';
+                        break;
+                    case 'get-spot-details':
+                        $method = 'getSpotDetails';
+                        break;
+                }
+            }
             break;
             
-        case '/iot-dashboard':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->dashboard();
-            break;
-
-        case '/iot-dashboard/capteurs':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->capteurs();
-            break;
-
-        case '/iot-dashboard/actionneurs':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->actionneurs();
-            break;
-        
-        case '/iot-dashboard/update-oled':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->updateOled();
-            break;
-
-        case '/iot-dashboard/update-led-state':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->updateLedState();
-            break;
-
-        case '/iot-dashboard/update-motor-state':
-            require_once ROOT_PATH . '/app/controllers/IoTController.php';
-            $controller = new IoTController();
-            $controller->updateMotorState();
+        case 'notifications':
+            $controller = 'NotificationController';
+            $method = isset($urlSegments[1]) && $urlSegments[1] === 'update-preference' ? 'updateMailPreference' : 'index';
             break;
             
-        case '/notifications':
-            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
-            $controller = new NotificationController();
-            $controller->index();
+        case 'faq':
+            $controller = 'HomeController';
+            $method = 'faq';
             break;
             
-        case '/notifications/update-preference':
-            require_once ROOT_PATH . '/app/controllers/NotificationController.php';
-            $controller = new NotificationController();
-            $controller->updateMailPreference();
-            break;
-
-        // ===== ROUTES ADMIN =====
-        case '/admin':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->index();
-            break;
-
-        case '/admin/users':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->manageUsers();
-            break;
-
-        case '/admin/parking':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->manageParking();
-            break;
-
-        case '/admin/update-user':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->updateUserStatus();
-            break;
-
-        case '/admin/delete-user':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->deleteUser();
-            break;
-
-        case '/admin/create-user':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->createUser();
-            break;
-
-        case '/admin/update-spot':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->updateParkingSpot();
-            break;
-
-        case '/admin/api/reservations':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->getReservationsAjax();
-            break;
-
-        case '/admin/api/parking-spots':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->getParkingSpotsAjax();
-            break;
-
-        case '/admin/api/users':
-            require_once ROOT_PATH . '/app/controllers/AdminController.php';
-            $controller = new AdminController();
-            $controller->getUsersAjax();
-            break;
-
-
-        // ===== ROUTES UTILISATEUR =====
-        case '/user/dashboard':
-            require_once ROOT_PATH . '/app/controllers/UserController.php';
-            $controller = new UserController();
-            $controller->dashboard();
-            break;
-
-        case '/user/parking':
-            require_once ROOT_PATH . '/app/controllers/UserController.php';
-            $controller = new UserController();
-            $controller->parking();
-            break;
-
-        case '/user/reserve':
-            require_once ROOT_PATH . '/app/controllers/UserController.php';
-            $controller = new UserController();
-            $controller->reserve();
-            break;
-
-        case '/user/cancel-reservation':
-            require_once ROOT_PATH . '/app/controllers/UserController.php';
-            $controller = new UserController();
-            $controller->cancelReservation();
-            break;
-
-         case '/api/update-spot-status':
-            require_once ROOT_PATH . '/app/controllers/ApiController.php';
-            $controller = new ApiController();
-            $controller->updateSpotStatus();
-            break;
-
-
-        case '/api/get-spot-status':
-            require_once ROOT_PATH . '/app/controllers/ApiController.php';
-            $controller = new ApiController();
-            $controller->getSpotStatus();
-            break;
-
-        case '/api/get-spot-details':
-            require_once ROOT_PATH . '/app/controllers/ApiController.php';
-            $controller = new ApiController();
-            $controller->getSpotDetails();
-            break;
-            
-        case '/api/get-all-spots-status':
-            require_once ROOT_PATH . '/app/controllers/UserController.php';
-            $controller = new UserController();
-            $controller->getAllSpotsStatus();
+        // NOUVELLES ROUTES IOT
+        case 'iot-dashboard':
+            $controller = 'IoTController';
+            if (isset($urlSegments[1])) {
+                switch ($urlSegments[1]) {
+                    case 'capteurs':
+                        $method = 'capteurs';
+                        break;
+                    case 'actionneurs':
+                        $method = 'actionneurs';
+                        break;
+                    case 'update-led-state':
+                        $method = 'updateLedState';
+                        break;
+                    case 'update-motor-state':
+                        $method = 'updateMotorState';
+                        break;
+                    case 'update-oled':
+                        $method = 'updateOLED';
+                        break;
+                    case 'get-sensors-data':
+                        $method = 'getSensorsData';
+                        break;
+                    case 'get-actuators-data':
+                        $method = 'getActuatorsData';
+                        break;
+                    default:
+                        $method = 'index';
+                }
+            }
             break;
             
         default:
-            http_response_code(404);
-            echo "<h1>Page non trouvée (404)</h1>";
-            echo "<p>La page demandée '" . htmlspecialchars($request_uri) . "' n'existe pas.</p>";
-            echo "<a href='" . BASE_URL . "/'>Retour à l'accueil</a>";
+            $controller = 'HomeController';
             break;
     }
-} catch (Error $e) {
-    echo "<h1>Erreur PHP détectée :</h1>";
-    echo "<pre>" . $e->getMessage() . "</pre>";
-    echo "<pre>Fichier: " . $e->getFile() . " (ligne " . $e->getLine() . ")</pre>";
-} catch (Exception $e) {
-    echo "<h1>Exception détectée :</h1>";
-    echo "<pre>" . $e->getMessage() . "</pre>";
-} finally {
-    require_once ROOT_PATH . '/config/database.php';
-    DatabaseManager::closeConnection();
 }
+
+// Instanciation et exécution
+try {
+    if (class_exists($controller)) {
+        $controllerInstance = new $controller();
+        if (method_exists($controllerInstance, $method)) {
+            $controllerInstance->$method();
+        } else {
+            throw new Exception("Méthode $method non trouvée dans $controller");
+        }
+    } else {
+        throw new Exception("Contrôleur $controller non trouvé");
+    }
+} catch (Exception $e) {
+    // Page d'erreur simple
+    http_response_code(404);
+    echo "<h1>Erreur 404</h1>";
+    echo "<p>Page non trouvée.</p>";
+    echo "<p><a href='" . BASE_URL . "'>Retour à l'accueil</a></p>";
+}
+?>

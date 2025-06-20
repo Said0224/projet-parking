@@ -1,10 +1,4 @@
 <?php 
-// Vérification que l'utilisateur est admin
-if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
-    header('Location: /login');
-    exit;
-}
-
 require_once ROOT_PATH . '/app/views/partials/header.php'; 
 ?>
 
@@ -13,861 +7,485 @@ require_once ROOT_PATH . '/app/views/partials/header.php';
     <div class="dashboard-header">
         <div class="header-content">
             <h1><i class="fas fa-satellite-dish"></i> Gestion des Capteurs IoT</h1>
-            <p>Surveillance et monitoring en temps réel des capteurs</p>
+            <p>Surveillance et monitoring en temps réel des capteurs du parking</p>
+        </div>
+        <div class="refresh-controls">
+            <button id="refresh-sensors" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+            <span class="last-update">Dernière mise à jour: <span id="last-update"><?= date('H:i:s') ?></span></span>
         </div>
     </div>
 
     <!-- Navigation -->
     <div class="dashboard-nav">
         <div class="nav-tabs">
-            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab">
-                <i class="fas fa-arrow-left"></i> Retour IoT
-            </a>
-            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab active">
-                <i class="fas fa-satellite-dish"></i> Capteurs
-            </a>
-            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab">
-                <i class="fas fa-cogs"></i> Actionneurs
-            </a>
-            <a href="<?= BASE_URL ?>/logout" class="nav-tab">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
+            <a href="<?= BASE_URL ?>/iot-dashboard" class="nav-tab"><i class="fas fa-arrow-left"></i> Retour IoT</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/capteurs" class="nav-tab active"><i class="fas fa-satellite-dish"></i> Capteurs</a>
+            <a href="<?= BASE_URL ?>/iot-dashboard/actionneurs" class="nav-tab"><i class="fas fa-cogs"></i> Actionneurs</a>
+            <a href="<?= BASE_URL ?>/logout" class="nav-tab"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </div>
         <div class="user-info">
             <i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['user_email'] ?? 'admin@isep.fr') ?>
         </div>
     </div>
 
-    <!-- Statistiques capteurs -->
-    <div class="sensors-stats">
-        <div class="stat-card active-sensors">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">3</div>
-                <div class="stat-label">Capteurs Actifs</div>
-            </div>
-        </div>
-        
-        <div class="stat-card inactive-sensors">
-            <div class="stat-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">1</div>
-                <div class="stat-label">En Maintenance</div>
-            </div>
-        </div>
-        
-        <div class="stat-card temperature">
-            <div class="stat-icon">
-                <i class="fas fa-thermometer-half"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">22°C</div>
-                <div class="stat-label">Température</div>
-            </div>
-        </div>
-        
-        <div class="stat-card data-rate">
-            <div class="stat-icon">
-                <i class="fas fa-tachometer-alt"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-number">5s</div>
-                <div class="stat-label">Fréquence</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Liste des capteurs -->
-    <div class="sensors-grid">
-        <!-- Capteur de température -->
-        <div class="sensor-card temperature-sensor">
+    <div class="sensors-grid" id="sensors-grid">
+        <!-- Capteur Température -->
+        <?php if (!empty($data['temp_sensor'])): $sensor = $data['temp_sensor']; ?>
+        <div class="sensor-card temperature-sensor" data-sensor-type="temperature">
             <div class="sensor-header">
                 <div class="sensor-title">
                     <i class="fas fa-thermometer-half"></i>
-                    <h3>Capteur de Température</h3>
+                    <h3>Température Ambiante</h3>
                 </div>
                 <div class="sensor-status status-active">
                     <i class="fas fa-circle"></i> Actif
                 </div>
             </div>
-            
             <div class="sensor-body">
                 <div class="sensor-value-display">
                     <div class="current-value">
-                        <span class="value">22.5</span>
+                        <span class="value" data-value="temperature"><?= number_format($sensor['valeur'], 1) ?></span>
                         <span class="unit">°C</span>
                     </div>
-                    <div class="value-trend">
-                        <i class="fas fa-arrow-up trend-up"></i>
-                        <span>+0.3°C</span>
-                    </div>
+                    <div class="value-indicator <?= $sensor['valeur'] > 25 ? 'high' : ($sensor['valeur'] < 15 ? 'low' : 'normal') ?>"></div>
                 </div>
-                
                 <div class="sensor-info-grid">
                     <div class="info-item">
                         <span class="label">ID Capteur:</span>
                         <span class="value">TEMP_001</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">Localisation:</span>
-                        <span class="value">Zone A</span>
-                    </div>
-                    <div class="info-item">
                         <span class="label">Dernière lecture:</span>
-                        <span class="value"><?= date('H:i:s') ?></span>
+                        <span class="value" data-timestamp="temperature"><?= date('H:i:s', strtotime($sensor['heure'])) ?></span>
                     </div>
-                    <div class="info-item">
-                        <span class="label">Batterie:</span>
-                        <span class="value">85%</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-actions">
-                    <button class="btn-action" onclick="calibrateSensor('TEMP_001')">
-                        <i class="fas fa-cog"></i> Calibrer
-                    </button>
-                    <button class="btn-action" onclick="viewHistory('TEMP_001')">
-                        <i class="fas fa-chart-line"></i> Historique
-                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Détecteur Place A01 -->
-        <div class="sensor-card presence-sensor">
+        <?php else: ?>
+        <div class="sensor-card temperature-sensor maintenance-sensor">
             <div class="sensor-header">
                 <div class="sensor-title">
-                    <i class="fas fa-eye"></i>
-                    <h3>Détecteur Place A01</h3>
-                </div>
-                <div class="sensor-status status-active">
-                    <i class="fas fa-circle"></i> Actif
-                </div>
-            </div>
-            
-            <div class="sensor-body">
-                <div class="sensor-value-display">
-                    <div class="current-value presence-occupée">
-                        <span class="value">OCCUPÉE</span>
-                    </div>
-                    <div class="value-trend">
-                        <i class="fas fa-clock"></i>
-                        <span>Depuis 15min</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-info-grid">
-                    <div class="info-item">
-                        <span class="label">ID Capteur:</span>
-                        <span class="value">DET_A01</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Type:</span>
-                        <span class="value">Ultrasonique</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Distance:</span>
-                        <span class="value">45 cm</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Précision:</span>
-                        <span class="value">±2 cm</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-actions">
-                    <button class="btn-action" onclick="testSensor('DET_A01')">
-                        <i class="fas fa-play"></i> Tester
-                    </button>
-                    <button class="btn-action" onclick="resetSensor('DET_A01')">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Détecteur Place A02 -->
-        <div class="sensor-card presence-sensor">
-            <div class="sensor-header">
-                <div class="sensor-title">
-                    <i class="fas fa-eye"></i>
-                    <h3>Détecteur Place A02</h3>
-                </div>
-                <div class="sensor-status status-active">
-                    <i class="fas fa-circle"></i> Actif
-                </div>
-            </div>
-            
-            <div class="sensor-body">
-                <div class="sensor-value-display">
-                    <div class="current-value presence-free">
-                        <span class="value">LIBRE</span>
-                    </div>
-                    <div class="value-trend">
-                        <i class="fas fa-clock"></i>
-                        <span>Depuis 2h</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-info-grid">
-                    <div class="info-item">
-                        <span class="label">ID Capteur:</span>
-                        <span class="value">DET_A02</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Type:</span>
-                        <span class="value">Ultrasonique</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Distance:</span>
-                        <span class="value">180 cm</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Précision:</span>
-                        <span class="value">±2 cm</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-actions">
-                    <button class="btn-action" onclick="testSensor('DET_A02')">
-                        <i class="fas fa-play"></i> Tester
-                    </button>
-                    <button class="btn-action" onclick="resetSensor('DET_A02')">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Capteur en maintenance -->
-        <div class="sensor-card maintenance-sensor">
-            <div class="sensor-header">
-                <div class="sensor-title">
-                    <i class="fas fa-eye"></i>
-                    <h3>Détecteur Place B01</h3>
+                    <i class="fas fa-thermometer-half"></i>
+                    <h3>Température Ambiante</h3>
                 </div>
                 <div class="sensor-status status-maintenance">
-                    <i class="fas fa-exclamation-triangle"></i> Maintenance
+                    <i class="fas fa-circle"></i> Inactif
                 </div>
             </div>
-            
             <div class="sensor-body">
                 <div class="sensor-value-display">
                     <div class="current-value maintenance-mode">
-                        <span class="value">HORS SERVICE</span>
+                        <span class="value">Pas de données</span>
                     </div>
-                    <div class="value-trend">
-                        <i class="fas fa-tools"></i>
-                        <span>Depuis 1j</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-info-grid">
-                    <div class="info-item">
-                        <span class="label">ID Capteur:</span>
-                        <span class="value">DET_B01</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Problème:</span>
-                        <span class="value">Batterie faible</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Dernière lecture:</span>
-                        <span class="value">Hier 14:30</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Batterie:</span>
-                        <span class="value">12%</span>
-                    </div>
-                </div>
-                
-                <div class="sensor-actions">
-                    <button class="btn-action btn-warning" onclick="replaceBattery('DET_B01')">
-                        <i class="fas fa-battery-quarter"></i> Remplacer
-                    </button>
-                    <button class="btn-action" onclick="scheduleRepair('DET_B01')">
-                        <i class="fas fa-calendar"></i> Planifier
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
+        <?php endif; ?>
 
-    <!-- Actions globales -->
-    <div class="global-actions">
-        <div class="actions-header">
-            <h3><i class="fas fa-tools"></i> Actions Globales</h3>
+        <!-- Capteur de Gaz -->
+        <?php if (!empty($data['gas_sensor'])): $sensor = $data['gas_sensor']; ?>
+        <div class="sensor-card gas-sensor" data-sensor-type="gas">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-smog"></i>
+                    <h3>Qualité de l'Air (Gaz)</h3>
+                </div>
+                <div class="sensor-status status-active">
+                    <i class="fas fa-circle"></i> Actif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value">
+                        <span class="value" data-value="gas"><?= number_format($sensor['valeur'], 0) ?></span>
+                        <span class="unit">ppm</span>
+                    </div>
+                    <div class="value-indicator <?= $sensor['valeur'] > 1000 ? 'high' : ($sensor['valeur'] > 500 ? 'medium' : 'normal') ?>"></div>
+                </div>
+                <div class="sensor-info-grid">
+                    <div class="info-item">
+                        <span class="label">ID Capteur:</span>
+                        <span class="value">GAS_001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Dernière lecture:</span>
+                        <span class="value" data-timestamp="gas"><?= date('H:i:s', strtotime($sensor['heure'])) ?></span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="actions-grid">
-            <button class="action-btn" onclick="addNewSensor()">
-                <i class="fas fa-plus"></i>
-                <span>Ajouter un Capteur</span>
-            </button>
-            <button class="action-btn" onclick="runDiagnostics()">
-                <i class="fas fa-stethoscope"></i>
-                <span>Diagnostic Complet</span>
-            </button>
-            <button class="action-btn" onclick="exportData()">
-                <i class="fas fa-download"></i>
-                <span>Exporter les Données</span>
-            </button>
-            <button class="action-btn" onclick="configureAlerts()">
-                <i class="fas fa-bell"></i>
-                <span>Configurer Alertes</span>
-            </button>
+        <?php else: ?>
+        <div class="sensor-card gas-sensor maintenance-sensor">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-smog"></i>
+                    <h3>Qualité de l'Air (Gaz)</h3>
+                </div>
+                <div class="sensor-status status-maintenance">
+                    <i class="fas fa-circle"></i> Inactif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value maintenance-mode">
+                        <span class="value">Pas de données</span>
+                    </div>
+                </div>
+            </div>
         </div>
+        <?php endif; ?>
+
+        <!-- Capteur de Luminosité -->
+        <?php if (!empty($data['light_sensor'])): $sensor = $data['light_sensor']; ?>
+        <div class="sensor-card light-sensor" data-sensor-type="light">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-sun"></i>
+                    <h3>Luminosité</h3>
+                </div>
+                <div class="sensor-status status-active">
+                    <i class="fas fa-circle"></i> Actif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value">
+                        <span class="value" data-value="light"><?= number_format($sensor['valeur'], 0) ?></span>
+                        <span class="unit">lux</span>
+                    </div>
+                    <div class="value-indicator <?= $sensor['valeur'] > 1000 ? 'high' : ($sensor['valeur'] < 100 ? 'low' : 'normal') ?>"></div>
+                </div>
+                <div class="sensor-info-grid">
+                    <div class="info-item">
+                        <span class="label">ID Capteur:</span>
+                        <span class="value">LIGHT_001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Dernière lecture:</span>
+                        <span class="value" data-timestamp="light"><?= date('H:i:s', strtotime($sensor['heure'])) ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="sensor-card light-sensor maintenance-sensor">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-sun"></i>
+                    <h3>Luminosité</h3>
+                </div>
+                <div class="sensor-status status-maintenance">
+                    <i class="fas fa-circle"></i> Inactif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value maintenance-mode">
+                        <span class="value">Pas de données</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Capteur Son -->
+        <?php if (!empty($data['sound_sensor'])): $sensor = $data['sound_sensor']; ?>
+        <div class="sensor-card sound-sensor" data-sensor-type="sound">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-microphone"></i>
+                    <h3>Niveau Sonore</h3>
+                </div>
+                <div class="sensor-status status-active">
+                    <i class="fas fa-circle"></i> Actif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value">
+                        <span class="value" data-value="sound"><?= number_format($sensor['valeur'], 1) ?></span>
+                        <span class="unit">dB</span>
+                    </div>
+                    <div class="value-indicator <?= $sensor['valeur'] > 80 ? 'high' : ($sensor['valeur'] > 60 ? 'medium' : 'normal') ?>"></div>
+                </div>
+                <div class="sensor-info-grid">
+                    <div class="info-item">
+                        <span class="label">ID Capteur:</span>
+                        <span class="value">SOUND_001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Dernière lecture:</span>
+                        <span class="value" data-timestamp="sound"><?= date('H:i:s', strtotime($sensor['heure'])) ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="sensor-card sound-sensor maintenance-sensor">
+            <div class="sensor-header">
+                <div class="sensor-title">
+                    <i class="fas fa-microphone"></i>
+                    <h3>Niveau Sonore</h3>
+                </div>
+                <div class="sensor-status status-maintenance">
+                    <i class="fas fa-circle"></i> Inactif
+                </div>
+            </div>
+            <div class="sensor-body">
+                <div class="sensor-value-display">
+                    <div class="current-value maintenance-mode">
+                        <span class="value">Pas de données</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Capteurs de Proximité (LIMITÉ À 3 PLACES) -->
+        <?php if (!empty($data['parking_sensors'])): ?>
+            <?php foreach ($data['parking_sensors'] as $index => $sensor): ?>
+            <div class="sensor-card proximity-sensor" data-sensor-type="proximity" data-place="<?= $sensor['place'] ?>">
+                <div class="sensor-header">
+                    <div class="sensor-title">
+                        <i class="fas fa-car"></i>
+                        <h3>Détecteur Place <?= htmlspecialchars($sensor['place']) ?></h3>
+                    </div>
+                    <div class="sensor-status status-active">
+                        <i class="fas fa-circle"></i> Actif
+                    </div>
+                </div>
+                <div class="sensor-body">
+                    <div class="sensor-value-display">
+                        <div class="current-value <?= $sensor['valeur'] ? 'presence-occupied' : 'presence-free' ?>">
+                            <span class="value" data-value="proximity-<?= $sensor['place'] ?>"><?= $sensor['valeur'] ? 'OCCUPÉE' : 'LIBRE' ?></span>
+                            <div class="parking-visual">
+                                <div class="car-icon <?= $sensor['valeur'] ? 'present' : 'absent' ?>">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sensor-info-grid">
+                        <div class="info-item">
+                            <span class="label">ID Capteur:</span>
+                            <span class="value">PROX_<?= htmlspecialchars($sensor['place']) ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Dernière lecture:</span>
+                            <span class="value" data-timestamp="proximity-<?= $sensor['place'] ?>"><?= date('H:i:s', strtotime($sensor['heure'])) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+             <div class="sensor-card proximity-sensor maintenance-sensor">
+                <div class="sensor-header">
+                    <div class="sensor-title">
+                        <i class="fas fa-car"></i>
+                        <h3>Détecteurs de Place</h3>
+                    </div>
+                    <div class="sensor-status status-maintenance">
+                        <i class="fas fa-circle"></i> Inactif
+                    </div>
+                </div>
+                <div class="sensor-body">
+                    <div class="sensor-value-display">
+                        <div class="current-value maintenance-mode">
+                            <span class="value">Pas de données</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <style>
-/* Correction des débordements et ajustements généraux */
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-.dashboard-container {
-    max-width: 100vw;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1rem;
-    overflow-x: hidden;
-}
-
-/* Header du dashboard */
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
-}
-
-.header-content h1 {
-    color: white;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    word-wrap: break-word;
-}
-
-.header-content h1 i {
-    color: #ffd700;
-    margin-right: 0.5rem;
-}
-
-.header-content p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-    margin: 0;
-    word-wrap: break-word;
-}
-
-/* Navigation secondaire */
-.dashboard-nav {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 15px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    gap: 1rem;
-}
-
-.nav-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.nav-tab {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-.nav-tab:hover, .nav-tab.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.user-info {
-    color: white;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-/* Grille des statistiques */
-.sensors-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.sensors-stats .stat-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    min-width: 0;
-}
-
-.sensors-stats .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-.stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: white;
-    flex-shrink: 0;
-}
-
-.active-sensors .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.inactive-sensors .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.temperature .stat-icon { background: linear-gradient(135deg, #3b82f6, #1e40af); }
-.data-rate .stat-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-
-.stat-info {
-    min-width: 0;
-    flex: 1;
-}
-
-.stat-info .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.25rem;
-    word-wrap: break-word;
-}
-
-.stat-info .stat-label {
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 500;
-    word-wrap: break-word;
-}
+/* Styles pour la page des capteurs */
+.dashboard-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.header-content h1 { color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+.header-content h1 i { color: #ffd700; margin-right: 1rem; }
+.header-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.1rem; margin: 0; }
+.refresh-controls { display: flex; align-items: center; gap: 1rem; }
+.last-update { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; }
+.dashboard-nav { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 15px; padding: 1rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255, 255, 255, 0.2); }
+.nav-tabs { display: flex; gap: 1rem; }
+.nav-tab { color: rgba(255, 255, 255, 0.8); text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 10px; transition: all 0.3s ease; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+.nav-tab:hover, .nav-tab.active { background: rgba(255, 255, 255, 0.2); color: white; transform: translateY(-2px); }
+.user-info { color: white; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+.btn { background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+.btn:hover { background: #2563eb; transform: translateY(-2px); }
+.btn-secondary { background: rgba(255, 255, 255, 0.2); }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.3); }
 
 /* Grille des capteurs */
-.sensors-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.sensor-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    min-width: 0;
-}
-
-.sensor-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-.temperature-sensor { border-left: 4px solid #3b82f6; }
-.presence-sensor { border-left: 4px solid #22c55e; }
-.maintenance-sensor { border-left: 4px solid #f59e0b; }
-
-.sensor-header {
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1));
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.sensor-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-    flex: 1;
-}
-
-.sensor-title i {
-    color: #3b82f6;
-    font-size: 1.125rem;
-    flex-shrink: 0;
-}
-
-.sensor-title h3 {
-    margin: 0;
-    color: #1e293b;
-    font-size: 1rem;
-    font-weight: 600;
-    word-wrap: break-word;
-    min-width: 0;
-}
-
-.sensor-status {
-    padding: 0.375rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.status-active {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-maintenance {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.sensor-body {
-    padding: 1rem;
-}
-
-.sensor-value-display {
-    text-align: center;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background: #f8fafc;
-    border-radius: 15px;
-}
-
-.current-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    word-wrap: break-word;
-}
-
-.current-value .value {
-    margin-right: 0.5rem;
-}
-
-.current-value .unit {
-    font-size: 1rem;
-    color: #64748b;
-}
-
-.presence-occupée .value { color: #ef4444; }
+.sensors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+.sensor-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; transition: all 0.3s ease; }
+.sensor-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
+.temperature-sensor { border-left: 4px solid #f59e0b; }
+.gas-sensor { border-left: 4px solid #8b5cf6; }
+.light-sensor { border-left: 4px solid #fbbf24; }
+.sound-sensor { border-left: 4px solid #06b6d4; }
+.proximity-sensor { border-left: 4px solid #22c55e; }
+.maintenance-sensor { border-left: 4px solid #64748b; opacity: 0.7; }
+.sensor-header { background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1)); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(59, 130, 246, 0.1); }
+.sensor-title { display: flex; align-items: center; gap: 0.75rem; }
+.sensor-title i { font-size: 1.25rem; }
+.temperature-sensor .sensor-title i { color: #f59e0b; }
+.gas-sensor .sensor-title i { color: #8b5cf6; }
+.light-sensor .sensor-title i { color: #fbbf24; }
+.sound-sensor .sensor-title i { color: #06b6d4; }
+.proximity-sensor .sensor-title i { color: #22c55e; }
+.sensor-title h3 { margin: 0; color: #1e293b; font-size: 1.125rem; font-weight: 600; }
+.sensor-status { padding: 0.5rem 1rem; border-radius: 25px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+.status-active { background: #dcfce7; color: #16a34a; }
+.status-maintenance { background: #f1f5f9; color: #64748b; }
+.sensor-body { padding: 1.5rem; }
+.sensor-value-display { text-align: center; margin-bottom: 1.5rem; position: relative; }
+.current-value { display: flex; align-items: baseline; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+.current-value .value { font-size: 2.5rem; font-weight: 700; color: #1e293b; }
+.current-value .unit { font-size: 1.25rem; color: #64748b; font-weight: 500; }
+.maintenance-mode .value { font-size: 1.25rem; color: #64748b; font-style: italic; }
+.value-indicator { width: 100%; height: 4px; border-radius: 2px; margin-top: 1rem; }
+.value-indicator.normal { background: #22c55e; }
+.value-indicator.medium { background: #f59e0b; }
+.value-indicator.high { background: #ef4444; }
+.value-indicator.low { background: #3b82f6; }
 .presence-free .value { color: #22c55e; }
-.maintenance-mode .value { color: #f59e0b; }
-
-.value-trend {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #64748b;
-    font-size: 0.875rem;
-    flex-wrap: wrap;
-}
-
-.trend-up { color: #ef4444; }
-
-.sensor-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem;
-    background: #f8fafc;
-    border-radius: 8px;
-    min-width: 0;
-}
-
-.info-item .label {
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-
-.info-item .value {
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 0.875rem;
-    word-wrap: break-word;
-}
-
-.sensor-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.btn-action {
-    flex: 1;
-    min-width: 100px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
-    padding: 0.75rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-action:hover {
-    background: #3b82f6;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-action.btn-warning {
-    background: #fef3c7;
-    border-color: #f59e0b;
-    color: #92400e;
-}
-
-.btn-action.btn-warning:hover {
-    background: #f59e0b;
-    color: white;
-}
-
-/* Actions globales */
-.global-actions {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.actions-header h3 {
-    color: #1e293b;
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.actions-header i {
-    color: #3b82f6;
-}
-
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
-.action-btn {
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    border: 1px solid #e2e8f0;
-    color: #64748b;
-    padding: 1rem;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    text-align: center;
-    min-width: 0;
-}
-
-.action-btn:hover {
-    background: linear-gradient(135deg, #3b82f6, #1e40af);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-}
-
-.action-btn i {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-}
-
-.action-btn span {
-    font-weight: 500;
-    font-size: 0.875rem;
-    word-wrap: break-word;
-}
+.presence-occupied .value { color: #ef4444; }
+.parking-visual { margin-top: 1rem; }
+.car-icon { font-size: 2rem; transition: all 0.3s ease; }
+.car-icon.present { color: #ef4444; }
+.car-icon.absent { color: #d1d5db; }
+.sensor-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.info-item { display: flex; flex-direction: column; gap: 0.25rem; }
+.info-item .label { font-size: 0.875rem; color: #64748b; font-weight: 500; }
+.info-item .value { font-size: 0.875rem; color: #1e293b; font-weight: 600; }
 
 /* Responsive */
-@media (max-width: 1200px) {
-    .sensors-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-}
-
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 0.5rem;
-    }
-    
-    .dashboard-nav {
-        flex-direction: column;
-        text-align: center;
-        padding: 0.75rem;
-    }
-    
-    .nav-tabs {
-        justify-content: center;
-    }
-    
-    .sensors-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .sensors-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .sensor-info-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .actions-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .sensor-actions {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .sensors-stats {
-        grid-template-columns: 1fr;
-    }
-    
-    .actions-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-info .stat-number {
-        font-size: 1.25rem;
-    }
-    
-    .current-value {
-        font-size: 1.5rem;
-    }
+    .dashboard-header { flex-direction: column; gap: 1rem; text-align: center; }
+    .dashboard-nav { flex-direction: column; gap: 1rem; text-align: center; }
+    .nav-tabs { flex-wrap: wrap; justify-content: center; }
+    .sensors-grid { grid-template-columns: 1fr; }
+    .sensor-info-grid { grid-template-columns: 1fr; }
 }
 </style>
 
 <script>
-function calibrateSensor(sensorId) {
-    alert('Calibrage du capteur ' + sensorId);
-}
-
-function viewHistory(sensorId) {
-    alert('Historique du capteur ' + sensorId);
-}
-
-function testSensor(sensorId) {
-    alert('Test du capteur ' + sensorId);
-}
-
-function resetSensor(sensorId) {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser le capteur ' + sensorId + ' ?')) {
-        alert('Capteur ' + sensorId + ' réinitialisé');
-    }
-}
-
-function replaceBattery(sensorId) {
-    alert('Remplacement de la batterie pour ' + sensorId);
-}
-
-function scheduleRepair(sensorId) {
-    alert('Planification de la réparation pour ' + sensorId);
-}
-
-function addNewSensor() {
-    alert('Ajout d\'un nouveau capteur');
-}
-
-function runDiagnostics() {
-    alert('Lancement du diagnostic complet...');
-}
-
-function exportData() {
-    alert('Export des données des capteurs');
-}
-
-function configureAlerts() {
-    alert('Configuration des alertes');
-}
-
-// Simulation de mise à jour des données en temps réel
-setInterval(() => {
-    // Mettre à jour l'heure de dernière lecture
-    const timeElements = document.querySelectorAll('.sensor-info-grid .info-item:nth-child(3) .value');
-    timeElements.forEach(element => {
-        if (element.textContent.includes(':')) {
-            element.textContent = new Date().toLocaleTimeString();
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshBtn = document.getElementById('refresh-sensors');
+    const lastUpdateSpan = document.getElementById('last-update');
+    
+    // Fonction pour actualiser les données des capteurs
+    async function refreshSensorsData() {
+        if (refreshBtn) {
+            const icon = refreshBtn.querySelector('i');
+            icon.classList.add('fa-spin');
+            refreshBtn.disabled = true;
         }
-    });
-}, 5000);
+        
+        try {
+            const response = await fetch('<?= BASE_URL ?>/iot-dashboard/get-sensors-data');
+            if (!response.ok) throw new Error('Erreur réseau');
+            
+            const result = await response.json();
+            if (result.success) {
+                updateSensorValues(result.data);
+                if (lastUpdateSpan) {
+                    lastUpdateSpan.textContent = new Date().toLocaleTimeString();
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de l\'actualisation:', error);
+        } finally {
+            if (refreshBtn) {
+                const icon = refreshBtn.querySelector('i');
+                icon.classList.remove('fa-spin');
+                refreshBtn.disabled = false;
+            }
+        }
+    }
+    
+    // Fonction pour mettre à jour les valeurs affichées
+    function updateSensorValues(data) {
+        // Température
+        if (data.temp_sensor) {
+            updateSensorValue('temperature', data.temp_sensor.valeur, '°C');
+            updateTimestamp('temperature', data.temp_sensor.heure);
+        }
+        
+        // Gaz
+        if (data.gas_sensor) {
+            updateSensorValue('gas', Math.round(data.gas_sensor.valeur), 'ppm');
+            updateTimestamp('gas', data.gas_sensor.heure);
+        }
+        
+        // Luminosité
+        if (data.light_sensor) {
+            updateSensorValue('light', Math.round(data.light_sensor.valeur), 'lux');
+            updateTimestamp('light', data.light_sensor.heure);
+        }
+        
+        // Son
+        if (data.sound_sensor) {
+            updateSensorValue('sound', data.sound_sensor.valeur.toFixed(1), 'dB');
+            updateTimestamp('sound', data.sound_sensor.heure);
+        }
+        
+        // Capteurs de proximité
+        if (data.parking_sensors) {
+            data.parking_sensors.forEach(sensor => {
+                const status = sensor.valeur ? 'OCCUPÉE' : 'LIBRE';
+                updateSensorValue(`proximity-${sensor.place}`, status);
+                updateTimestamp(`proximity-${sensor.place}`, sensor.heure);
+                
+                // Mettre à jour l'apparence visuelle
+                const card = document.querySelector(`[data-place="${sensor.place}"]`);
+                if (card) {
+                    const valueDiv = card.querySelector('.current-value');
+                    const carIcon = card.querySelector('.car-icon');
+                    
+                    if (sensor.valeur) {
+                        valueDiv.className = 'current-value presence-occupied';
+                        if (carIcon) carIcon.className = 'car-icon present';
+                    } else {
+                        valueDiv.className = 'current-value presence-free';
+                        if (carIcon) carIcon.className = 'car-icon absent';
+                    }
+                }
+            });
+        }
+    }
+    
+    function updateSensorValue(type, value, unit = '') {
+        const valueElement = document.querySelector(`[data-value="${type}"]`);
+        if (valueElement) {
+            valueElement.textContent = value;
+        }
+    }
+    
+    function updateTimestamp(type, timestamp) {
+        const timestampElement = document.querySelector(`[data-timestamp="${type}"]`);
+        if (timestampElement) {
+            const date = new Date(timestamp);
+            timestampElement.textContent = date.toLocaleTimeString();
+        }
+    }
+    
+    // Event listener pour le bouton d'actualisation
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', refreshSensorsData);
+    }
+    
+    // Actualisation automatique toutes les 30 secondes
+    setInterval(refreshSensorsData, 30000);
+});
 </script>
 
 <?php require_once ROOT_PATH . '/app/views/partials/footer.php'; ?>
-
