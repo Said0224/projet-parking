@@ -9,17 +9,31 @@ class Reservation {
     }
     
     public function createReservation($user_id, $spot_id, $start_time, $end_time) {
-        // Vérifier si la place est disponible
-        if (!$this->isSpotdisponible($spot_id, $start_time, $end_time)) {
-            return false;
-        }
-        
-        $query = "INSERT INTO reservations (user_id, spot_id, start_time, end_time, status, created_at, updated_at) 
-                  VALUES (?, ?, ?, ?, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute([$user_id, $spot_id, $start_time, $end_time]);
+    if (!$this->isSpotdisponible($spot_id, $start_time, $end_time)) {
+        return false;
     }
-    
+
+    $query = "INSERT INTO reservations (user_id, spot_id, start_time, end_time, status, created_at, updated_at) 
+              VALUES (?, ?, ?, ?, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+    $stmt = $this->db->prepare($query);
+
+    if ($stmt->execute([$user_id, $spot_id, $start_time, $end_time])) {
+        $notification = new Notification();
+
+        $contenu = "Réservation confirmée : Place #$spot_id, du $start_time au $end_time.";
+        $notification->createNotification($user_id, 'info', $contenu);
+
+        // Vérifie la préférence mail et envoie le reçu
+        if ($notification->getMailPreference($user_id)) {
+            $this->sendMailReceipt($user_id, $spot_id, $start_time, $end_time);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+  
     public function getUserReservations($user_id) {
         $query = "SELECT r.*, ps.spot_number, ps.price_per_hour, ps.has_charging_station 
                   FROM reservations r 
@@ -142,7 +156,58 @@ class Reservation {
         return $stmt->fetchColumn();
     }
     
-   
+    private function sendMailReceipt($user_id, $spot_id, $start_time, $end_time) {
+    require_once ROOT_PATH . '/app/models/User.php';
+    $userModel = new User();
+    $user = $userModel->findById($user_id);
+
+    if (!$user || !filter_var($user['email'], FILTER_VALIDATE_EMAIL)) return;
+
+    // Générer le PDF avec Dompdf
+    ob_start();
+    ?>
+    <h1>Reçu de Réservation</h1>
+    <p>Nom : <?= $user['prenom'] . ' ' . $user['nom'] ?></p>
+    <p>Place : <?= $spot_id ?></p>
+    <p>Début : <?= $start_time ?></p>
+    <p>Fin : <?= $end_time ?></p>
+    <p>Merci pour votre réservation sur Parking Intelligent.</p>
+    <?php
+    $html = ob_get_clean();
+
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    $pdfOutput = $dompdf->output();
+
+    // Envoi de mail avec pièce jointe
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'teteatete.innowave@gmail.com';
+        $mail->Password = 'srod bwtb rnhg xmgw';
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        $mail->setFrom('teteatete.innowave@gmail.com', 'Tête à Tête Parking');
+        $mail->addAddress($user['email'], $user['prenom'] . ' ' . $user['nom']);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Votre reçu de réservation - Parking Intelligent';
+        $mail->Body = "Veuillez trouver ci-joint votre reçu de réservation au format PDF.";
+        $mail->AltBody = "Voir le reçu en pièce jointe.";
+
+        $mail->addStringAttachment($pdfOutput, 'recu_reservation.pdf');
+
+        $mail->send();
+    } catch (\PHPMailer\PHPMailer\Exception $e) {
+        error_log("Erreur PHPMailer avec PDF : " . $mail->ErrorInfo);
+    }
+}
+
 
 }
 ?>

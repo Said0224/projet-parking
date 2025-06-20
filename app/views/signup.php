@@ -108,7 +108,6 @@
                 <label>
                     <input type="checkbox" id="cgu" name="cgu" required>
                     J'accepte les <a href="<?= BASE_URL ?>/conditions" target="_blank">Conditions Générales d'Utilisation</a> *
-                    <span style="color: white;">*</span>
                 </label>
             </div>
             <button type="submit" class="btn btn-primary btn-full">
