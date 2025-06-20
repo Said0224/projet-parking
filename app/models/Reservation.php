@@ -1,5 +1,17 @@
 <?php
 require_once ROOT_PATH . '/config/database.php';
+require_once ROOT_PATH . '/app/models/Notification.php';    
+require_once ROOT_PATH . '/vendor/autoload.php'; // Assurez-vous que l'autoloader de Composer est inclus
+
+// Inclusion de l'autoloader de Composer (très important !)
+require_once ROOT_PATH . '/vendor/autoload.php';
+
+require_once ROOT_PATH . '/app/models/Notification.php';
+require_once ROOT_PATH . '/app/models/User.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
 class Reservation {
     private $db;
@@ -207,6 +219,7 @@ class Reservation {
         error_log("Erreur PHPMailer avec PDF : " . $mail->ErrorInfo);
     }
 }
+
 
 
 }
