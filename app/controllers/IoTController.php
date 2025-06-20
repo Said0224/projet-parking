@@ -155,15 +155,47 @@ class IoTController {
         exit;
     }
 
+    public function getSensorDataAjax() {
+        header('Content-Type: application/json');
+        
+        $data = [
+            'temp' => $this->parkingSensorModel->getHistoricalReadings('capteurtemp', 20),
+            'gas' => $this->parkingSensorModel->getHistoricalReadings('capteurgaz', 20),
+            'light' => $this->parkingSensorModel->getHistoricalReadings('capteurlum', 20),
+            'sound' => $this->parkingSensorModel->getHistoricalReadings('capteurson', 20),
+            // Pour le graph, on prend l'historique de la place 1. C'est ici que ça se joue.
+            // Si la table est purgée et qu'on update juste id=1, l'historique sera limité.
+            // C'est la conséquence du choix de ne pas insérer.
+            'proximity' => $this->parkingSensorModel->getProximityHistoryForPlace(1, 20),
+        ];
+
+        // On va chercher la dernière valeur de chaque pour affichage
+        $data['latest'] = [
+            'temp' => $this->parkingSensorModel->getLatestTempReading(),
+            'gas' => $this->parkingSensorModel->getLatestGasReading(),
+            'light' => $this->parkingSensorModel->getLatestLightReading(),
+            'sound' => $this->parkingSensorModel->getLatestSoundReading(),
+            // On utilise la nouvelle fonction pour la valeur actuelle
+            'proximity' => $this->parkingSensorModel->getProximityReadingById(1),
+        ];
+        
+        echo json_encode(['success' => true, 'data' => $data]);
+        exit;
+    }
+
     public function capteurs() {
         $page_title = "Gestion des Capteurs IoT";
+
+        // Récupérer les données pour l'affichage initial de la page
         $data = [
-            'parking_sensors' => $this->parkingSensorModel->getLatestParkingStatus(),
-            'temp_sensor'     => $this->parkingSensorModel->getLatestTempReading(),
-            'gas_sensor'      => $this->parkingSensorModel->getLatestGasReading(),
-            'light_sensor'    => $this->parkingSensorModel->getLatestLightReading(),
-            'sound_sensor'    => $this->parkingSensorModel->getLatestSoundReading(),
+            'temp'      => ['latest' => $this->parkingSensorModel->getLatestTempReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurtemp', 20)],
+            'gas'       => ['latest' => $this->parkingSensorModel->getLatestGasReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurgaz', 20)],
+            'light'     => ['latest' => $this->parkingSensorModel->getLatestLightReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurlum', 20)],
+            'sound'     => ['latest' => $this->parkingSensorModel->getLatestSoundReading(), 'history' => $this->parkingSensorModel->getHistoricalReadings('capteurson', 20)],
+            // On utilise la nouvelle fonction ici aussi pour l'affichage initial
+            'proximity' => ['latest' => $this->parkingSensorModel->getProximityReadingById(1), 'history' => $this->parkingSensorModel->getProximityHistoryForPlace(1, 20)]
         ];
+        
         require_once ROOT_PATH . '/app/views/admin/iot-capteurs.php';
     }
 

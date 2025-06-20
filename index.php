@@ -270,6 +270,11 @@ try {
             $controller = new UserController();
             $controller->getAllSpotsStatus();
             break;
+        case '/api/iot/sensor-data':
+            require_once ROOT_PATH . '/app/controllers/IoTController.php';
+            $controller = new IoTController();
+            $controller->getSensorDataAjax();
+            break;
             
         default:
             http_response_code(404);
