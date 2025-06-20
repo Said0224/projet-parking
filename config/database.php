@@ -3,9 +3,15 @@
 class DatabaseManager {
     /**
      * @var array Holds the configuration for all database connections.
+     * 'dsn'      => 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
+            'username' => 'kCrBSMvT17_projet_par',
+            'password' => 'JVQ6LotVLJAHjH5r',
+            'options'  => [
+     * 'mysql:host=localhost;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
      */
     private static $config = [
         'local' => [
+
             'dsn'      => 'mysql:host=127.0.0.1;dbname=parking_db;charset=utf8mb4',
             'username' => 'root',
             'password' => '',
@@ -25,6 +31,7 @@ class DatabaseManager {
             'dsn'      => 'mysql:host=herogu.garageisep.com;dbname=IxMd95C0YL_projet_par;charset=utf8mb4',
             'username' => 'kCrBSMvT17_projet_par',
             'password' => 'JVQ6LotVLJAHjH5r',
+>>>>>>> 83a4fd9a904848bd49d76bef468f9f605b7c048d
             'options'  => [
                 PDO::ATTR_PERSISTENT => false,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

@@ -978,3 +978,8 @@ header {
 .form-switch .form-check-input:checked + .form-check-label:before {
     transform: translateX(28px);
 }
+
+
+body.modal-open {
+    overflow: hidden;
+}

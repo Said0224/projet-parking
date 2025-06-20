@@ -87,11 +87,11 @@
     </div>
 </div>
 
-<!-- MODALE DE CONFIRMATION DE SUPPRESSION -->
+<!-- ======================== DÉBUT DE LA MODALE MODIFIÉE ======================== -->
 <div id="delete-account-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h2><i class="fas fa-exclamation-triangle"></i> Confirmation requise</h2>
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirmation requise</h3>
             <button class="close-modal-btn">×</button>
         </div>
         <div class="modal-body">
@@ -108,6 +108,7 @@
         </div>
     </div>
 </div>
+<!-- ======================== FIN DE LA MODALE MODIFIÉE ======================== -->
 
 
 <style>
@@ -137,7 +138,7 @@
         color: #495057; margin-bottom: 1.5rem; line-height: 1.7;
     }
 
-    /* Styles pour la modale */
+    /* ===== STYLES MODIFIÉS ET UNIFIÉS POUR LA MODALE ===== */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0, 0, 0, 0.6);
@@ -147,7 +148,9 @@
         opacity: 0;
         transition: opacity 0.3s ease-in-out;
     }
-    .modal-overlay.show { display: flex; opacity: 1; }
+    .modal-overlay.show {
+        display: flex; opacity: 1;
+    }
     .modal-content {
         background: white; border-radius: 20px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -155,16 +158,41 @@
         overflow: hidden;
         transform: translateY(20px);
         transition: transform 0.3s ease-in-out;
+        animation: fadeIn 0.3s;
     }
-    .modal-overlay.show .modal-content { transform: translateY(0); }
+    @keyframes fadeIn {
+        from {transform: scale(0.9); opacity: 0;}
+        to {transform: scale(1); opacity: 1;}
+    }
+    .modal-overlay.show .modal-content {
+        transform: translateY(0);
+    }
     .modal-header {
-        padding: 1.5rem; background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
-        color: white; display: flex; justify-content: space-between; align-items: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%); /* Garde la couleur de danger */
+        color: white;
+        display: flex; justify-content: space-between; align-items: center;
     }
-    .modal-header h2 { margin: 0; font-size: 1.5rem; }
+    .modal-header h3 { /* Unifié en H3 */
+        margin: 0; font-size: 1.5rem; 
+    }
     .close-modal-btn {
         background: none; border: none; font-size: 2rem; color: white; cursor: pointer; opacity: 0.8;
-        line-height: 1; 
+        line-height: 1; display: inline-flex
+;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
     }
     .close-modal-btn:hover { opacity: 1; }
     .modal-body { padding: 2rem; }

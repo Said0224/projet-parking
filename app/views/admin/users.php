@@ -17,7 +17,6 @@
             <h3><i class="fas fa-user-plus"></i> Créer un nouvel utilisateur</h3>
         </div>
         <div class="card-body">
-            <!-- Ajout d'un ID au formulaire pour le cibler en JS -->
             <form action="<?= BASE_URL ?>/admin/create-user" method="POST" id="create-user-form">
                 <div class="form-row">
                     <div class="form-group">
@@ -40,10 +39,15 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="is_admin" id="isAdminCheck">
-                        <label class="form-check-label" for="isAdminCheck">Promouvoir en tant qu'administrateur</label>
+                    <!-- ===== DÉBUT DE LA CORRECTION HTML ===== -->
+                    <div class="create-user-switch-container">
+                        <div class="form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_admin" id="isAdminCheck">
+                            <label class="form-check-label" for="isAdminCheck"></label>
+                        </div>
+                        <span id="create-user-role-text">Promouvoir en tant qu'administrateur</span>
                     </div>
+                    <!-- ===== FIN DE LA CORRECTION HTML ===== -->
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-plus-circle"></i> Ajouter l'utilisateur
@@ -95,57 +99,50 @@
 </div>
 
 <style>
-/* ===== DÉBUT DES NOUVEAUX STYLES ===== */
-
-/* En-tête de carte flexible (Titre à gauche, bouton à droite) */
+/* En-tête de carte flexible */
 .card-header-flex { display: flex; justify-content: space-between; align-items: center; }
 
-/* Nouveau style pour le switch "iPhone" */
+/* Style pour le switch */
 .form-switch {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-}
-.form-switch .form-check-input {
-    display: none; /* On cache la checkbox par défaut */
-}
-.form-switch .form-check-label {
-    margin-left: 0;
     position: relative;
-    padding-left: 60px; /* Espace pour le switch */
-    line-height: 30px; /* Hauteur du switch */
-    color: #495057;
-    font-weight: 500;
-}
-.form-switch .form-check-label::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
+    display: inline-block;
     width: 50px;
     height: 30px;
-    border-radius: 15px;
+}
+.form-switch .form-check-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.form-switch .form-check-label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-color: #e9ecef;
     border: 1px solid #ced4da;
-    transition: background-color 0.3s ease;
+    transition: .4s;
+    border-radius: 15px;
 }
-.form-switch .form-check-label::after {
-    content: '';
+.form-switch .form-check-label:before {
     position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 22px;
+    content: "";
     height: 22px;
-    border-radius: 50%;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
     background-color: white;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
+    transition: .4s;
+    border-radius: 50%;
 }
-.form-switch .form-check-input:checked + .form-check-label::before {
-    background-color: #1e40af; /* Couleur principale du site */
+.form-switch .form-check-input:checked + .form-check-label {
+    background-color: #1e40af;
     border-color: #1e40af;
 }
-.form-switch .form-check-input:checked + .form-check-label::after {
+.form-switch .form-check-input:checked + .form-check-label:before {
     transform: translateX(20px);
 }
 .form-switch .form-check-input:disabled + .form-check-label {
@@ -153,26 +150,32 @@
     cursor: not-allowed;
 }
 
-/* Nouveau style pour le bouton supprimer iconique */
+/* ===== DÉBUT DE LA CORRECTION CSS ===== */
+/* Conteneurs pour les interrupteurs */
+.role-switch-container, .create-user-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espace entre l'interrupteur et le texte */
+}
+/* Style pour le texte à côté de l'interrupteur */
+.role-text, #create-user-role-text {
+    font-weight: 500;
+    color: #495057;
+}
+/* ===== FIN DE LA CORRECTION CSS ===== */
+
 .actions-cell { text-align: right; }
 .btn-icon {
     width: 36px; height: 36px; padding: 0; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
 }
-.btn-icon i { font-size: 0.9rem; margin: 0; }
-
-/* Animation pour la suppression de ligne */
 tr.fading-out {
     opacity: 0;
     transform: translateX(50px);
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
-
-/* ===== FIN DES NOUVEAUX STYLES ===== */
-
 .create-user-card, .user-list-card { margin-top: 2rem; }
 .create-user-form .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-.card-header-flex { display: flex; justify-content: space-between; align-items: center; }
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
 .modal-overlay.show { display: flex; opacity: 1; }
 .modal-content { background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 500px; overflow: hidden; transform: translateY(-20px); transition: transform 0.3s ease; }
@@ -216,6 +219,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.target == modal) modal.classList.remove('show');
     };
 
+    // --- Gestion de l'interrupteur du formulaire de création ---
+    const createUserSwitch = document.getElementById('isAdminCheck');
+    const createUserRoleText = document.getElementById('create-user-role-text');
+
+    if (createUserSwitch && createUserRoleText) {
+        createUserSwitch.addEventListener('change', function() {
+            createUserRoleText.textContent = this.checked 
+                ? "Promouvoir en tant qu'administrateur" 
+                : "Promouvoir en tant qu'administrateur";
+        });
+    }
+    
     // --- Fonction principale pour charger les utilisateurs ---
     async function fetchUsers(page = 1) {
         tableContainer.style.opacity = '0.5';
@@ -230,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`<?= BASE_URL ?>/admin/api/users?${params.toString()}`);
             if (!response.ok) throw new Error('Erreur réseau');
             tableContainer.innerHTML = await response.text();
-            initActionListeners(); // Ré-attacher les listeners après chaque rechargement
+            initActionListeners(); 
         } catch (error) {
             tableContainer.innerHTML = `<p class="no-results-card">Erreur: ${error.message}</p>`;
         } finally {
@@ -249,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Suppression d'utilisateur
-        tableContainer.querySelectorAll('.actions-cell form').forEach(form => {
+        tableContainer.querySelectorAll('.delete-user-form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
@@ -275,11 +290,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(res => res.json())
                     .then(data => {
                         showNotification(data.message, data.success ? 'success' : 'danger');
-                        // Optionnel: rafraîchir la liste si les filtres sont actifs
-                        // fetchUsers(); 
+                        if (data.success) {
+                            const roleTextSpan = this.closest('.role-switch-container').querySelector('.role-text');
+                            if (roleTextSpan) {
+                                roleTextSpan.textContent = this.checked ? 'Admin' : 'Utilisateur';
+                            }
+                        } else {
+                            this.checked = !this.checked;
+                        }
                     }).catch(err => {
                         showNotification('Erreur de connexion.', 'danger');
-                        this.checked = !this.checked; // Annuler le changement visuel en cas d'erreur
+                        this.checked = !this.checked;
                     });
             });
         });
@@ -295,10 +316,9 @@ document.addEventListener('DOMContentLoaded', function() {
     createUserForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
-        const originalButtonHTML = submitButton.innerHTML; // <--- On garde le contenu original
+        const originalButtonHTML = submitButton.innerHTML;
 
         submitButton.disabled = true;
-        // --- NOUVEAU : On affiche le spinner ---
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
 
         fetch(this.action, { method: 'POST', body: new FormData(this) })
@@ -306,22 +326,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 showNotification(data.message, data.success ? 'success' : 'danger');
                 if (data.success) {
-                    this.reset(); // Vider le formulaire de création
-                    fetchUsers(1); // Recharger la table pour voir le nouvel utilisateur
+                    this.reset();
+                    if(createUserRoleText) createUserRoleText.textContent = "Promouvoir en tant qu'administrateur";
+                    fetchUsers(1);
                 }
             }).catch(err => showNotification('Erreur de connexion.', 'danger'))
             .finally(() => {
-                // --- NOUVEAU : On restaure le bouton dans tous les cas ---
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonHTML;
             });
     });
     
-    // Premier chargement des listeners
     initActionListeners();
 });
 
-// Fonction de notification (générique)
 function showNotification(message, type = 'success') {
     const container = document.getElementById('ajax-notification');
     const notification = document.createElement('div');

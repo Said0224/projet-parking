@@ -109,6 +109,15 @@
             declineBtn.addEventListener('click', () => handleConsent('declined'));
         }
     });
+
+     
+    function lockBodyScroll() {
+        document.body.classList.add('modal-open');
+    }
+
+    function unlockBodyScroll() {
+        document.body.classList.remove('modal-open');
+    }
     </script>
 </body>
 </html>
